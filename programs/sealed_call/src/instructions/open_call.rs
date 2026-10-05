@@ -33,6 +33,7 @@ pub fn open_call_handler(
     reveal_window_secs: i64,
     caller_lock_secs: i64,
     max_vault_lamports: u64,
+    max_impact_bps: u16,
     caller_stake_lamports: u64,
 ) -> Result<()> {
     let cfg = &ctx.accounts.config;
@@ -43,6 +44,7 @@ pub fn open_call_handler(
     );
     require!(caller_lock_secs >= cfg.min_caller_lock_secs, SealedError::InvalidCallerLock);
     require!(max_vault_lamports <= cfg.max_call_lamports, SealedError::VaultCapTooHigh);
+    require!(max_impact_bps > 0 && max_impact_bps <= cfg.max_price_impact_bps, SealedError::InvalidImpact);
     let min_stake = bps_of(max_vault_lamports, cfg.min_caller_stake_bps).ok_or(SealedError::Overflow)?;
     require!(caller_stake_lamports > 0, SealedError::ZeroAmount);
     require!(caller_stake_lamports >= min_stake, SealedError::StakeTooLow);
@@ -59,6 +61,7 @@ pub fn open_call_handler(
     call.reveal_deadline = deadline;
     call.caller_lock_secs = caller_lock_secs;
     call.max_vault_lamports = max_vault_lamports;
+    call.max_impact_bps = max_impact_bps;
     call.caller_stake_lamports = caller_stake_lamports;
     call.follower_lamports = 0;
     call.follower_count = 0;
@@ -95,6 +98,7 @@ pub fn open_call_handler(
         reveal_deadline: deadline,
         caller_lock_secs,
         max_vault_lamports,
+        max_impact_bps,
         caller_stake_lamports,
     });
     Ok(())

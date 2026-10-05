@@ -50,6 +50,10 @@ pub enum SealedError {
     NothingToSwap,
     #[msg("swap returned fewer tokens than minimum_amount_out")]
     SlippageExceeded,
+    #[msg("max_impact_bps must be above zero and within the config ceiling")]
+    InvalidImpact,
+    #[msg("fill is worse than the pool spot price allows for this call")]
+    PriceImpactExceeded,
     #[msg("caller lock period has not elapsed")]
     CallerLockActive,
     #[msg("already claimed")]

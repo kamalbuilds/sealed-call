@@ -14,6 +14,7 @@ pub struct ConfigParams {
     pub min_caller_stake_bps: u16,
     pub min_caller_lock_secs: i64,
     pub max_reveal_window_secs: i64,
+    pub max_price_impact_bps: u16,
 }
 
 impl ConfigParams {
@@ -24,6 +25,7 @@ impl ConfigParams {
         require!(self.max_call_lamports > 0 && self.max_deposit_lamports > 0, SealedError::InvalidConfig);
         require!(self.min_caller_lock_secs >= 0 && self.max_reveal_window_secs > 0, SealedError::InvalidConfig);
         require!(self.treasury != Pubkey::default(), SealedError::InvalidConfig);
+        require!(self.max_price_impact_bps > 0 && self.max_price_impact_bps < 10_000, SealedError::InvalidConfig);
         Ok(())
     }
 
@@ -36,6 +38,7 @@ impl ConfigParams {
         c.min_caller_stake_bps = self.min_caller_stake_bps;
         c.min_caller_lock_secs = self.min_caller_lock_secs;
         c.max_reveal_window_secs = self.max_reveal_window_secs;
+        c.max_price_impact_bps = self.max_price_impact_bps;
     }
 
     fn event(&self) -> ConfigUpdated {
@@ -48,6 +51,7 @@ impl ConfigParams {
             min_caller_stake_bps: self.min_caller_stake_bps,
             min_caller_lock_secs: self.min_caller_lock_secs,
             max_reveal_window_secs: self.max_reveal_window_secs,
+            max_price_impact_bps: self.max_price_impact_bps,
         }
     }
 }

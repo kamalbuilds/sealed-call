@@ -8,7 +8,7 @@ use super::withdraw::pay_from_vault;
 use crate::damm::{self, SwapAccounts, DAMM_V2, EVENT_AUTHORITY, POOL_AUTHORITY};
 use crate::errors::SealedError;
 use crate::events::Revealed;
-use crate::math::split_fee;
+use crate::math::{split_fee, within_impact};
 use crate::state::{Call, CallState, Config, CALL_SEED, CONFIG_SEED, VAULT_SEED};
 
 #[derive(Accounts)]
@@ -165,6 +165,11 @@ pub fn reveal_and_swap_handler(
     a.vault_out.reload()?;
     let tokens_out = a.vault_out.amount.checked_sub(out_before).ok_or(SealedError::Overflow)?;
     require!(tokens_out >= minimum_amount_out, SealedError::SlippageExceeded);
+    // the caller picks minimum_amount_out; the bound followers saw at deposit time is enforced here
+    require!(
+        within_impact(split.lamports_in, tokens_out, pool.sqrt_price, wsol_is_a, a.call.max_impact_bps),
+        SealedError::PriceImpactExceeded
+    );
 
     // 5. unwrap: close the wSOL account into the vault, then return the rent reserve and the wSOL
     //    account rent to the caller who funded both. The vault ends at zero lamports.

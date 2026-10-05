@@ -34,6 +34,7 @@ pub mod sealed_call {
         reveal_window_secs: i64,
         caller_lock_secs: i64,
         max_vault_lamports: u64,
+        max_impact_bps: u16,
         caller_stake_lamports: u64,
     ) -> Result<()> {
         open_call_handler(
@@ -43,6 +44,7 @@ pub mod sealed_call {
             reveal_window_secs,
             caller_lock_secs,
             max_vault_lamports,
+            max_impact_bps,
             caller_stake_lamports,
         )
     }

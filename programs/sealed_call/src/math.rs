@@ -36,6 +36,19 @@ pub fn split_fee(total: u64, fee_bps: u16, caller_share_bps: u16) -> Option<FeeS
     })
 }
 
+/// True when `tokens_out` is no worse than the pool's pre-swap spot price allows, minus `max_impact_bps`.
+/// Fees, curve slippage and a thin or fee-scheduled pool all count as impact.
+// ponytail: f64 for a bps tolerance bound only (relative error ~1e-15); token accounting stays integer.
+pub fn within_impact(amount_in: u64, tokens_out: u64, sqrt_price: u128, wsol_is_a: bool, max_impact_bps: u16) -> bool {
+    if sqrt_price == 0 || max_impact_bps as u128 > BPS {
+        return false;
+    }
+    let s = sqrt_price as f64 / 18_446_744_073_709_551_616.0;
+    let price = s * s; // token_b per token_a
+    let spot_out = if wsol_is_a { amount_in as f64 * price } else { amount_in as f64 / price };
+    tokens_out as f64 * BPS as f64 >= spot_out * (BPS as f64 - max_impact_bps as f64)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -52,6 +65,22 @@ mod tests {
         assert_eq!(pro_rata(10, 1, 0), None);
         assert_eq!(pro_rata(u64::MAX, 2, 1), None);
         assert_eq!(pro_rata(u64::MAX, u64::MAX, u64::MAX), Some(u64::MAX));
+    }
+
+    #[test]
+    fn impact_bound_both_directions() {
+        // price 4 token_b per token_a: sqrt = 2 in Q64.64
+        let sqrt = 2u128 << 64;
+        // wSOL is A: 1_000 in at spot buys 4_000; 10% impact floor is 3_600
+        assert!(within_impact(1_000, 4_000, sqrt, true, 1_000));
+        assert!(within_impact(1_000, 3_600, sqrt, true, 1_000));
+        assert!(!within_impact(1_000, 3_599, sqrt, true, 1_000));
+        // wSOL is B: 1_000 in at spot buys 250; floor 225
+        assert!(within_impact(1_000, 225, sqrt, false, 1_000));
+        assert!(!within_impact(1_000, 224, sqrt, false, 1_000));
+        // zero price and out-of-range bps refuse
+        assert!(!within_impact(1_000, 4_000, 0, true, 1_000));
+        assert!(!within_impact(1_000, 4_000, sqrt, true, 10_001));
     }
 
     // contributions: index 0 is the caller stake, the rest are followers

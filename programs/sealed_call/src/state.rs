@@ -18,6 +18,8 @@ pub struct Config {
     pub min_caller_stake_bps: u16,
     pub min_caller_lock_secs: i64,
     pub max_reveal_window_secs: i64,
+    /// ceiling for a call's max_impact_bps
+    pub max_price_impact_bps: u16,
     pub paused: bool,
     pub bump: u8,
 }
@@ -39,6 +41,8 @@ pub struct Call {
     pub reveal_deadline: i64,
     pub caller_lock_secs: i64,
     pub max_vault_lamports: u64,
+    /// worst fill vs the pool spot price at reveal, fixed at open so followers see it before depositing
+    pub max_impact_bps: u16,
     pub caller_stake_lamports: u64,
     pub follower_lamports: u64,
     pub follower_count: u32,

@@ -19,12 +19,15 @@ const TOKEN_A_MINT: usize = 168;
 const TOKEN_B_MINT: usize = 200;
 const TOKEN_A_VAULT: usize = 232;
 const TOKEN_B_VAULT: usize = 264;
+const SQRT_PRICE: usize = 456;
 
 pub struct PoolView {
     pub token_a_mint: Pubkey,
     pub token_b_mint: Pubkey,
     pub token_a_vault: Pubkey,
     pub token_b_vault: Pubkey,
+    /// Q64.64 sqrt of the spot price, token_b per token_a in raw units
+    pub sqrt_price: u128,
 }
 
 fn key_at(data: &[u8], off: usize) -> Result<Pubkey> {
@@ -43,6 +46,7 @@ pub fn read_pool(data: &[u8]) -> Result<PoolView> {
         token_b_mint: key_at(data, TOKEN_B_MINT)?,
         token_a_vault: key_at(data, TOKEN_A_VAULT)?,
         token_b_vault: key_at(data, TOKEN_B_VAULT)?,
+        sqrt_price: u128::from_le_bytes(data[SQRT_PRICE..SQRT_PRICE + 16].try_into().unwrap()),
     })
 }
 
@@ -136,6 +140,7 @@ mod tests {
         let p = read_pool(&d).unwrap();
         assert_eq!(p.token_a_mint, Pubkey::new_from_array([7u8; 32]));
         assert_eq!(p.token_b_vault, Pubkey::new_from_array([9u8; 32]));
+        assert_eq!(p.sqrt_price, 0);
         assert!(read_pool(&d[..POOL_LEN - 1]).is_err());
     }
 }
