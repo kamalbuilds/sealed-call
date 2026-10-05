@@ -48,6 +48,9 @@ export type ConfigParams = {
   minCallerLockSecs: BN;
   maxRevealWindowSecs: BN;
   maxPriceImpactBps: number;
+  minLockedLiquidityBps: number;
+  maxSwapReserveBps: number;
+  minDepositLamports: BN;
 };
 
 export function makeProgram(connection: Connection, wallet?: Wallet): SealedProgram {
@@ -79,13 +82,14 @@ export const positionPda = (call: PublicKey, follower: PublicKey): PublicKey =>
 export const programDataPda = (): PublicKey =>
   PublicKey.findProgramAddressSync([PROGRAM_ID.toBuffer()], new PublicKey("BPFLoaderUpgradeab1e11111111111111111111111"))[0];
 
-/** sha256(mint || pool || salt), identical to `commitment` in programs/sealed_call/src/instructions/reveal.rs */
-export function commitment(mint: PublicKey, pool: PublicKey, salt: Uint8Array): Uint8Array {
+/** sha256(call || mint || pool || salt), identical to `commitment` in programs/sealed_call/src/instructions/reveal.rs */
+export function commitment(call: PublicKey, mint: PublicKey, pool: PublicKey, salt: Uint8Array): Uint8Array {
   if (salt.length !== 32) throw new Error("salt must be 32 bytes");
-  const buf = new Uint8Array(96);
-  buf.set(mint.toBytes(), 0);
-  buf.set(pool.toBytes(), 32);
-  buf.set(salt, 64);
+  const buf = new Uint8Array(128);
+  buf.set(call.toBytes(), 0);
+  buf.set(mint.toBytes(), 32);
+  buf.set(pool.toBytes(), 64);
+  buf.set(salt, 96);
   return sha256(buf);
 }
 

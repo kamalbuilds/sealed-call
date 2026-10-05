@@ -9,12 +9,19 @@ import {
   getBaseFeeParams,
 } from "@meteora-ag/cp-amm-sdk";
 import {
+  AuthorityType,
+  ExtensionType,
   NATIVE_MINT,
+  TOKEN_2022_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
+  createInitializeMintInstruction,
+  createInitializeTransferFeeConfigInstruction,
   createMint,
   getAccount,
+  getMintLen,
   getOrCreateAssociatedTokenAccount,
   mintTo,
+  setAuthority,
 } from "@solana/spl-token";
 import {
   ComputeBudgetProgram,
@@ -23,6 +30,7 @@ import {
   LAMPORTS_PER_SOL,
   PublicKey,
   SendTransactionError,
+  SystemProgram,
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
@@ -133,21 +141,52 @@ export function grindMint(below: boolean): Keypair {
   }
 }
 
-export async function makeMeme(payer: Keypair, below: boolean, supply: bigint): Promise<PublicKey> {
-  const kp = grindMint(below);
-  const mint = await createMint(connection, payer, payer.publicKey, null, 6, kp, { commitment: "confirmed" }, TOKEN_PROGRAM_ID);
-  const ata = await getOrCreateAssociatedTokenAccount(connection, payer, mint, payer.publicKey, false, "confirmed");
-  await mintTo(connection, payer, mint, ata.address, payer, supply, [], { commitment: "confirmed" });
-  return mint;
+export type MemeOpts = {
+  below: boolean;
+  supply: bigint;
+  /** leave the mint authority with the payer (default: revoked after the initial mint) */
+  mintAuthorityLive?: boolean;
+  freezeAuthority?: PublicKey;
+  /** Token-2022 mint with a TransferFeeConfig extension */
+  transferFeeBps?: number;
+};
+
+/** A fresh mint whose pubkey sorts below or above wSOL, minted once to the payer; authorities are revoked unless asked otherwise. */
+export async function makeMeme(payer: Keypair, o: MemeOpts): Promise<{ mint: PublicKey; program: PublicKey }> {
+  const kp = grindMint(o.below);
+  const mint = kp.publicKey;
+  const program = o.transferFeeBps === undefined ? TOKEN_PROGRAM_ID : TOKEN_2022_PROGRAM_ID;
+  if (o.transferFeeBps === undefined) {
+    await createMint(connection, payer, payer.publicKey, o.freezeAuthority ?? null, 6, kp, { commitment: "confirmed" }, program);
+  } else {
+    const len = getMintLen([ExtensionType.TransferFeeConfig]);
+    const rent = await connection.getMinimumBalanceForRentExemption(len);
+    await send(
+      [
+        SystemProgram.createAccount({ fromPubkey: payer.publicKey, newAccountPubkey: mint, space: len, lamports: rent, programId: program }),
+        createInitializeTransferFeeConfigInstruction(mint, payer.publicKey, payer.publicKey, o.transferFeeBps, 1_000_000_000n, program),
+        createInitializeMintInstruction(mint, 6, payer.publicKey, o.freezeAuthority ?? null, program),
+      ],
+      [payer, kp],
+    );
+  }
+  const ata = await getOrCreateAssociatedTokenAccount(connection, payer, mint, payer.publicKey, false, "confirmed", { commitment: "confirmed" }, program);
+  await mintTo(connection, payer, mint, ata.address, payer, o.supply, [], { commitment: "confirmed" }, program);
+  if (!o.mintAuthorityLive) {
+    await setAuthority(connection, payer, mint, payer, AuthorityType.MintTokens, null, [], { commitment: "confirmed" }, program);
+  }
+  return { mint, program };
 }
 
-/** Real DAMM v2 customizable pool, full price range, 25 bps flat fee. Returns the decoded pool. */
+/** Real DAMM v2 customizable pool, full price range, 25 bps flat fee, initial liquidity permanently locked unless `lockLiquidity` is false. Returns the decoded pool. */
 export async function createPool(
   payer: Keypair,
   mint: PublicKey,
   solLiquidity: bigint,
   tokenLiquidity: bigint,
+  opts: { lockLiquidity?: boolean; mintProgram?: PublicKey } = {},
 ): Promise<PoolInfo> {
+  const mintProgram = opts.mintProgram ?? TOKEN_PROGRAM_ID;
   const cpAmm = new CpAmm(connection);
   const wsolIsA = Buffer.compare(NATIVE_MINT.toBuffer(), mint.toBuffer()) < 0;
   const tokenAMint = wsolIsA ? NATIVE_MINT : mint;
@@ -187,8 +226,9 @@ export async function createPool(
     activationType: 1,
     collectFeeMode: CollectFeeMode.BothToken,
     activationPoint: null,
-    tokenAProgram: TOKEN_PROGRAM_ID,
-    tokenBProgram: TOKEN_PROGRAM_ID,
+    tokenAProgram: wsolIsA ? TOKEN_PROGRAM_ID : mintProgram,
+    tokenBProgram: wsolIsA ? mintProgram : TOKEN_PROGRAM_ID,
+    isLockLiquidity: opts.lockLiquidity ?? true,
   });
   await send(
     [ComputeBudgetProgram.setComputeUnitLimit({ units: 600_000 }), ...tx.instructions],

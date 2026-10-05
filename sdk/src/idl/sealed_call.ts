@@ -1939,26 +1939,61 @@ export type SealedCall = {
     },
     {
       "code": 6026,
+      "name": "poolNotSeasoned",
+      "msg": "pool is disabled or was not live before the call opened"
+    },
+    {
+      "code": 6027,
+      "name": "poolLiquidityUnlocked",
+      "msg": "pool has too little permanently locked liquidity"
+    },
+    {
+      "code": 6028,
+      "name": "poolTooThin",
+      "msg": "swap is too large for the pool's wSOL reserve"
+    },
+    {
+      "code": 6029,
+      "name": "mintAuthorityLive",
+      "msg": "mint has a live mint or freeze authority"
+    },
+    {
+      "code": 6030,
+      "name": "unsafeMintExtension",
+      "msg": "mint carries a token extension that can tax, freeze, hook or seize transfers"
+    },
+    {
+      "code": 6031,
+      "name": "swapPartialFill",
+      "msg": "swap left wSOL unspent"
+    },
+    {
+      "code": 6032,
+      "name": "depositTooSmall",
+      "msg": "deposit is below the minimum"
+    },
+    {
+      "code": 6033,
       "name": "callerLockActive",
       "msg": "caller lock period has not elapsed"
     },
     {
-      "code": 6027,
+      "code": 6034,
       "name": "alreadyClaimed",
       "msg": "already claimed"
     },
     {
-      "code": 6028,
+      "code": 6035,
       "name": "followersRemain",
       "msg": "follower positions remain"
     },
     {
-      "code": 6029,
+      "code": 6036,
       "name": "nothingToSweep",
       "msg": "nothing to sweep"
     },
     {
-      "code": 6030,
+      "code": 6037,
       "name": "overflow",
       "msg": "arithmetic overflow"
     }
@@ -1991,6 +2026,10 @@ export type SealedCall = {
             "type": "i64"
           },
           {
+            "name": "openedSlot",
+            "type": "u64"
+          },
+          {
             "name": "revealDeadline",
             "type": "i64"
           },
@@ -2007,6 +2046,17 @@ export type SealedCall = {
             "docs": [
               "worst fill vs the pool spot price at reveal, fixed at open so followers see it before depositing"
             ],
+            "type": "u16"
+          },
+          {
+            "name": "feeBps",
+            "docs": [
+              "fee terms fixed at open: a later set_config never reprices a funded call"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "callerFeeShareBps",
             "type": "u16"
           },
           {
@@ -2135,6 +2185,14 @@ export type SealedCall = {
             "type": "u16"
           },
           {
+            "name": "feeBps",
+            "type": "u16"
+          },
+          {
+            "name": "callerFeeShareBps",
+            "type": "u16"
+          },
+          {
             "name": "callerStakeLamports",
             "type": "u64"
           }
@@ -2251,6 +2309,24 @@ export type SealedCall = {
             "type": "u16"
           },
           {
+            "name": "minLockedLiquidityBps",
+            "docs": [
+              "pool must hold at least this share of its liquidity permanently locked"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "maxSwapReserveBps",
+            "docs": [
+              "the swap may use at most this share of the pool's wSOL reserve"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "minDepositLamports",
+            "type": "u64"
+          },
+          {
             "name": "paused",
             "type": "bool"
           },
@@ -2317,6 +2393,18 @@ export type SealedCall = {
           {
             "name": "maxPriceImpactBps",
             "type": "u16"
+          },
+          {
+            "name": "minLockedLiquidityBps",
+            "type": "u16"
+          },
+          {
+            "name": "maxSwapReserveBps",
+            "type": "u16"
+          },
+          {
+            "name": "minDepositLamports",
+            "type": "u64"
           }
         ]
       }
@@ -2361,6 +2449,18 @@ export type SealedCall = {
           {
             "name": "maxPriceImpactBps",
             "type": "u16"
+          },
+          {
+            "name": "minLockedLiquidityBps",
+            "type": "u16"
+          },
+          {
+            "name": "maxSwapReserveBps",
+            "type": "u16"
+          },
+          {
+            "name": "minDepositLamports",
+            "type": "u64"
           }
         ]
       }
@@ -2426,6 +2526,10 @@ export type SealedCall = {
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "call",
+            "type": "pubkey"
+          },
           {
             "name": "follower",
             "type": "pubkey"

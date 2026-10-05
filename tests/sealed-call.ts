@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import { deriveCustomizablePoolAddress } from "@meteora-ag/cp-amm-sdk";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
@@ -26,6 +27,7 @@ import {
   readPool,
   refundIx,
   revealAndSwapIx,
+  setConfigIx,
   setPausedIx,
   spotOut,
   sweepDustIx,
@@ -47,7 +49,9 @@ import {
   lamports,
   loadKeypair,
   makeMeme,
+  type MemeOpts,
   send,
+  sleep,
   tokenBalance,
   waitUntilChainTime,
 } from "./helpers";
@@ -78,6 +82,9 @@ const CONFIG: ConfigParams = {
   minCallerLockSecs: new BN(LOCK_SECS),
   maxRevealWindowSecs: new BN(259_200),
   maxPriceImpactBps: 2500,
+  minLockedLiquidityBps: 8000,
+  maxSwapReserveBps: 1000,
+  minDepositLamports: new BN(1_000_000),
 };
 
 type Market = { mint: PublicKey; pool: PoolInfo; wsolIsA: boolean };
@@ -109,7 +116,7 @@ async function openCall(o: OpenOpts): Promise<Call> {
   const ix = await openCallIx(program, {
     caller: who.publicKey,
     callId: id,
-    commitment: commitment(o.commitMint, o.commitPool, salt),
+    commitment: commitment(callPda(who.publicKey, id), o.commitMint, o.commitPool, salt),
     revealWindowSecs: o.window ?? 3600,
     callerLockSecs: o.lock ?? LOCK_SECS,
     maxVaultLamports: o.maxVault,
@@ -128,7 +135,8 @@ async function reveal(c: Call, m: Market, who: Keypair = caller, minOutOverride?
   const acc = await fetchCall(program, c.call);
   const total = big(acc.callerStakeLamports) + big(acc.followerLamports);
   const lamportsIn = total - (total * 100n) / 10_000n;
-  const minOut = minOutOverride ?? (spotOut(lamportsIn, m.pool.sqrtPrice, m.wsolIsA) * 9n) / 10n;
+  const live = await readPool(connection, m.pool.address);
+  const minOut = minOutOverride ?? (spotOut(lamportsIn, live.sqrtPrice, m.wsolIsA) * 9n) / 10n;
   const ix = await revealAndSwapIx(program, {
     caller: who.publicKey,
     call: c.call,
@@ -169,7 +177,7 @@ describe("sealed_call against real Meteora DAMM v2 pools", function () {
 
     const supply = 1_000_000_000_000_000n;
     const mkt = async (below: boolean, solLiq: bigint, tokLiq: bigint): Promise<Market> => {
-      const mint = await makeMeme(poolFunder, below, supply);
+      const { mint } = await makeMeme(poolFunder, { below, supply });
       const pool = await createPool(poolFunder, mint, solLiq, tokLiq);
       const { wsolIsA, mint: other } = poolSides(pool);
       assert.isTrue(other.equals(mint));
@@ -179,6 +187,7 @@ describe("sealed_call against real Meteora DAMM v2 pools", function () {
     deepX = await mkt(false, 300n * SOL, 250_000_000_000_000n);
     deepY = await mkt(true, 300n * SOL, 250_000_000_000_000n);
     thinT = await mkt(false, 5n * SOL, 5_000_000_000_000n);
+    await sleep(3000); // pools must be strictly older than any call opened against them
   });
 
   describe("config", () => {
@@ -434,16 +443,54 @@ describe("sealed_call against real Meteora DAMM v2 pools", function () {
     });
 
     it("thin pool with max_impact_bps 100 reverts with PriceImpactExceeded, a permissive tolerance fills", async () => {
-      const strict = await openCall({ commitMint: thinT.mint, commitPool: thinT.pool.address, maxVault: sol(10), stake: sol(2), impact: 100 });
-      await deposit(f1, strict, sol(2));
-      const before = await tokenBalance(thinT.wsolIsA ? thinT.pool.tokenBVault : thinT.pool.tokenAVault);
+      const thinTokenVault = thinT.wsolIsA ? thinT.pool.tokenBVault : thinT.pool.tokenAVault;
+      const strict = await openCall({ commitMint: thinT.mint, commitPool: thinT.pool.address, maxVault: sol(1), stake: sol(0.3), impact: 100 });
+      await deposit(f1, strict, sol(0.1));
+      const before = await tokenBalance(thinTokenVault);
       await rejected(strict, [f1.publicKey, caller.publicKey], "PriceImpactExceeded", await reveal(strict, thinT, caller, 1n), [caller]);
-      assert.strictEqual(await tokenBalance(thinT.wsolIsA ? thinT.pool.tokenBVault : thinT.pool.tokenAVault), before, "pool untouched");
+      assert.strictEqual(await tokenBalance(thinTokenVault), before, "pool untouched");
 
       const loose = await openCall({ commitMint: thinT.mint, commitPool: thinT.pool.address, maxVault: sol(0.5), stake: sol(0.25), impact: 2500 });
       await deposit(f2, loose, sol(0.1));
       await send(await reveal(loose, thinT), [caller]);
       assert.strictEqual(callState(await fetchCall(program, loose.call)), "executed");
+    });
+
+    it("a batch above 10% of the pool's wSOL reserve reverts with PoolTooThin", async () => {
+      const c = await openCall({ commitMint: thinT.mint, commitPool: thinT.pool.address, maxVault: sol(10), stake: sol(2) });
+      await deposit(f1, c, sol(2));
+      await rejected(c, [f1.publicKey, caller.publicKey], "PoolTooThin", await reveal(c, thinT, caller, 1n), [caller]);
+    });
+
+    it("a deposit below min_deposit_lamports reverts with DepositTooSmall", async () => {
+      const c = await openCall({ commitMint: deepX.mint, commitPool: deepX.pool.address, maxVault: sol(10), stake: sol(1) });
+      await rejected(c, [f1.publicKey], "DepositTooSmall", [await depositIx(program, f1.publicKey, c.call, 1)], [f1]);
+      assert.isFalse(await accountExists(positionPda(c.call, f1.publicKey)));
+      assert.strictEqual((await fetchCall(program, c.call)).followerCount, 0);
+    });
+
+    it("a commitment copied into another caller's call reverts with HashMismatch", async () => {
+      const original = await openCall({ commitMint: deepX.mint, commitPool: deepX.pool.address, maxVault: sol(10), stake: sol(1) });
+      const originalCall = await fetchCall(program, original.call);
+      const rawCopy = await openCallIx(program, {
+        caller: caller.publicKey,
+        callId: 9_000_001,
+        commitment: Uint8Array.from(originalCall.commitment),
+        revealWindowSecs: 3600,
+        callerLockSecs: LOCK_SECS,
+        maxVaultLamports: sol(10),
+        maxImpactBps: 2500,
+        callerStakeLamports: sol(1),
+      });
+      await send([rawCopy], [caller]);
+      assert.deepEqual(
+        Array.from((await fetchCall(program, callPda(caller.publicKey, 9_000_001))).commitment),
+        Array.from(originalCall.commitment),
+        "the copy carries the original's commitment bytes",
+      );
+      const verbatim: Call = { call: callPda(caller.publicKey, 9_000_001), vault: vaultPda(callPda(caller.publicKey, 9_000_001)), id: 9_000_001n, mint: deepX.mint, pool: deepX.pool.address, salt: original.salt };
+      await deposit(f2, verbatim, sol(1));
+      await rejected(verbatim, [f2.publicKey, caller.publicKey], "HashMismatch", await reveal(verbatim, deepX), [caller]);
     });
 
     it("minimum_amount_out 0 reverts with MinOutZero", async () => {
@@ -472,17 +519,19 @@ describe("sealed_call against real Meteora DAMM v2 pools", function () {
     });
 
     it("opening with a stake below the minimum, above the vault, or a vault above the cap is rejected", async () => {
-      const open = async (maxVault: bigint, stake: bigint) =>
-        openCallIx(program, {
+      const open = async (maxVault: bigint, stake: bigint) => {
+        const id = newId();
+        return openCallIx(program, {
           caller: caller.publicKey,
-          callId: newId(),
-          commitment: commitment(deepX.mint, deepX.pool.address, randomSalt()),
+          callId: id,
+          commitment: commitment(callPda(caller.publicKey, id), deepX.mint, deepX.pool.address, randomSalt()),
           revealWindowSecs: 3600,
           callerLockSecs: LOCK_SECS,
           maxVaultLamports: maxVault,
           maxImpactBps: 2500,
           callerStakeLamports: stake,
         });
+      };
       const before = await lamports(caller.publicKey);
       await expectFail([await open(sol(10), sol(0.1))], [caller], "StakeTooLow");
       await expectFail([await open(sol(10), sol(11))], [caller], "StakeAboveVault");
@@ -498,6 +547,97 @@ describe("sealed_call against real Meteora DAMM v2 pools", function () {
       assert.strictEqual(f.name, "AccountOwnedByWrongProgram", "revealed_mint is unset before execution, so the mint account fails to deserialize");
       assert.deepEqual(await snapshot(c, [f1.publicKey]), before);
       assert.isTrue(await accountExists(positionPda(c.call, f1.publicKey)));
+    });
+  });
+
+  describe("pool and mint hygiene", () => {
+    const fresh = async (opts: MemeOpts, solLiq = 50n * SOL) => {
+      const { mint, program: mintProgram } = await makeMeme(poolFunder, opts);
+      return { mint, mintProgram, solLiq };
+    };
+
+    it("a pool the caller created after the call opened reverts with PoolNotSeasoned, followers withdraw in full", async () => {
+      const { mint } = await fresh({ below: false, supply: 1_000_000_000_000_000n });
+      const poolAddress = deriveCustomizablePoolAddress(mint, NATIVE_MINT);
+      const c = await openCall({ commitMint: mint, commitPool: poolAddress, maxVault: sol(10), stake: sol(1), impact: 100 });
+      await deposit(f1, c, sol(2));
+      const pool = await createPool(poolFunder, mint, 50n * SOL, 50_000_000_000_000n);
+      assert.isTrue(pool.address.equals(poolAddress));
+      const m: Market = { mint, pool, wsolIsA: poolSides(pool).wsolIsA };
+      await rejected(c, [f1.publicKey, caller.publicKey], "PoolNotSeasoned", await reveal(c, m), [caller]);
+
+      const posRent = await lamports(positionPda(c.call, f1.publicKey));
+      const before = await lamports(f1.publicKey);
+      const s = await send([await withdrawIx(program, f1.publicKey, c.call)], [f1]);
+      assert.strictEqual((await lamports(f1.publicKey)) - before, sol(2) + posRent - (await txFee(s.sig)), "withdraw returns every lamport");
+    });
+
+    it("a seasoned pool with unlocked liquidity reverts with PoolLiquidityUnlocked", async () => {
+      const { mint } = await fresh({ below: true, supply: 1_000_000_000_000_000n });
+      const pool = await createPool(poolFunder, mint, 50n * SOL, 50_000_000_000_000n, { lockLiquidity: false });
+      await sleep(3000);
+      const m: Market = { mint, pool, wsolIsA: poolSides(pool).wsolIsA };
+      const c = await openCall({ commitMint: mint, commitPool: pool.address, maxVault: sol(10), stake: sol(1) });
+      await deposit(f1, c, sol(2));
+      await rejected(c, [f1.publicKey, caller.publicKey], "PoolLiquidityUnlocked", await reveal(c, m, caller, 1n), [caller]);
+    });
+
+    it("the same pool with locked liquidity fills, so the lock is the only difference", async () => {
+      const { mint } = await fresh({ below: true, supply: 1_000_000_000_000_000n });
+      const pool = await createPool(poolFunder, mint, 50n * SOL, 50_000_000_000_000n);
+      await sleep(3000);
+      const m: Market = { mint, pool, wsolIsA: poolSides(pool).wsolIsA };
+      const c = await openCall({ commitMint: mint, commitPool: pool.address, maxVault: sol(10), stake: sol(1) });
+      await deposit(f1, c, sol(2));
+      await send(await reveal(c, m), [caller]);
+      assert.strictEqual(callState(await fetchCall(program, c.call)), "executed");
+    });
+
+    for (const [label, opts] of [
+      ["a live mint authority", { mintAuthorityLive: true }],
+      ["a freeze authority", { freezeAuthority: poolFunder.publicKey }],
+    ] as const) {
+      it(`an output mint with ${label} reverts with MintAuthorityLive`, async () => {
+        const { mint } = await fresh({ below: false, supply: 1_000_000_000_000_000n, ...opts });
+        const pool = await createPool(poolFunder, mint, 50n * SOL, 50_000_000_000_000n);
+        await sleep(3000);
+        const m: Market = { mint, pool, wsolIsA: poolSides(pool).wsolIsA };
+        const c = await openCall({ commitMint: mint, commitPool: pool.address, maxVault: sol(10), stake: sol(1) });
+        await deposit(f1, c, sol(2));
+        await rejected(c, [f1.publicKey, caller.publicKey], "MintAuthorityLive", await reveal(c, m, caller, 1n), [caller]);
+      });
+    }
+
+    it("a Token-2022 mint with a TransferFeeConfig extension reverts with UnsafeMintExtension", async () => {
+      const { mint, mintProgram } = await fresh({ below: false, supply: 1_000_000_000_000_000n, transferFeeBps: 0 });
+      const pool = await createPool(poolFunder, mint, 50n * SOL, 50_000_000_000_000n, { mintProgram });
+      await sleep(3000);
+      const m: Market = { mint, pool, wsolIsA: poolSides(pool).wsolIsA };
+      const c = await openCall({ commitMint: mint, commitPool: pool.address, maxVault: sol(10), stake: sol(1) });
+      await deposit(f1, c, sol(2));
+      await rejected(c, [f1.publicKey, caller.publicKey], "UnsafeMintExtension", await reveal(c, m, caller, 1n), [caller]);
+    });
+  });
+
+  describe("fee terms are fixed at open", () => {
+    it("set_config after deposits does not change that call's fee split", async () => {
+      const c = await openCall({ commitMint: deepX.mint, commitPool: deepX.pool.address, maxVault: sol(10), stake: sol(1) });
+      await deposit(f1, c, sol(2));
+      const hostile: ConfigParams = { ...CONFIG, feeBps: 300, callerFeeShareBps: 10_000 };
+      await send([await setConfigIx(program, admin.publicKey, hostile)], [admin]);
+      try {
+        assert.strictEqual((await fetchConfig(program)).feeBps, 300);
+        const total = sol(3);
+        const fee = (total * 100n) / 10_000n;
+        const treasuryFee = fee - (fee * 3000n) / 10_000n;
+        const treasuryBefore = await lamports(treasury.publicKey);
+        await send(await reveal(c, deepX), [caller]);
+        assert.strictEqual((await lamports(treasury.publicKey)) - treasuryBefore, treasuryFee);
+        assert.strictEqual(big((await fetchCall(program, c.call)).lamportsIn), total - fee);
+      } finally {
+        await send([await setConfigIx(program, admin.publicKey, CONFIG)], [admin]);
+      }
+      assert.strictEqual((await fetchConfig(program)).feeBps, 100);
     });
   });
 
@@ -547,10 +687,11 @@ describe("sealed_call against real Meteora DAMM v2 pools", function () {
       await send([await setPausedIx(program, admin.publicKey, true)], [admin]);
       assert.isTrue((await fetchConfig(program)).paused);
       try {
+        const pausedId = newId();
         const openIx = await openCallIx(program, {
           caller: caller.publicKey,
-          callId: newId(),
-          commitment: commitment(deepX.mint, deepX.pool.address, randomSalt()),
+          callId: pausedId,
+          commitment: commitment(callPda(caller.publicKey, pausedId), deepX.mint, deepX.pool.address, randomSalt()),
           revealWindowSecs: 3600,
           callerLockSecs: LOCK_SECS,
           maxVaultLamports: sol(10),
