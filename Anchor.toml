@@ -1,0 +1,19 @@
+[toolchain]
+package_manager = "npm"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.localnet]
+sealed_call = "JBwReCk6DRFZREGjCfNiMQUsFFc66FSLBrejnjzKgU4N"
+
+[programs.devnet]
+sealed_call = "JBwReCk6DRFZREGjCfNiMQUsFFc66FSLBrejnjzKgU4N"
+
+[provider]
+cluster = "localnet"
+wallet = "keys/test-admin.json"
+
+[scripts]
+test = "bash scripts/run-tests.sh"
