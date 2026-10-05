@@ -1,3 +1,7 @@
 address | kind | purpose | tx
 DEawZWJ2gZg5KMaUo2GSu7vTFcAPZ4BPSQ6et8JFQDQ1 | keypair (keys/deployer.json, gitignored) | sealed-call devnet deployer | funded 1.25921516 SOL by closing the locked-fee-escrow spike program 3iqQQS1K...
 DEawZWJ2gZg5KMaUo2GSu7vTFcAPZ4BPSQ6et8JFQDQ1 | keypair (keys/deployer.json) | +2.2 SOL devnet from GhyXbXu7y3DVptMiSPBri12rGMxJBKtex4hWSa6bfg9j (~/.config/solana/id.json) for program deploy rent | 4x6sx2DjJ1V9KNHt1TqXZuJRpVikgRDrVidhoHJKkQr4Uvs2nhyVgausHe8mspzHKWaMhYap1SLJnwH7ByNc6YGs
+JBwReCk6DRFZREGjCfNiMQUsFFc66FSLBrejnjzKgU4N | program (keys/sealed_call-keypair.json), upgrade authority DEawZWJ2... | sealed_call devnet deploy, slot 507690180, 2.5145 SOL rent | 4xTQWh3i3WRPFtPaisDf6Jns5wytNAyNSm7s2cUDFeywuWy3sxrJ5bTchGhrgZtAfnMv7QYyvocXMAbmnAw71mgg
+HYfBWQ6J3eLvUVKKXbE7xJoDk6bWquQKvcY8ii7owfwW | keypair (keys/devnet/caller.json) | devnet caller: mint CYb9KSms..., DAMM v2 pool 9mwSK2b1... (0.4 wSOL, liquidity locked), calls HaaRaA1T... and 931h7rgg... | funded from deployer, see demo/devnet-run.json
+8syqd674bQ2wpFfPxhVLa6u7rYLtmtMbUTnB2pwCC8Pm, 7m3mfUH6TdVvXKm6z32mrkeUNKbpR5vY1z7V3jrjGzfe, 7cCACe63VxDXHsySdZeCEt6qjg9aBwLVDaviw1gA64zx | keypairs (keys/devnet/follower1-3.json) | devnet followers, 0.02 SOL each | funded from deployer
+treasury (keys/devnet/treasury.json) | keypair | devnet protocol fee treasury, pre-funded 0.002 SOL | initConfig 3VDLQm2g...

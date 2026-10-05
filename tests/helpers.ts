@@ -39,7 +39,19 @@ import BN from "bn.js";
 import { poolSides, readPool, type PoolInfo } from "../sdk/src/index";
 
 export const RPC_URL = process.env.RPC_URL ?? "http://127.0.0.1:18899";
-export const connection = new Connection(RPC_URL, "confirmed");
+const LOCAL = RPC_URL.includes("127.0.0.1");
+const POLL_MS = LOCAL ? 250 : 1000;
+
+/** Public devnet rate-limits per method; back off and retry 429s instead of failing the run. */
+async function patientFetch(input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]): Promise<Response> {
+  for (let i = 0; ; i++) {
+    const res = await fetch(input, init);
+    if (res.status !== 429 || i === 12) return res;
+    await sleep(Math.min(1000 * 2 ** i, 15_000));
+  }
+}
+
+export const connection = new Connection(RPC_URL, { commitment: "confirmed", disableRetryOnRateLimit: true, fetch: patientFetch });
 
 export const loadKeypair = (path: string): Keypair =>
   Keypair.fromSecretKey(Uint8Array.from(JSON.parse(readFileSync(resolve(path), "utf8"))));
@@ -64,13 +76,13 @@ export async function airdrop(pk: PublicKey, sol: number): Promise<void> {
 }
 
 async function confirm(sig: string): Promise<void> {
-  for (let i = 0; i < 120; i++) {
+  for (let i = 0; i < 60_000 / POLL_MS; i++) {
     const st = (await connection.getSignatureStatuses([sig])).value[0];
     if (st?.err) throw new Error(`tx ${sig} failed: ${JSON.stringify(st.err)}`);
     if (st && (st.confirmationStatus === "confirmed" || st.confirmationStatus === "finalized")) return;
-    await sleep(250);
+    await sleep(POLL_MS);
   }
-  throw new Error(`tx ${sig} not confirmed within 30s`);
+  throw new Error(`tx ${sig} not confirmed within 60s`);
 }
 
 export type Sent = { sig: string; size: number };
