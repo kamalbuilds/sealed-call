@@ -50,7 +50,8 @@ pub fn open_call_handler(
     require!(caller_stake_lamports >= min_stake, SealedError::StakeTooLow);
     require!(caller_stake_lamports <= max_vault_lamports, SealedError::StakeAboveVault);
 
-    let now = Clock::get()?.unix_timestamp;
+    let clock = Clock::get()?;
+    let now = clock.unix_timestamp;
     let deadline = now.checked_add(reveal_window_secs).ok_or(SealedError::Overflow)?;
 
     let call = &mut ctx.accounts.call;
@@ -58,10 +59,13 @@ pub fn open_call_handler(
     call.call_id = call_id;
     call.commitment = commitment;
     call.opened_at = now;
+    call.opened_slot = clock.slot;
     call.reveal_deadline = deadline;
     call.caller_lock_secs = caller_lock_secs;
     call.max_vault_lamports = max_vault_lamports;
     call.max_impact_bps = max_impact_bps;
+    call.fee_bps = cfg.fee_bps;
+    call.caller_fee_share_bps = cfg.caller_fee_share_bps;
     call.caller_stake_lamports = caller_stake_lamports;
     call.follower_lamports = 0;
     call.follower_count = 0;
@@ -99,6 +103,8 @@ pub fn open_call_handler(
         caller_lock_secs,
         max_vault_lamports,
         max_impact_bps,
+        fee_bps: call.fee_bps,
+        caller_fee_share_bps: call.caller_fee_share_bps,
         caller_stake_lamports,
     });
     Ok(())

@@ -15,6 +15,9 @@ pub struct ConfigParams {
     pub min_caller_lock_secs: i64,
     pub max_reveal_window_secs: i64,
     pub max_price_impact_bps: u16,
+    pub min_locked_liquidity_bps: u16,
+    pub max_swap_reserve_bps: u16,
+    pub min_deposit_lamports: u64,
 }
 
 impl ConfigParams {
@@ -26,6 +29,9 @@ impl ConfigParams {
         require!(self.min_caller_lock_secs >= 0 && self.max_reveal_window_secs > 0, SealedError::InvalidConfig);
         require!(self.treasury != Pubkey::default(), SealedError::InvalidConfig);
         require!(self.max_price_impact_bps > 0 && self.max_price_impact_bps < 10_000, SealedError::InvalidConfig);
+        require!(self.min_locked_liquidity_bps <= 10_000, SealedError::InvalidConfig);
+        require!(self.max_swap_reserve_bps > 0 && self.max_swap_reserve_bps <= 10_000, SealedError::InvalidConfig);
+        require!(self.min_deposit_lamports <= self.max_deposit_lamports, SealedError::InvalidConfig);
         Ok(())
     }
 
@@ -39,6 +45,9 @@ impl ConfigParams {
         c.min_caller_lock_secs = self.min_caller_lock_secs;
         c.max_reveal_window_secs = self.max_reveal_window_secs;
         c.max_price_impact_bps = self.max_price_impact_bps;
+        c.min_locked_liquidity_bps = self.min_locked_liquidity_bps;
+        c.max_swap_reserve_bps = self.max_swap_reserve_bps;
+        c.min_deposit_lamports = self.min_deposit_lamports;
     }
 
     fn event(&self) -> ConfigUpdated {
@@ -52,6 +61,9 @@ impl ConfigParams {
             min_caller_lock_secs: self.min_caller_lock_secs,
             max_reveal_window_secs: self.max_reveal_window_secs,
             max_price_impact_bps: self.max_price_impact_bps,
+            min_locked_liquidity_bps: self.min_locked_liquidity_bps,
+            max_swap_reserve_bps: self.max_swap_reserve_bps,
+            min_deposit_lamports: self.min_deposit_lamports,
         }
     }
 }

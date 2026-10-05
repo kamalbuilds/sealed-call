@@ -2,13 +2,17 @@ use anchor_lang::prelude::*;
 use solana_sha256_hasher::hashv;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{spl_token::native_mint, sync_native, SyncNative, Token};
+use anchor_spl::token_2022::spl_token_2022::{
+    self,
+    extension::{BaseStateWithExtensions, ExtensionType, StateWithExtensions},
+};
 use anchor_spl::token_interface::{close_account, CloseAccount, Mint, TokenAccount, TokenInterface};
 
 use super::withdraw::pay_from_vault;
 use crate::damm::{self, SwapAccounts, DAMM_V2, EVENT_AUTHORITY, POOL_AUTHORITY};
 use crate::errors::SealedError;
 use crate::events::Revealed;
-use crate::math::{split_fee, within_impact};
+use crate::math::{locked_enough, split_fee, within_impact, within_reserve_share};
 use crate::state::{Call, CallState, Config, CALL_SEED, CONFIG_SEED, VAULT_SEED};
 
 #[derive(Accounts)]
@@ -71,8 +75,38 @@ pub struct RevealAndSwap<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn commitment(mint: &Pubkey, pool: &Pubkey, salt: &[u8; 32]) -> [u8; 32] {
-    hashv(&[mint.as_ref(), pool.as_ref(), salt.as_ref()]).to_bytes()
+/// Bound to the call address so nobody can copy a seal into their own call and inherit the reveal.
+pub fn commitment(call: &Pubkey, mint: &Pubkey, pool: &Pubkey, salt: &[u8; 32]) -> [u8; 32] {
+    hashv(&[call.as_ref(), mint.as_ref(), pool.as_ref(), salt.as_ref()]).to_bytes()
+}
+
+/// Extensions that only describe the token. Anything else (transfer fee, hook, permanent delegate,
+/// default frozen state, pausable, non-transferable, confidential transfers) can take value from claimants.
+const SAFE_MINT_EXTENSIONS: [ExtensionType; 6] = [
+    ExtensionType::MetadataPointer,
+    ExtensionType::TokenMetadata,
+    ExtensionType::GroupPointer,
+    ExtensionType::TokenGroup,
+    ExtensionType::GroupMemberPointer,
+    ExtensionType::TokenGroupMember,
+];
+
+/// The output token must have a fixed supply and no freeze authority, so nobody can mint into the
+/// followers' fill or freeze the vault's tokens before they claim.
+fn check_mint(mint: &InterfaceAccount<Mint>) -> Result<()> {
+    require!(
+        mint.mint_authority.is_none() && mint.freeze_authority.is_none(),
+        SealedError::MintAuthorityLive
+    );
+    let info = mint.to_account_info();
+    if *info.owner == spl_token_2022::ID {
+        let data = info.try_borrow_data()?;
+        let state = StateWithExtensions::<spl_token_2022::state::Mint>::unpack(&data)?;
+        for ext in state.get_extension_types()? {
+            require!(SAFE_MINT_EXTENSIONS.contains(&ext), SealedError::UnsafeMintExtension);
+        }
+    }
+    Ok(())
 }
 
 pub fn reveal_and_swap_handler(
@@ -92,7 +126,8 @@ pub fn reveal_and_swap_handler(
     require_keys_eq!(a.mint.key(), mint, SealedError::MintMismatch);
     require_keys_eq!(a.output_token_program.key(), *a.mint.to_account_info().owner, SealedError::WrongTokenProgram);
     let pool_key = a.pool.key();
-    require!(commitment(&mint, &pool_key, &salt) == a.call.commitment, SealedError::HashMismatch);
+    require!(commitment(&a.call.key(), &mint, &pool_key, &salt) == a.call.commitment, SealedError::HashMismatch);
+    check_mint(&a.mint)?;
 
     // 2. the pool must be a real DAMM v2 pool trading exactly {wSOL, mint}; the wSOL side fixes the direction
     let pool = damm::read_pool(&a.pool.try_borrow_data()?)?;
@@ -106,11 +141,30 @@ pub fn reveal_and_swap_handler(
         return err!(SealedError::PoolMintMismatch);
     };
 
+    // A pool the caller made for this reveal could be priced anywhere and then drained or arbitraged by the
+    // caller. Require a pool that was trading before the call opened, mostly locked liquidity, and depth.
+    let live_before_open = match pool.activation_type {
+        0 => pool.activation_point < a.call.opened_slot,
+        1 => i64::try_from(pool.activation_point).map_or(false, |t| t < a.call.opened_at),
+        _ => false,
+    };
+    require!(pool.pool_status == 0 && live_before_open, SealedError::PoolNotSeasoned);
+    require!(
+        locked_enough(pool.permanent_lock_liquidity, pool.liquidity, a.config.min_locked_liquidity_bps),
+        SealedError::PoolLiquidityUnlocked
+    );
+    let wsol_vault = if wsol_is_a { &a.token_a_vault } else { &a.token_b_vault };
+    let wsol_reserve = damm::token_amount(&wsol_vault.try_borrow_data()?)?;
+
     // 3. fees come out of the vault, the rest is wrapped and swapped in one go
     let total = a.call.total_lamports().ok_or(SealedError::Overflow)?;
     require!(total > 0, SealedError::NothingToSwap);
-    let split = split_fee(total, a.config.fee_bps, a.config.caller_fee_share_bps).ok_or(SealedError::Overflow)?;
+    let split = split_fee(total, a.call.fee_bps, a.call.caller_fee_share_bps).ok_or(SealedError::Overflow)?;
     require!(split.lamports_in > 0, SealedError::NothingToSwap);
+    require!(
+        within_reserve_share(split.lamports_in, wsol_reserve, a.config.max_swap_reserve_bps),
+        SealedError::PoolTooThin
+    );
 
     let call_key = a.call.key();
     let vault_bump = [a.call.vault_bump];
@@ -170,6 +224,9 @@ pub fn reveal_and_swap_handler(
         within_impact(split.lamports_in, tokens_out, pool.sqrt_price, wsol_is_a, a.call.max_impact_bps),
         SealedError::PriceImpactExceeded
     );
+
+    a.vault_wsol.reload()?;
+    require!(a.vault_wsol.amount == 0, SealedError::SwapPartialFill);
 
     // 5. unwrap: close the wSOL account into the vault, then return the rent reserve and the wSOL
     //    account rent to the caller who funded both. The vault ends at zero lamports.

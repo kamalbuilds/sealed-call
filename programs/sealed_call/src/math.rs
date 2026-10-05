@@ -49,6 +49,21 @@ pub fn within_impact(amount_in: u64, tokens_out: u64, sqrt_price: u128, wsol_is_
     tokens_out as f64 * BPS as f64 >= spot_out * (BPS as f64 - max_impact_bps as f64)
 }
 
+/// locked * 10_000 >= total * min_bps (u128 products of u128 values may overflow: widen by dividing first)
+pub fn locked_enough(locked: u128, total: u128, min_bps: u16) -> bool {
+    if total == 0 {
+        return false;
+    }
+    // compare locked/total >= min_bps/10_000 without overflow: locked >= ceil(total * min_bps / 10_000)
+    let need = (total / BPS) * min_bps as u128 + ((total % BPS) * min_bps as u128).div_ceil(BPS);
+    locked >= need
+}
+
+/// amount_in * 10_000 <= reserve * max_bps
+pub fn within_reserve_share(amount_in: u64, reserve: u64, max_bps: u16) -> bool {
+    (amount_in as u128) * BPS <= (reserve as u128) * max_bps as u128
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -81,6 +96,19 @@ mod tests {
         // zero price and out-of-range bps refuse
         assert!(!within_impact(1_000, 4_000, 0, true, 1_000));
         assert!(!within_impact(1_000, 4_000, sqrt, true, 10_001));
+    }
+
+    #[test]
+    fn lock_and_reserve_bounds() {
+        assert!(locked_enough(80, 100, 8000));
+        assert!(!locked_enough(79, 100, 8000));
+        assert!(!locked_enough(0, 0, 0));
+        assert!(locked_enough(u128::MAX, u128::MAX, 10_000));
+        assert!(!locked_enough(u128::MAX - 1, u128::MAX, 10_000));
+        assert!(locked_enough(u128::MAX / 10 * 8 + 1, u128::MAX / 10 * 10, 8000));
+        assert!(within_reserve_share(1_000, 10_000, 1000));
+        assert!(!within_reserve_share(1_001, 10_000, 1000));
+        assert!(within_reserve_share(u64::MAX, u64::MAX, 10_000));
     }
 
     // contributions: index 0 is the caller stake, the rest are followers

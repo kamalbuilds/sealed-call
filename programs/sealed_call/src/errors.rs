@@ -54,6 +54,20 @@ pub enum SealedError {
     InvalidImpact,
     #[msg("fill is worse than the pool spot price allows for this call")]
     PriceImpactExceeded,
+    #[msg("pool is disabled or was not live before the call opened")]
+    PoolNotSeasoned,
+    #[msg("pool has too little permanently locked liquidity")]
+    PoolLiquidityUnlocked,
+    #[msg("swap is too large for the pool's wSOL reserve")]
+    PoolTooThin,
+    #[msg("mint has a live mint or freeze authority")]
+    MintAuthorityLive,
+    #[msg("mint carries a token extension that can tax, freeze, hook or seize transfers")]
+    UnsafeMintExtension,
+    #[msg("swap left wSOL unspent")]
+    SwapPartialFill,
+    #[msg("deposit is below the minimum")]
+    DepositTooSmall,
     #[msg("caller lock period has not elapsed")]
     CallerLockActive,
     #[msg("already claimed")]

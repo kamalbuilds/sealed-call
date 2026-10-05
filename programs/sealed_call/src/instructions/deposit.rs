@@ -39,6 +39,7 @@ pub fn deposit_handler(ctx: Context<Deposit>, amount: u64) -> Result<()> {
     require!(Clock::get()?.unix_timestamp < call.reveal_deadline, SealedError::DeadlinePassed);
     require!(ctx.accounts.follower.key() != call.caller, SealedError::CallerCannotDeposit);
     require!(amount > 0, SealedError::ZeroAmount);
+    require!(amount >= cfg.min_deposit_lamports, SealedError::DepositTooSmall);
 
     let new_pos = pos.lamports.checked_add(amount).ok_or(SealedError::Overflow)?;
     require!(new_pos <= cfg.max_deposit_lamports, SealedError::DepositCapExceeded);
@@ -47,6 +48,7 @@ pub fn deposit_handler(ctx: Context<Deposit>, amount: u64) -> Result<()> {
     require!(new_vault <= call.max_vault_lamports, SealedError::VaultCapExceeded);
 
     if pos.lamports == 0 {
+        pos.call = call.key();
         pos.follower = ctx.accounts.follower.key();
         pos.claimed = false;
         pos.bump = ctx.bumps.position;

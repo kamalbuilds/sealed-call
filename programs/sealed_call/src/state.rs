@@ -20,6 +20,11 @@ pub struct Config {
     pub max_reveal_window_secs: i64,
     /// ceiling for a call's max_impact_bps
     pub max_price_impact_bps: u16,
+    /// pool must hold at least this share of its liquidity permanently locked
+    pub min_locked_liquidity_bps: u16,
+    /// the swap may use at most this share of the pool's wSOL reserve
+    pub max_swap_reserve_bps: u16,
+    pub min_deposit_lamports: u64,
     pub paused: bool,
     pub bump: u8,
 }
@@ -38,11 +43,15 @@ pub struct Call {
     pub call_id: u64,
     pub commitment: [u8; 32],
     pub opened_at: i64,
+    pub opened_slot: u64,
     pub reveal_deadline: i64,
     pub caller_lock_secs: i64,
     pub max_vault_lamports: u64,
     /// worst fill vs the pool spot price at reveal, fixed at open so followers see it before depositing
     pub max_impact_bps: u16,
+    /// fee terms fixed at open: a later set_config never reprices a funded call
+    pub fee_bps: u16,
+    pub caller_fee_share_bps: u16,
     pub caller_stake_lamports: u64,
     pub follower_lamports: u64,
     pub follower_count: u32,
@@ -69,6 +78,7 @@ impl Call {
 #[account]
 #[derive(InitSpace)]
 pub struct Position {
+    pub call: Pubkey,
     pub follower: Pubkey,
     pub lamports: u64,
     pub claimed: bool,

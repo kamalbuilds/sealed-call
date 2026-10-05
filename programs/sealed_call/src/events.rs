@@ -17,6 +17,9 @@ pub struct ConfigUpdated {
     pub min_caller_lock_secs: i64,
     pub max_reveal_window_secs: i64,
     pub max_price_impact_bps: u16,
+    pub min_locked_liquidity_bps: u16,
+    pub max_swap_reserve_bps: u16,
+    pub min_deposit_lamports: u64,
 }
 
 #[event]
@@ -34,6 +37,8 @@ pub struct CallOpened {
     pub caller_lock_secs: i64,
     pub max_vault_lamports: u64,
     pub max_impact_bps: u16,
+    pub fee_bps: u16,
+    pub caller_fee_share_bps: u16,
     pub caller_stake_lamports: u64,
 }
 

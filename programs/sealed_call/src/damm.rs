@@ -19,7 +19,14 @@ const TOKEN_A_MINT: usize = 168;
 const TOKEN_B_MINT: usize = 200;
 const TOKEN_A_VAULT: usize = 232;
 const TOKEN_B_VAULT: usize = 264;
+const LIQUIDITY: usize = 360;
 const SQRT_PRICE: usize = 456;
+const ACTIVATION_POINT: usize = 472;
+const ACTIVATION_TYPE: usize = 480;
+const POOL_STATUS: usize = 481;
+const PERMANENT_LOCK_LIQUIDITY: usize = 552;
+/// SPL token account `amount` offset (same for Token and Token-2022)
+const TOKEN_ACCOUNT_AMOUNT: usize = 64;
 
 pub struct PoolView {
     pub token_a_mint: Pubkey,
@@ -28,6 +35,13 @@ pub struct PoolView {
     pub token_b_vault: Pubkey,
     /// Q64.64 sqrt of the spot price, token_b per token_a in raw units
     pub sqrt_price: u128,
+    pub liquidity: u128,
+    pub permanent_lock_liquidity: u128,
+    /// slot when activation_type is 0, unix timestamp when 1
+    pub activation_point: u64,
+    pub activation_type: u8,
+    /// 0 = enabled
+    pub pool_status: u8,
 }
 
 fn key_at(data: &[u8], off: usize) -> Result<Pubkey> {
@@ -38,6 +52,20 @@ fn key_at(data: &[u8], off: usize) -> Result<Pubkey> {
     Ok(Pubkey::new_from_array(bytes))
 }
 
+// callers check the length first
+fn u128_at(data: &[u8], off: usize) -> u128 {
+    u128::from_le_bytes(data[off..off + 16].try_into().unwrap())
+}
+
+/// `amount` of an SPL token account whose address the caller already matched against the pool state.
+pub fn token_amount(data: &[u8]) -> Result<u64> {
+    let b: [u8; 8] = data
+        .get(TOKEN_ACCOUNT_AMOUNT..TOKEN_ACCOUNT_AMOUNT + 8)
+        .and_then(|s| s.try_into().ok())
+        .ok_or(SealedError::PoolVaultMismatch)?;
+    Ok(u64::from_le_bytes(b))
+}
+
 /// Parse the pool account. The caller must already have checked `owner == DAMM_V2`.
 pub fn read_pool(data: &[u8]) -> Result<PoolView> {
     require!(data.len() == POOL_LEN && data[..8] == POOL_DISCRIMINATOR, SealedError::NotDammPool);
@@ -46,7 +74,12 @@ pub fn read_pool(data: &[u8]) -> Result<PoolView> {
         token_b_mint: key_at(data, TOKEN_B_MINT)?,
         token_a_vault: key_at(data, TOKEN_A_VAULT)?,
         token_b_vault: key_at(data, TOKEN_B_VAULT)?,
-        sqrt_price: u128::from_le_bytes(data[SQRT_PRICE..SQRT_PRICE + 16].try_into().unwrap()),
+        sqrt_price: u128_at(data, SQRT_PRICE),
+        liquidity: u128_at(data, LIQUIDITY),
+        permanent_lock_liquidity: u128_at(data, PERMANENT_LOCK_LIQUIDITY),
+        activation_point: u64::from_le_bytes(data[ACTIVATION_POINT..ACTIVATION_POINT + 8].try_into().unwrap()),
+        activation_type: data[ACTIVATION_TYPE],
+        pool_status: data[POOL_STATUS],
     })
 }
 
@@ -141,6 +174,10 @@ mod tests {
         assert_eq!(p.token_a_mint, Pubkey::new_from_array([7u8; 32]));
         assert_eq!(p.token_b_vault, Pubkey::new_from_array([9u8; 32]));
         assert_eq!(p.sqrt_price, 0);
+        d[PERMANENT_LOCK_LIQUIDITY] = 5;
+        d[ACTIVATION_TYPE] = 1;
+        assert_eq!(read_pool(&d).unwrap().permanent_lock_liquidity, 5);
+        assert_eq!(read_pool(&d).unwrap().activation_type, 1);
         assert!(read_pool(&d[..POOL_LEN - 1]).is_err());
     }
 }
