@@ -1,0 +1,2531 @@
+{
+  "address": "JBwReCk6DRFZREGjCfNiMQUsFFc66FSLBrejnjzKgU4N",
+  "metadata": {
+    "name": "sealed_call",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "caller_claim",
+      "discriminator": [
+        227,
+        71,
+        162,
+        108,
+        179,
+        197,
+        222,
+        95
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "call"
+          ]
+        },
+        {
+          "name": "call",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call.caller",
+                "account": "Call"
+              },
+              {
+                "kind": "account",
+                "path": "call.call_id",
+                "account": "Call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "vault_out",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "caller_ata",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "caller"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim",
+      "discriminator": [
+        62,
+        198,
+        214,
+        193,
+        213,
+        159,
+        108,
+        210
+      ],
+      "accounts": [
+        {
+          "name": "follower",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "position"
+          ]
+        },
+        {
+          "name": "call",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call.caller",
+                "account": "Call"
+              },
+              {
+                "kind": "account",
+                "path": "call.call_id",
+                "account": "Call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "position",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              },
+              {
+                "kind": "account",
+                "path": "follower"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "vault_out",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "follower_ata",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "follower"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "deposit",
+      "discriminator": [
+        242,
+        35,
+        198,
+        137,
+        82,
+        225,
+        242,
+        182
+      ],
+      "accounts": [
+        {
+          "name": "follower",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "call",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call.caller",
+                "account": "Call"
+              },
+              {
+                "kind": "account",
+                "path": "call.call_id",
+                "account": "Call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "position",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              },
+              {
+                "kind": "account",
+                "path": "follower"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "expire",
+      "discriminator": [
+        243,
+        83,
+        205,
+        58,
+        57,
+        201,
+        247,
+        146
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "writable": true
+        },
+        {
+          "name": "call",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call.caller",
+                "account": "Call"
+              },
+              {
+                "kind": "account",
+                "path": "call.call_id",
+                "account": "Call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_config",
+      "discriminator": [
+        23,
+        235,
+        115,
+        232,
+        168,
+        96,
+        1,
+        231
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program",
+          "address": "JBwReCk6DRFZREGjCfNiMQUsFFc66FSLBrejnjzKgU4N"
+        },
+        {
+          "name": "program_data",
+          "docs": [
+            "Only the program's upgrade authority can create the config, so nobody can front-run the deployer."
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "ConfigParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "open_call",
+      "discriminator": [
+        153,
+        26,
+        89,
+        45,
+        252,
+        243,
+        183,
+        62
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "call",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "caller"
+              },
+              {
+                "kind": "arg",
+                "path": "call_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "call_id",
+          "type": "u64"
+        },
+        {
+          "name": "commitment",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "reveal_window_secs",
+          "type": "i64"
+        },
+        {
+          "name": "caller_lock_secs",
+          "type": "i64"
+        },
+        {
+          "name": "max_vault_lamports",
+          "type": "u64"
+        },
+        {
+          "name": "max_impact_bps",
+          "type": "u16"
+        },
+        {
+          "name": "caller_stake_lamports",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "refund",
+      "discriminator": [
+        2,
+        96,
+        183,
+        251,
+        63,
+        208,
+        46,
+        46
+      ],
+      "accounts": [
+        {
+          "name": "follower",
+          "writable": true
+        },
+        {
+          "name": "call",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call.caller",
+                "account": "Call"
+              },
+              {
+                "kind": "account",
+                "path": "call.call_id",
+                "account": "Call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "position",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              },
+              {
+                "kind": "account",
+                "path": "follower"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "reveal_and_swap",
+      "discriminator": [
+        171,
+        39,
+        209,
+        99,
+        33,
+        15,
+        82,
+        135
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "call"
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "call",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call.caller",
+                "account": "Call"
+              },
+              {
+                "kind": "account",
+                "path": "call.call_id",
+                "account": "Call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "native_mint",
+          "address": "So11111111111111111111111111111111111111112"
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "vault_wsol",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "native_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "vault_out",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault"
+              },
+              {
+                "kind": "account",
+                "path": "output_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true
+        },
+        {
+          "name": "pool_authority",
+          "address": "HLnpSz9h2S4hiLQ43rnSD9XkcUThA7B8hQMKmDaiTLcC"
+        },
+        {
+          "name": "token_a_vault",
+          "writable": true
+        },
+        {
+          "name": "token_b_vault",
+          "writable": true
+        },
+        {
+          "name": "event_authority",
+          "address": "3rmHSu74h1ZcmAisVcWerTCiRDQbUrBKmcwptYGjHfet"
+        },
+        {
+          "name": "damm_program"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "output_token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "mint",
+          "type": "pubkey"
+        },
+        {
+          "name": "salt",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "minimum_amount_out",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "set_config",
+      "discriminator": [
+        108,
+        158,
+        154,
+        175,
+        212,
+        98,
+        52,
+        66
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "ConfigParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_paused",
+      "discriminator": [
+        91,
+        60,
+        125,
+        192,
+        176,
+        225,
+        166,
+        218
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "paused",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "sweep_dust",
+      "discriminator": [
+        9,
+        49,
+        242,
+        88,
+        156,
+        84,
+        109,
+        15
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "call",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call.caller",
+                "account": "Call"
+              },
+              {
+                "kind": "account",
+                "path": "call.call_id",
+                "account": "Call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "vault_out",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "treasury"
+        },
+        {
+          "name": "treasury_ata",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "treasury"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "withdraw",
+      "discriminator": [
+        183,
+        18,
+        70,
+        156,
+        148,
+        109,
+        161,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "follower",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "position"
+          ]
+        },
+        {
+          "name": "call",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call.caller",
+                "account": "Call"
+              },
+              {
+                "kind": "account",
+                "path": "call.call_id",
+                "account": "Call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              }
+            ]
+          }
+        },
+        {
+          "name": "position",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "call"
+              },
+              {
+                "kind": "account",
+                "path": "follower"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Call",
+      "discriminator": [
+        62,
+        231,
+        169,
+        58,
+        154,
+        150,
+        83,
+        196
+      ]
+    },
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "Position",
+      "discriminator": [
+        170,
+        188,
+        143,
+        228,
+        122,
+        64,
+        247,
+        208
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "CallExpired",
+      "discriminator": [
+        98,
+        64,
+        187,
+        39,
+        26,
+        40,
+        246,
+        228
+      ]
+    },
+    {
+      "name": "CallOpened",
+      "discriminator": [
+        80,
+        97,
+        83,
+        218,
+        46,
+        113,
+        128,
+        51
+      ]
+    },
+    {
+      "name": "CallerClaimed",
+      "discriminator": [
+        213,
+        218,
+        230,
+        144,
+        144,
+        153,
+        78,
+        55
+      ]
+    },
+    {
+      "name": "Claimed",
+      "discriminator": [
+        217,
+        192,
+        123,
+        72,
+        108,
+        150,
+        248,
+        33
+      ]
+    },
+    {
+      "name": "ConfigInitialized",
+      "discriminator": [
+        181,
+        49,
+        200,
+        156,
+        19,
+        167,
+        178,
+        91
+      ]
+    },
+    {
+      "name": "ConfigUpdated",
+      "discriminator": [
+        40,
+        241,
+        230,
+        122,
+        11,
+        19,
+        198,
+        194
+      ]
+    },
+    {
+      "name": "Deposited",
+      "discriminator": [
+        111,
+        141,
+        26,
+        45,
+        161,
+        35,
+        100,
+        57
+      ]
+    },
+    {
+      "name": "DustSwept",
+      "discriminator": [
+        131,
+        70,
+        179,
+        205,
+        208,
+        80,
+        13,
+        168
+      ]
+    },
+    {
+      "name": "PausedSet",
+      "discriminator": [
+        171,
+        125,
+        127,
+        156,
+        233,
+        81,
+        68,
+        66
+      ]
+    },
+    {
+      "name": "Refunded",
+      "discriminator": [
+        35,
+        103,
+        149,
+        246,
+        196,
+        123,
+        221,
+        99
+      ]
+    },
+    {
+      "name": "Revealed",
+      "discriminator": [
+        180,
+        7,
+        199,
+        88,
+        154,
+        19,
+        181,
+        154
+      ]
+    },
+    {
+      "name": "Withdrawn",
+      "discriminator": [
+        20,
+        89,
+        223,
+        198,
+        194,
+        124,
+        219,
+        13
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "signer is not authorized for this action"
+    },
+    {
+      "code": 6001,
+      "name": "Paused",
+      "msg": "program is paused"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidConfig",
+      "msg": "config parameter out of range"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidRevealWindow",
+      "msg": "reveal window must be in (0, max_reveal_window_secs]"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidCallerLock",
+      "msg": "caller lock is below the configured minimum"
+    },
+    {
+      "code": 6005,
+      "name": "VaultCapTooHigh",
+      "msg": "max vault exceeds the configured per-call cap"
+    },
+    {
+      "code": 6006,
+      "name": "StakeTooLow",
+      "msg": "caller stake is below the minimum share of max vault"
+    },
+    {
+      "code": 6007,
+      "name": "StakeAboveVault",
+      "msg": "caller stake exceeds max vault"
+    },
+    {
+      "code": 6008,
+      "name": "ZeroAmount",
+      "msg": "amount must be greater than zero"
+    },
+    {
+      "code": 6009,
+      "name": "WrongState",
+      "msg": "call is not in the required state"
+    },
+    {
+      "code": 6010,
+      "name": "DeadlinePassed",
+      "msg": "reveal deadline has passed"
+    },
+    {
+      "code": 6011,
+      "name": "DeadlineNotPassed",
+      "msg": "reveal deadline has not passed"
+    },
+    {
+      "code": 6012,
+      "name": "CallerCannotDeposit",
+      "msg": "caller cannot deposit into their own call"
+    },
+    {
+      "code": 6013,
+      "name": "DepositCapExceeded",
+      "msg": "per-follower deposit cap exceeded"
+    },
+    {
+      "code": 6014,
+      "name": "VaultCapExceeded",
+      "msg": "call vault cap exceeded"
+    },
+    {
+      "code": 6015,
+      "name": "HashMismatch",
+      "msg": "revealed (mint, pool, salt) does not match the commitment"
+    },
+    {
+      "code": 6016,
+      "name": "MintMismatch",
+      "msg": "mint account does not match the revealed mint"
+    },
+    {
+      "code": 6017,
+      "name": "NotDammPool",
+      "msg": "pool is not a DAMM v2 pool"
+    },
+    {
+      "code": 6018,
+      "name": "PoolMintMismatch",
+      "msg": "pool does not trade exactly wSOL and the revealed mint"
+    },
+    {
+      "code": 6019,
+      "name": "PoolVaultMismatch",
+      "msg": "pool vault accounts do not match the pool state"
+    },
+    {
+      "code": 6020,
+      "name": "WrongTokenProgram",
+      "msg": "output token program does not own the mint"
+    },
+    {
+      "code": 6021,
+      "name": "MinOutZero",
+      "msg": "minimum_amount_out must be greater than zero"
+    },
+    {
+      "code": 6022,
+      "name": "NothingToSwap",
+      "msg": "nothing to swap"
+    },
+    {
+      "code": 6023,
+      "name": "SlippageExceeded",
+      "msg": "swap returned fewer tokens than minimum_amount_out"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidImpact",
+      "msg": "max_impact_bps must be above zero and within the config ceiling"
+    },
+    {
+      "code": 6025,
+      "name": "PriceImpactExceeded",
+      "msg": "fill is worse than the pool spot price allows for this call"
+    },
+    {
+      "code": 6026,
+      "name": "CallerLockActive",
+      "msg": "caller lock period has not elapsed"
+    },
+    {
+      "code": 6027,
+      "name": "AlreadyClaimed",
+      "msg": "already claimed"
+    },
+    {
+      "code": 6028,
+      "name": "FollowersRemain",
+      "msg": "follower positions remain"
+    },
+    {
+      "code": 6029,
+      "name": "NothingToSweep",
+      "msg": "nothing to sweep"
+    },
+    {
+      "code": 6030,
+      "name": "Overflow",
+      "msg": "arithmetic overflow"
+    }
+  ],
+  "types": [
+    {
+      "name": "Call",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "caller",
+            "type": "pubkey"
+          },
+          {
+            "name": "call_id",
+            "type": "u64"
+          },
+          {
+            "name": "commitment",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "opened_at",
+            "type": "i64"
+          },
+          {
+            "name": "reveal_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "caller_lock_secs",
+            "type": "i64"
+          },
+          {
+            "name": "max_vault_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "max_impact_bps",
+            "docs": [
+              "worst fill vs the pool spot price at reveal, fixed at open so followers see it before depositing"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "caller_stake_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "follower_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "follower_count",
+            "type": "u32"
+          },
+          {
+            "name": "state",
+            "type": {
+              "defined": {
+                "name": "CallState"
+              }
+            }
+          },
+          {
+            "name": "revealed_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "revealed_pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "lamports_in",
+            "type": "u64"
+          },
+          {
+            "name": "tokens_out",
+            "type": "u64"
+          },
+          {
+            "name": "executed_at",
+            "type": "i64"
+          },
+          {
+            "name": "executed_slot",
+            "type": "u64"
+          },
+          {
+            "name": "tokens_claimed",
+            "type": "u64"
+          },
+          {
+            "name": "caller_claimed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "vault_bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CallExpired",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "call",
+            "type": "pubkey"
+          },
+          {
+            "name": "caller",
+            "type": "pubkey"
+          },
+          {
+            "name": "returned_lamports",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CallOpened",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "call",
+            "type": "pubkey"
+          },
+          {
+            "name": "caller",
+            "type": "pubkey"
+          },
+          {
+            "name": "call_id",
+            "type": "u64"
+          },
+          {
+            "name": "commitment",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "reveal_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "caller_lock_secs",
+            "type": "i64"
+          },
+          {
+            "name": "max_vault_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "max_impact_bps",
+            "type": "u16"
+          },
+          {
+            "name": "caller_stake_lamports",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CallState",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Open"
+          },
+          {
+            "name": "Executed"
+          },
+          {
+            "name": "Expired"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CallerClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "call",
+            "type": "pubkey"
+          },
+          {
+            "name": "caller",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Claimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "call",
+            "type": "pubkey"
+          },
+          {
+            "name": "follower",
+            "type": "pubkey"
+          },
+          {
+            "name": "lamports",
+            "type": "u64"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "caller_fee_share_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_call_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "max_deposit_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "min_caller_stake_bps",
+            "type": "u16"
+          },
+          {
+            "name": "min_caller_lock_secs",
+            "type": "i64"
+          },
+          {
+            "name": "max_reveal_window_secs",
+            "type": "i64"
+          },
+          {
+            "name": "max_price_impact_bps",
+            "docs": [
+              "ceiling for a call's max_impact_bps"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfigInitialized",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfigParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "caller_fee_share_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_call_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "max_deposit_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "min_caller_stake_bps",
+            "type": "u16"
+          },
+          {
+            "name": "min_caller_lock_secs",
+            "type": "i64"
+          },
+          {
+            "name": "max_reveal_window_secs",
+            "type": "i64"
+          },
+          {
+            "name": "max_price_impact_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfigUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "caller_fee_share_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_call_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "max_deposit_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "min_caller_stake_bps",
+            "type": "u16"
+          },
+          {
+            "name": "min_caller_lock_secs",
+            "type": "i64"
+          },
+          {
+            "name": "max_reveal_window_secs",
+            "type": "i64"
+          },
+          {
+            "name": "max_price_impact_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Deposited",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "call",
+            "type": "pubkey"
+          },
+          {
+            "name": "follower",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "position_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "follower_count",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DustSwept",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "call",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PausedSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "paused",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Position",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "follower",
+            "type": "pubkey"
+          },
+          {
+            "name": "lamports",
+            "type": "u64"
+          },
+          {
+            "name": "claimed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Refunded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "call",
+            "type": "pubkey"
+          },
+          {
+            "name": "follower",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Revealed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "call",
+            "type": "pubkey"
+          },
+          {
+            "name": "caller",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "fee_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "caller_fee_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "lamports_in",
+            "type": "u64"
+          },
+          {
+            "name": "tokens_out",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Withdrawn",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "call",
+            "type": "pubkey"
+          },
+          {
+            "name": "follower",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -3,11 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "bash scripts/run-tests.sh"
+    "test": "bash scripts/run-tests.sh",
+    "sync-idl": "cp target/idl/sealed_call.json sdk/src/idl/sealed_call.json && cp target/types/sealed_call.ts sdk/src/idl/sealed_call.ts",
+    "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",
     "@meteora-ag/cp-amm-sdk": "^1.5.1",
+    "@noble/hashes": "^1.8.0",
     "@solana/spl-token": "^0.4.15",
     "@solana/web3.js": "^1.99.0",
     "bn.js": "^5.2.5"
