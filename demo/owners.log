@@ -1,2 +1,3 @@
 address | kind | purpose | tx
 DEawZWJ2gZg5KMaUo2GSu7vTFcAPZ4BPSQ6et8JFQDQ1 | keypair (keys/deployer.json, gitignored) | sealed-call devnet deployer | funded 1.25921516 SOL by closing the locked-fee-escrow spike program 3iqQQS1K...
+DEawZWJ2gZg5KMaUo2GSu7vTFcAPZ4BPSQ6et8JFQDQ1 | keypair (keys/deployer.json) | +2.2 SOL devnet from GhyXbXu7y3DVptMiSPBri12rGMxJBKtex4hWSa6bfg9j (~/.config/solana/id.json) for program deploy rent | 4x6sx2DjJ1V9KNHt1TqXZuJRpVikgRDrVidhoHJKkQr4Uvs2nhyVgausHe8mspzHKWaMhYap1SLJnwH7ByNc6YGs
