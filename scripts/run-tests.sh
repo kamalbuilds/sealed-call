@@ -4,12 +4,14 @@ cd "$(dirname "$0")/.."
 
 SEALED=JBwReCk6DRFZREGjCfNiMQUsFFc66FSLBrejnjzKgU4N
 DAMM=cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG
+CPI_OPENER=4SGjnSXNiXNMaoy3wUeW3N3qn8LkZ72XsxT3MenyoD5Z
 RPC_PORT=${SEALED_RPC_PORT:-18899}
 FAUCET_PORT=${SEALED_FAUCET_PORT:-19900}
 GOSSIP_PORT=${SEALED_GOSSIP_PORT:-18100}
 RPC=http://127.0.0.1:$RPC_PORT
 
 [ -f target/deploy/sealed_call.so ] || { echo "missing target/deploy/sealed_call.so, run anchor build" >&2; exit 1; }
+[ -f target/deploy/cpi_opener.so ] || { echo "missing target/deploy/cpi_opener.so, run anchor build" >&2; exit 1; }
 [ -f fixtures/damm_v2.so ] || solana program dump -u devnet "$DAMM" fixtures/damm_v2.so
 ADMIN=$(solana address -k keys/test-admin.json)
 
@@ -26,7 +28,8 @@ fi
 solana-test-validator --reset --quiet --ledger .test-ledger \
   --rpc-port "$RPC_PORT" --faucet-port "$FAUCET_PORT" --gossip-port "$GOSSIP_PORT" --dynamic-port-range "$GOSSIP_PORT-$((GOSSIP_PORT + 100))" \
   --upgradeable-program "$SEALED" target/deploy/sealed_call.so "$ADMIN" \
-  --bpf-program "$DAMM" fixtures/damm_v2.so >.test-validator.log 2>&1 &
+  --bpf-program "$DAMM" fixtures/damm_v2.so \
+  --bpf-program "$CPI_OPENER" target/deploy/cpi_opener.so >.test-validator.log 2>&1 &
 VALIDATOR=$!
 trap 'kill $VALIDATOR 2>/dev/null || true; wait $VALIDATOR 2>/dev/null || true' EXIT
 

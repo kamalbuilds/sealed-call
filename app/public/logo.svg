@@ -1,0 +1,27 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark canvas background -->
+  <rect width="200" height="200" fill="#131313"/>
+  
+  <!-- Mint accent circle outline -->
+  <circle cx="100" cy="100" r="85" fill="none" stroke="#3cffd0" stroke-width="2"/>
+  
+  <!-- Inner seal symbol: padlock shape -->
+  <g transform="translate(100, 95)">
+    <!-- Shackle -->
+    <path d="M -25 0 Q -25 -35 0 -35 Q 25 -35 25 0" 
+          fill="none" stroke="#3cffd0" stroke-width="3" stroke-linecap="round"/>
+    
+    <!-- Body -->
+    <rect x="-30" y="5" width="60" height="50" rx="4" 
+          fill="none" stroke="#3cffd0" stroke-width="3"/>
+    
+    <!-- Keyhole -->
+    <circle cx="0" cy="25" r="4" fill="#3cffd0"/>
+    <path d="M 0 29 L 0 38" stroke="#3cffd0" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Secondary accent accent triangle for depth -->
+  <g transform="translate(100, 160)" opacity="0.6">
+    <polygon points="0,-8 -10,8 10,8" fill="#5200ff"/>
+  </g>
+</svg>

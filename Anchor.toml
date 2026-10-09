@@ -7,6 +7,7 @@ skip-lint = false
 
 [programs.localnet]
 sealed_call = "JBwReCk6DRFZREGjCfNiMQUsFFc66FSLBrejnjzKgU4N"
+cpi_opener = "4SGjnSXNiXNMaoy3wUeW3N3qn8LkZ72XsxT3MenyoD5Z"
 
 [programs.devnet]
 sealed_call = "JBwReCk6DRFZREGjCfNiMQUsFFc66FSLBrejnjzKgU4N"
