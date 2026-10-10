@@ -73,9 +73,40 @@ Live transaction signatures recorded from Solana devnet are in [demo/devnet-run.
   - Rejected late reveal: `Ha5oumSm3jneQouQmRU1TxyycdwW5y24h6wmC2VXukqAfhFXWq91QT8gxrDZzcGeynU5xbCqz6NzhgwtbbUMqdH`
   - Expire and refund: `5SeXJgc9m2dTKEh6adrPgFELuX2Hop7Twc8afi45Y5LFmFXaEXR3pjmERsKTuL4YjoTLpFQHrDoq7XZuVVAHbSxa`
 
+## Architecture
+
+```
+caller ──open_call(commitment=H(call,mint,pool,salt))──▶ Call PDA + SOL vault PDA
+followers ──deposit(SOL)──▶ vault  (withdraw allowed until reveal)
+caller ──reveal_and_swap(mint,salt,min_out)──▶ checks hash, pool seasoning/lock/depth,
+        mint hygiene (fixed supply, no freeze, no value-taking extensions), max impact
+        ──CPI──▶ Meteora DAMM v2 swap: whole vault (caller stake + followers) in ONE swap, ONE price
+followers ──claim()──▶ pro-rata tokens      caller ──caller_claim()──▶ after caller lock
+no reveal by deadline ──expire() / refund()──▶ SOL back to every depositor
+```
+
+- `programs/sealed_call/src/instructions/*`: one file per instruction; `damm.rs` DAMM v2 CPI + pool decoding; `math.rs` pro-rata/impact math (checked u128); `state.rs` Config/Call/Position accounts; `events.rs` emitted on every state change.
+- The mint is never on chain before reveal: only the 32-byte commitment, which binds call address, mint, pool and salt.
+- Backend is chain-only: the app and `scripts/stats.ts` read program accounts directly, no database.
+
+## How to run
+
+Prereqs: Solana CLI 2.x, Anchor 0.32.1, Node 20+.
+
+```bash
+npm install
+anchor build && npm run sync-idl     # builds program, refreshes sdk/src/idl
+npm test                             # local validator + real DAMM v2 dumped from devnet
+npx tsx scripts/devnet-e2e.ts        # full open→deposit→reveal→claim + refund flow on devnet
+anchor deploy --provider.cluster devnet   # upgrade (authority DEawZW…)
+```
+
+See `HANDOFF.md` for program ID, IDL paths and the SDK surface.
+
 ## Repository Structure
 
 - `programs/sealed_call`: Anchor smart contract (Meteora DAMM v2 CPI, commit-reveal, `cpi` feature for external callers)
+- `programs/cpi_opener`: Example caller that opens a sealed call from a PDA via CPI (`4SGjnSXNiXNMaoy3wUeW3N3qn8LkZ72XsxT3MenyoD5Z`, local tests in `tests/zz-cpi-opener.ts`)
 - `sdk/`: TypeScript client SDK (`fetchCalls`, `fetchPositions`, `fetchConfig`, instruction builders)
 - `scripts/`: Devnet runner and `stats.ts` CLI
 - `app/`: Next.js web application for devnet calls

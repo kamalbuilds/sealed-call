@@ -1,0 +1,63 @@
+
+> test
+> bash scripts/run-tests.sh
+
+bigint: Failed to load bindings, pure JS will be used (try npm run rebuild?)
+
+
+  sealed_call against real Meteora DAMM v2 pools
+    config
+      ✔ init_config by a signer that is not the upgrade authority is rejected
+      ✔ init_config by the upgrade authority stores every parameter (2589ms)
+      ✔ init_config cannot run twice
+    happy path: one call, three followers, one transaction reveal
+      ✔ caller opens with stake, followers deposit different amounts (3118ms)
+      ✔ fetchers list the call and its three positions from chain
+      ✔ withdraw by a follower before execution refunds in full, a re-deposit restores the position (1375ms)
+KILLGATE cu=146808 size=852 followers=3
+      ✔ caller reveals in ONE transaction, fills at one price, fee goes to treasury and caller (815ms)
+      ✔ withdraw after execution is rejected with WrongState, balances unchanged
+      ✔ caller_claim before the lock reverts, followers claim floor(tokens_out * lamports / total) (3416ms)
+      ✔ double claim fails and moves nothing
+      ✔ caller_claim succeeds after the lock and a second one is AlreadyClaimed (2842ms)
+      ✔ every claimant got the same price within one token unit, claims never exceed tokens_out
+      ✔ sweep_dust by a non-admin is rejected, by the admin leaves the vault output at 0 (1912ms)
+    happy path on the reversed pool orientation (wSOL is token B)
+KILLGATE-REVERSED cu=183148 size=852 followers=1
+      ✔ fills, matches the output balance and pays pro-rata claims (16390ms)
+    negatives
+      ✔ wrong salt reverts with HashMismatch (5344ms)
+      ✔ commitment to (mintX, pool of mintY) reverts with PoolMintMismatch (2983ms)
+      ✔ an account that is not a DAMM v2 pool reverts with NotDammPool (10545ms)
+      ✔ thin pool with max_impact_bps 100 reverts with PriceImpactExceeded, a permissive tolerance fills (4791ms)
+      ✔ a batch above 10% of the pool's wSOL reserve reverts with PoolTooThin (6820ms)
+      ✔ a deposit below min_deposit_lamports reverts with DepositTooSmall (4126ms)
+      ✔ a commitment copied into another caller's call reverts with HashMismatch (2138ms)
+      ✔ minimum_amount_out 0 reverts with MinOutZero (3071ms)
+      ✔ a non-caller reveal reverts with Unauthorized (1139ms)
+      ✔ the caller cannot deposit into the own call (542ms)
+      ✔ per-follower cap and vault cap (1119ms)
+      ✔ opening with a stake below the minimum, above the vault, or a vault above the cap is rejected
+      ✔ claim before execution is rejected and moves nothing (1076ms)
+    pool and mint hygiene
+      ✔ a pool the caller created after the call opened reverts with PoolNotSeasoned, followers withdraw in full (5558ms)
+      ✔ a seasoned pool with unlocked liquidity reverts with PoolLiquidityUnlocked (6819ms)
+      ✔ the same pool with locked liquidity fills, so the lock is the only difference (13075ms)
+      ✔ an output mint with a live mint authority reverts with MintAuthorityLive (14526ms)
+      ✔ an output mint with a freeze authority reverts with MintAuthorityLive (22333ms)
+      ✔ a Token-2022 mint with a TransferFeeConfig extension reverts with UnsafeMintExtension (16501ms)
+    fee terms are fixed at open
+      ✔ set_config after deposits does not change that call's fee split (4197ms)
+    expiry
+      ✔ after the deadline reveal reverts, refunds return every lamport, expire returns stake and reserve (17937ms)
+    pause
+      ✔ blocks open, deposit and reveal while withdraw still works; only the admin may pause (8014ms)
+
+  cpi_opener opens a sealed call from a PDA caller
+    ✔ opens a call whose caller is the opener PDA, funded by the PDA, signed with invoke_signed (783ms)
+    ✔ the same PDA opens a second call (809ms)
+    ✔ a call PDA not derived from the opener is rejected and creates nothing
+
+
+  39 passing (4m)
+
