@@ -1,31 +1,21 @@
-export const SEALED_CALL_ERRORS: Record<number, string> = {
-  6000: "Seal does not match the pool and token configuration",
-  6001: "Pool fill would exceed maximum price impact",
-  6002: "Reveal deadline has passed, cannot process",
-  6003: "Caller lock period has not expired",
-  6004: "Vault has insufficient balance",
-  6005: "Position does not exist or is invalid",
-  6006: "Unauthorized access to position or call",
-  6007: "Pool data is invalid or corrupted",
-  6008: "Invalid pool pairing, must be wSOL base",
-  6009: "Caller has insufficient stake",
-  6010: "Reveal window not yet open",
-  6011: "Call already revealed",
-  6012: "Invalid configuration parameters",
-};
+import { idl } from "@/lib/sealed-call-client";
+
+const ERRORS: Record<number, string> = Object.fromEntries(
+  ((idl as any).errors ?? []).map((e: any) => [e.code, e.msg ?? e.name]),
+);
 
 export function mapProgramError(error: any): string {
-  if (error?.code) {
-    const mapped = SEALED_CALL_ERRORS[error.code];
-    if (mapped) return mapped;
+  const code = error?.error?.errorCode?.number ?? error?.code;
+  if (typeof code === "number" && ERRORS[code]) return `${ERRORS[code]} (${code})`;
+  const text = [error?.message, ...(error?.logs ?? []), ...(error?.transactionLogs ?? [])].join("\n");
+  const hex = text.match(/custom program error: 0x([0-9a-f]+)/i);
+  if (hex) {
+    const n = parseInt(hex[1], 16);
+    if (ERRORS[n]) return `${ERRORS[n]} (${n})`;
   }
-
-  if (error?.message) {
-    if (error.message.includes("Instruction discrimination mismatch")) {
-      return "Invalid program instruction";
-    }
-    return error.message;
-  }
-
-  return "An unknown error occurred";
+  const named = text.match(/Error Number: (\d+)/);
+  if (named && ERRORS[+named[1]]) return `${ERRORS[+named[1]]} (${named[1]})`;
+  if (/User rejected/i.test(text)) return "You declined in the wallet.";
+  if (/insufficient lamports|Attempt to debit/i.test(text)) return "Not enough devnet SOL. Use faucet.solana.com.";
+  return error?.message ?? "Unknown error";
 }

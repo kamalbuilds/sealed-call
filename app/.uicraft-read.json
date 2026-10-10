@@ -1,14 +1,14 @@
 {
-  "as": "sealed-call memecoin commit-reveal batch fill dapp, crypto developer",
-  "dials": "9/8/7",
-  "type": "Space Grotesk Mono",
-  "surface": "#131313",
-  "accent": "#3cffd0",
+  "as": "caller home for Solana judges, dark trading terminal",
+  "dials": "6/5/4",
+  "type": "Geist",
+  "surface": "off-black",
+  "accent": "mint",
   "radius": "20",
   "showpiece": "none",
-  "direction": "",
-  "review": "",
-  "research": "skipped: Verge design system already documented in projects/sealed-call/DESIGN.md",
+  "direction": "design-taste-frontend",
+  "review": "anti-ai-slop-frontend",
+  "research": "skipped: Extending existing sealed-call Verge theme in globals.css and DESIGN.md",
   "cwd": "/Users/kamal/Desktop/solana/cwf/sol/projects/sealed-call/app",
-  "ts": "2026-10-09T17:18:21Z"
+  "ts": "2026-10-10T03:30:13Z"
 }

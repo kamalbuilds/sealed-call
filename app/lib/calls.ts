@@ -1,37 +1,35 @@
-// Local storage management for sealed call data
-
+// The seal (mint, pool, salt) never leaves the caller's browser until reveal. Keep it in localStorage and as a file.
 export interface SealData {
+  call: string;
   callId: string;
   mint: string;
   pool: string;
-  salt: string;
-  call: string;
+  salt: string; // hex
+  createdAt: number;
 }
 
-export function saveSeal(callId: string, data: SealData): void {
+const key = (call: string) => `sealed_call_seal_${call}`;
+
+export function saveSeal(data: SealData): void {
   if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(`sealed_${callId}`, JSON.stringify(data));
-  } catch (e) {
-    console.error("Failed to save seal:", e);
-  }
+  localStorage.setItem(key(data.call), JSON.stringify(data));
 }
 
-export function loadSeal(callId: string): SealData | null {
+export function loadSeal(call: string): SealData | null {
   if (typeof window === "undefined") return null;
   try {
-    const stored = localStorage.getItem(`sealed_${callId}`);
-    return stored ? JSON.parse(stored) : null;
-  } catch (e) {
-    console.error("Failed to load seal:", e);
+    const s = localStorage.getItem(key(call));
+    return s ? (JSON.parse(s) as SealData) : null;
+  } catch {
     return null;
   }
 }
 
-export function loadCallStream(): any[] {
-  return [];
-}
-
-export function mapCall(data: any): any {
-  return data;
+export function downloadSeal(data: SealData): void {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `sealed-call-${data.call.slice(0, 8)}.seal.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }

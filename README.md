@@ -115,3 +115,36 @@ See `HANDOFF.md` for program ID, IDL paths and the SDK surface.
 ## Open Source Note
 
 Open source under Apache-2.0 / MIT for Colosseum Crypto World's Fair review. Grant `hackathon@colosseum.com` access if the repository is private.
+
+## UI
+
+**Live (devnet):** https://sealed-call.big-helium.workers.dev
+
+The app (`app/`, Next.js static export, Solana wallet adapter: Phantom / Solflare, devnet) is styled as a notary's desk, not a trading terminal: parchment, ink, oxblood wax, Fraunces + IBM Plex Mono. The hidden token is drawn as a redaction bar; the call is an envelope closed with a wax seal generated from the call address.
+
+| Page | Who | What happens |
+|---|---|---|
+| `/` The Ledger | anyone | every Call account read live from devnet (`getProgramAccounts`), sealed calls with a countdown to the reveal deadline, settled and refundable ones below |
+| `/open` Seal a call | caller | pick a Meteora DAMM v2 wSOL pool, set stake, cap, reveal window, lock and max impact (limits read from the on-chain Config). "Press the seal" builds `sha256(call‖mint‖pool‖salt)`, saves the salt in localStorage **before** signing, sends `open_call`, and offers the salt as a `.seal.json` download |
+| `/call?c=<call>` | follower | blind deposit with quick amounts, withdraw before reveal, refund after an unrevealed deadline, claim after the fill |
+| `/call?c=<call>` | caller | if the browser holds the seal (or you load the `.seal.json`), "Break the seal & fill everyone" sends `reveal_and_swap` with a `minimum_amount_out` derived from pool spot, fee and the call's max impact; caller claim shows a lock countdown |
+| reveal ceremony | everyone | when a call is executed: the seal cracks, the flap opens, the mint replaces the redaction bar, a "ONE PRICE" stamp lands, then the fill register fills row by row with every wallet at the identical SOL/token price, linked to the single reveal tx. "Replay the reveal" re-runs it |
+
+Program errors are decoded from the IDL (`lib/program-errors.ts`), so a rejected reveal reads e.g. "revealed (mint, pool, salt) does not match the commitment (6015)".
+
+Screenshots: `docs/screenshots/{home,open,reveal-sealed,reveal}.png`.
+
+Run locally: `cd app && npm install && npm run dev` (set `NEXT_PUBLIC_RPC_URL` for a private devnet RPC). Deploy: `npm run build && npx wrangler deploy` (assets from `app/out`, config in `app/wrangler.jsonc`).
+
+## Demo (≈90 s)
+
+1. **Ledger** (`/`): the recorded devnet run `HaaRa…Etnw3` is listed as Revealed; open calls show a live countdown.
+2. **Watch a reveal**: the envelope for `HaaRa…Etnw3` breaks open; token `CYb9…XNyS`, 0.030 SOL swapped for 27.58M tokens, caller + 3 followers all at 1.077e-9 SOL/token, all in tx `3TiDGb…jbj3bhdJ` (109,404 CU, 852 bytes).
+3. **Seal a call** (`/open`, wallet A on devnet): demo pool is prefilled, stake 0.2 / cap 2 SOL, 60-minute window. Press the seal → tx link, download the seal file. The right panel shows what the world sees: a redaction bar and a hash.
+4. **Follow** (wallet B, same `/call?c=` link): deposit 0.1 SOL blind. The fill register gains a row priced "sealed".
+5. **Break the seal** (wallet A): one signature; the ceremony plays and both rows show the same price. Wallet B claims; wallet A sees its lock countdown.
+6. Failure path to mention: no reveal before the deadline → "Take my SOL back" for every follower.
+
+Note: the demo pool must satisfy the program's reveal guards (seasoned before the call opened, locked liquidity, fixed-supply mint), so step 5 uses the e2e pool `9mwSK2…j8K`.
+
+Pool check (Oct 10): `RPC_URL=https://api.devnet.solana.com npx tsx scripts/pool-check.ts` ran a fresh open → deposit → reveal → claim on `9mwSK2…j8K`; reveal executed (call `4sQqsg6LXnw8zdh4xLmCFgQVoJHAZ49UxFaeAt2m1QnF`, tx `zmqTCHYX…B1hjuH`), so the app's prefilled pool still qualifies.
