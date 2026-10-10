@@ -118,7 +118,7 @@ Open source under Apache-2.0 / MIT for Colosseum Crypto World's Fair review. Gra
 
 ## UI
 
-**Live (devnet):** https://sealed-call.big-helium.workers.dev
+**Live (devnet):** https://sealed-call.pages.dev
 
 The app (`app/`, Next.js static export, Solana wallet adapter: Phantom / Solflare, devnet) is styled as a notary's desk, not a trading terminal: parchment, ink, oxblood wax, Fraunces + IBM Plex Mono. The hidden token is drawn as a redaction bar; the call is an envelope closed with a wax seal generated from the call address.
 
@@ -134,7 +134,7 @@ Program errors are decoded from the IDL (`lib/program-errors.ts`), so a rejected
 
 Screenshots: `docs/screenshots/{home,open,reveal-sealed,reveal}.png`.
 
-Run locally: `cd app && npm install && npm run dev` (set `NEXT_PUBLIC_RPC_URL` for a private devnet RPC). Deploy: `npm run build && npx wrangler deploy` (assets from `app/out`, config in `app/wrangler.jsonc`).
+Run locally: `cd app && npm install && npm run dev` (set `NEXT_PUBLIC_RPC_URL` for a private devnet RPC). Deploy (Cloudflare Pages, project `sealed-call`): `npm run build && npx wrangler pages deploy out --project-name sealed-call --branch main`.
 
 ## Demo (≈90 s)
 
