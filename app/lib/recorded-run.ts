@@ -12,6 +12,13 @@ export const RECORDED_DEVNET_RUN = {
     { who: "7m3mfUH6TdVvXKm6z32mrkeUNKbpR5vY1z7V3jrjGzfe", lamports: 8_000_000 },
     { who: "7cCACe63VxDXHsySdZeCEt6qjg9aBwLVDaviw1gA64zx", lamports: 6_000_000 },
   ],
+  openTx: "77gcwFyaGyebVQ3uprXwtvgkBguNRCto7yWzrLMcnctNyZXJEWBUiPwD2EbFhVs4pwkt7bbGjnDKEHqkCUXfb6r",
+  depositTxs: [
+    "3SUd6612CvQveyqfuogoXQiFPdC3EWd5wvxdVVKtebDWG1VfwWfEVkjbd5JLvRsPW7B1phtJF2WYTYUP8snZoY73",
+    "3Y2FqPo1mvKhdpimFrCQPn9fRSHkz5FSLq8Cb58FyXJowGaUeM7Jh9WSEQHrFyb2mVkM9fLSUggDbQLMDBQi1zoe",
+    "4Yx932D1dixSRxSuCbrKSg1AuJMbtbkYnUbHdnK5JvjUSA9q665PSy9sfwKbBHd6xjtwpHKvhYM1BDUXQ3XrozJj",
+  ],
+  rejectedRevealTx: "4huGSTvnMtNvNM8b6VcXmjRQNkftK3sT8iivBxtmExkt82yXUpb9QteatPzPeegPLZz9w2jucEc3qP1cv5QhTVH9",
   completedAt: "2026-10-05T09:48:58.000Z",
 } as const;
 

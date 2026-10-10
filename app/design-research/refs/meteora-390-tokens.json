@@ -1,0 +1,93 @@
+{
+ "url": "https://app.meteora.ag/",
+ "viewport": [
+  390,
+  844
+ ],
+ "title": "Home | Meteora",
+ "h1": null,
+ "h2": {
+  "text": "Welcome to Meteora",
+  "font": "Inter",
+  "size": "16px",
+  "weight": "600",
+  "tracking": "normal",
+  "leading": "28px",
+  "color": "rgb(249, 249, 251)",
+  "bg": "rgba(0, 0, 0, 0)",
+  "radius": "0px",
+  "padding": "0px",
+  "border": "0px solid rgb(229, 231, 235)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "h3": null,
+ "body": {
+  "text": "Search\nConnect\nWe build liquidity pools\nFor Liquidity Provid",
+  "font": "Inter",
+  "size": "16px",
+  "weight": "400",
+  "tracking": "normal",
+  "leading": "24px",
+  "color": "rgb(255, 255, 255)",
+  "bg": "rgb(13, 13, 19)",
+  "radius": "0px",
+  "padding": "0px",
+  "border": "0px solid rgb(229, 231, 235)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "p": {
+  "text": "Total Value Locked",
+  "font": "Inter",
+  "size": "12px",
+  "weight": "500",
+  "tracking": "normal",
+  "leading": "16px",
+  "color": "rgb(108, 108, 137)",
+  "bg": "rgba(0, 0, 0, 0)",
+  "radius": "0px",
+  "padding": "0px",
+  "border": "0px solid rgb(229, 231, 235)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "a": {
+  "text": "New? Start Here!",
+  "font": "Inter",
+  "size": "16px",
+  "weight": "500",
+  "tracking": "normal",
+  "leading": "24px",
+  "color": "rgb(249, 249, 251)",
+  "bg": "rgba(0, 0, 0, 0)",
+  "radius": "8px",
+  "padding": "10px 12px",
+  "border": "0px solid rgb(229, 231, 235)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "button": {
+  "text": "Search",
+  "font": "Inter",
+  "size": "16px",
+  "weight": "400",
+  "tracking": "normal",
+  "leading": "24px",
+  "color": "rgb(255, 255, 255)",
+  "bg": "rgba(0, 0, 0, 0)",
+  "radius": "9999px",
+  "padding": "0px 10px 0px 8px",
+  "border": "1px solid rgb(42, 42, 60)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "input": null,
+ "loadedFonts": [
+  "Inter"
+ ],
+ "htmlBg": "rgba(0, 0, 0, 0)",
+ "bodyText": "Search\nConnect\nWe build liquidity pools\nFor Liquidity Providers, Launchpads, and Launches\nNew? Start Here!\nLP Army\n\nTotal Value Locked\n\n$334.53M\n\nSwap Volume\n\n$364.21B\n\nFees Generated\n\n$2.04B\nAll\nFavorites\nTop Performers\nTrending\nNew Tokens\nRWA\n0.1\n2H\n5\n\t\nPools\n\t\nPrice Trend\n\t\nToken Age\n\t\nMarket Cap\n\t\nPool Price\n\t\nTVL\n\t\nActive TVL\n\t\nFees\n\t\nFees/Active TVL\n\t\nVolume\n\t\nVolume/Active TVL\n\t\nSwaps\n\t\nTra",
+ "textLen": 15596,
+ "height": 1096
+}

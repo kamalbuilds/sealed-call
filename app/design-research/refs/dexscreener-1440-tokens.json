@@ -1,0 +1,81 @@
+{
+ "url": "https://dexscreener.com/solana",
+ "viewport": [
+  1440,
+  900
+ ],
+ "title": "Solana DEX Screener",
+ "h1": null,
+ "h2": null,
+ "h3": null,
+ "body": {
+  "text": "Search\n/\nGet the App!\nWatchlist\nAlerts\nMulticharts\nNew Pairs",
+  "font": "Poppins, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+  "size": "14px",
+  "weight": "400",
+  "tracking": "normal",
+  "leading": "21px",
+  "color": "rgb(255, 255, 255)",
+  "bg": "rgb(23, 23, 28)",
+  "radius": "0px",
+  "padding": "0px",
+  "border": "0px solid rgba(255, 255, 255, 0.16)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "p": {
+  "text": "Ad",
+  "font": "Poppins, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+  "size": "11px",
+  "weight": "400",
+  "tracking": "normal",
+  "leading": "16.5px",
+  "color": "rgb(255, 255, 255)",
+  "bg": "rgba(0, 0, 0, 0)",
+  "radius": "0px",
+  "padding": "0px",
+  "border": "0px solid rgba(255, 255, 255, 0.16)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "a": {
+  "text": "Watchlist",
+  "font": "Poppins, ui-sans-serif, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+  "size": "14px",
+  "weight": "500",
+  "tracking": "normal",
+  "leading": "21px",
+  "color": "rgb(201, 201, 206)",
+  "bg": "rgba(0, 0, 0, 0)",
+  "radius": "0px",
+  "padding": "7px 16px",
+  "border": "0px solid rgb(29, 29, 34)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "button": {
+  "text": "Search\n/",
+  "font": "Poppins, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+  "size": "14px",
+  "weight": "600",
+  "tracking": "normal",
+  "leading": "21px",
+  "color": "rgb(201, 201, 206)",
+  "bg": "rgb(40, 40, 45)",
+  "radius": "6px",
+  "padding": "0px 8px 0px 16px",
+  "border": "0px solid rgba(255, 255, 255, 0.16)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "input": null,
+ "loadedFonts": [
+  "Poppins",
+  "Space Grotesk",
+  "Fira Mono"
+ ],
+ "htmlBg": "rgba(0, 0, 0, 0)",
+ "bodyText": "Search\n/\nGet the App!\nWatchlist\nAlerts\nMulticharts\nNew Pairs\nGainers & Losers\nAPI\nAdvertise\nSolana\nRobinhood\nBSC\nEthereum\nBase\nPolygon\nPulseChain\nNEAR\nArc\nHyperEVM\nCronos\nTON\nSui\nStarknet\nArbitrum\nAvalanche\nXRPL\nInk\nMonad\nSonic\nWorld Chain\nHyperliquid\nTron\nAbstract\nHedera\nMultiversX\nOptimism\nStable\nCardano\nAlgorand\nzkSync\nICP\nAptos\nLinea\nBerachain\nMantle\nSei V2\nPlasma\nFantom\nBlast\nMetis\nInjective\n",
+ "textLen": 12417,
+ "height": 900
+}

@@ -1,0 +1,81 @@
+{
+ "url": "https://dexscreener.com/solana",
+ "viewport": [
+  390,
+  844
+ ],
+ "title": "Solana DEX Screener",
+ "h1": null,
+ "h2": null,
+ "h3": null,
+ "body": {
+  "text": "Get the App!\nEXPLORE\nAll DEXes\nPumpSwap\nOrca\nMeteora\nRaydium",
+  "font": "Poppins, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+  "size": "14px",
+  "weight": "400",
+  "tracking": "normal",
+  "leading": "21px",
+  "color": "rgb(255, 255, 255)",
+  "bg": "rgb(23, 23, 28)",
+  "radius": "0px",
+  "padding": "0px",
+  "border": "0px solid rgba(255, 255, 255, 0.16)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "p": {
+  "text": "Ad",
+  "font": "Poppins, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+  "size": "11px",
+  "weight": "400",
+  "tracking": "normal",
+  "leading": "16.5px",
+  "color": "rgb(255, 255, 255)",
+  "bg": "rgba(0, 0, 0, 0)",
+  "radius": "0px",
+  "padding": "0px",
+  "border": "0px solid rgba(255, 255, 255, 0.16)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "a": {
+  "text": "All DEXes",
+  "font": "Poppins, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+  "size": "14px",
+  "weight": "500",
+  "tracking": "normal",
+  "leading": "14px",
+  "color": "rgb(255, 255, 255)",
+  "bg": "rgba(0, 0, 0, 0)",
+  "radius": "0px",
+  "padding": "0px 12px",
+  "border": "",
+  "transform": "none",
+  "features": "normal"
+ },
+ "button": {
+  "text": "Get the App!",
+  "font": "Poppins, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+  "size": "13px",
+  "weight": "600",
+  "tracking": "normal",
+  "leading": "19.5px",
+  "color": "rgb(255, 255, 255)",
+  "bg": "rgb(40, 40, 45)",
+  "radius": "8px",
+  "padding": "8px",
+  "border": "0px solid rgba(255, 255, 255, 0.16)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "input": null,
+ "loadedFonts": [
+  "Poppins",
+  "Space Grotesk",
+  "Fira Mono"
+ ],
+ "htmlBg": "rgba(0, 0, 0, 0)",
+ "bodyText": "Get the App!\nEXPLORE\nAll DEXes\nPumpSwap\nOrca\nMeteora\nRaydium\nPump.fun\nMeteora DBC\nPancakeSwap\nFluxBeam\nMetaDAO\nRise\nBags\nDexlab\nZora\nMoonit\nPrintr\nHeaven\nMetas\n\ud83c\udfc6\nMeme Hall of Fame\n$1.97B\n\ud83d\udc08\nCat\n$231.6M\n\ud83d\udc36\nDog\n$683.2M\n\ud83d\udc3b\u200d\u2744\ufe0f\nCharacter\n$663.5M\n\ud83d\ude08\nDegen\n$358.2M\n\ud83d\udcc8\nStonks\n$130.5M\n\ud83d\udc3e\nInternet Animals\n$98.1M\n\ud83c\udfac\nTikTok\n$14.0M\n\ud83e\udde0\nBrainrot\n$9.9M\n\ud83e\udd16\nAI\n$562.2M\n\ud83d\uddbc\ufe0f\nNFT\n$798.5M\n\ud83c\udf1f\nCelebrity\n$714.7M\n\ud83c\udf4a\nTrump\n$",
+ "textLen": 10064,
+ "height": 844
+}

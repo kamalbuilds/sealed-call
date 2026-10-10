@@ -1,0 +1,93 @@
+{
+ "url": "https://app.meteora.ag/",
+ "viewport": [
+  1440,
+  900
+ ],
+ "title": "Home | Meteora",
+ "h1": null,
+ "h2": {
+  "text": "Welcome to Meteora",
+  "font": "Inter",
+  "size": "18px",
+  "weight": "600",
+  "tracking": "normal",
+  "leading": "28px",
+  "color": "rgb(249, 249, 251)",
+  "bg": "rgba(0, 0, 0, 0)",
+  "radius": "0px",
+  "padding": "0px",
+  "border": "0px solid rgb(229, 231, 235)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "h3": null,
+ "body": {
+  "text": "Meteora\nDiscover\nPortfolio\nCreate\nReferral\nNEW\nMore\nSearch b",
+  "font": "Inter",
+  "size": "16px",
+  "weight": "400",
+  "tracking": "normal",
+  "leading": "24px",
+  "color": "rgb(255, 255, 255)",
+  "bg": "rgb(13, 13, 19)",
+  "radius": "0px",
+  "padding": "0px",
+  "border": "0px solid rgb(229, 231, 235)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "p": {
+  "text": "Total Value Locked",
+  "font": "Inter",
+  "size": "16px",
+  "weight": "500",
+  "tracking": "normal",
+  "leading": "24px",
+  "color": "rgb(108, 108, 137)",
+  "bg": "rgba(0, 0, 0, 0)",
+  "radius": "0px",
+  "padding": "0px",
+  "border": "0px solid rgb(229, 231, 235)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "a": {
+  "text": "Meteora",
+  "font": "Inter",
+  "size": "16px",
+  "weight": "400",
+  "tracking": "normal",
+  "leading": "24px",
+  "color": "rgb(255, 255, 255)",
+  "bg": "rgba(0, 0, 0, 0)",
+  "radius": "0px",
+  "padding": "0px",
+  "border": "0px solid rgb(229, 231, 235)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "button": {
+  "text": "Search by token, CA, or pool address\n/",
+  "font": "Inter",
+  "size": "16px",
+  "weight": "400",
+  "tracking": "normal",
+  "leading": "24px",
+  "color": "rgb(255, 255, 255)",
+  "bg": "rgba(0, 0, 0, 0)",
+  "radius": "9999px",
+  "padding": "0px 12px 0px 8px",
+  "border": "1px solid rgb(42, 42, 60)",
+  "transform": "none",
+  "features": "normal"
+ },
+ "input": null,
+ "loadedFonts": [
+  "Inter"
+ ],
+ "htmlBg": "rgba(0, 0, 0, 0)",
+ "bodyText": "Meteora\nDiscover\nPortfolio\nCreate\nReferral\nNEW\nMore\nSearch by token, CA, or pool address\n/\nCampaigns\nConnect Wallet\nWe build liquidity pools\nFor Liquidity Providers, Launchpads, and Launches\nNew? Start Here!\nJoin the LP Army\n\nTotal Value Locked\n\n$334.53M\n\nSwap Volume\n\n$364.21B\n\nFees Generated\n\n$2.04B\nAll\nFavorites\nTop Performers\nTrending\nNew Tokens\nRWA\nFilter Token\nApe In\n0.1\n2H\n5\nAll\nDLMM\nDAMM V2",
+ "textLen": 15674,
+ "height": 1076
+}

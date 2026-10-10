@@ -1,0 +1,53 @@
+{
+  "takenAt": "2026-10-10T09:31:33.930Z",
+  "calls": [
+    {
+      "address": "HaaRaA1TCG3YMHu8vCtoCr5jkrdgUP5PjjUJnUsEtnw3",
+      "caller": "HYfBWQ6J3eLvUVKKXbE7xJoDk6bWquQKvcY8ii7owfwW",
+      "state": "executed",
+      "stake": 6000000,
+      "cap": 40000000,
+      "followerLamports": 24000000,
+      "followers": 0,
+      "openedAt": 1791193648,
+      "revealDeadline": 1791197248,
+      "mint": "CYb9KSmsBEFf7Y7SqRMdF1qCgA6XG7XJ2V1tCPhJXNyS",
+      "lamportsIn": "29700000",
+      "tokensOut": "27578071751328",
+      "executedSlot": "507691251",
+      "raw": "PuepOpqWU8T11yrfUhxlkSK99Bk/lwdkT8P8vz7rTFqhYgUiby7ugSsMdguhAQAAJok+fFkwVB6sh7ZUbehtLd+Crm2T0zBeNVTiIDZaCnswcsNqAAAAAL7AQh4AAAAAQIDDagAAAACAUQEAAAAAAABaYgIAAAAAxAlkALgLgI1bAAAAAAAANm4BAAAAAAAAAAABq4gq15sMe0G7/y8NNNeN7/8XpHaFAsz5cvSRYEG36H2CYJo5RMoX3DKa+9iNl2ZDJM+7t++OqKbl2yHtu9nWcKAvxQEAAAAAoJorBRUZAAA8csNqAAAAAPPAQh4AAAAA5a7v0BAUAAAA/v0="
+    },
+    {
+      "address": "931h7rggJG8eog8uwrXosgNQLSiRZZm2DKnVVkAR5wFC",
+      "caller": "HYfBWQ6J3eLvUVKKXbE7xJoDk6bWquQKvcY8ii7owfwW",
+      "state": "expired",
+      "stake": 6000000,
+      "cap": 40000000,
+      "followerLamports": 0,
+      "followers": 0,
+      "openedAt": 1791193670,
+      "revealDeadline": 1791193730,
+      "mint": "11111111111111111111111111111111",
+      "lamportsIn": "0",
+      "tokensOut": "0",
+      "executedSlot": "0",
+      "raw": "PuepOpqWU8T11yrfUhxlkSK99Bk/lwdkT8P8vz7rTFqhYgUiby7ugSwMdguhAQAAj8ogAKDNkRbtyEX5Ozim/rNS3ypS0HW4E/7xcbzG3R9GcsNqAAAAABrBQh4AAAAAgnLDagAAAACAUQEAAAAAAABaYgIAAAAAxAlkALgLgI1bAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/f8="
+    },
+    {
+      "address": "4sQqsg6LXnw8zdh4xLmCFgQVoJHAZ49UxFaeAt2m1QnF",
+      "caller": "HYfBWQ6J3eLvUVKKXbE7xJoDk6bWquQKvcY8ii7owfwW",
+      "state": "executed",
+      "stake": 6000000,
+      "cap": 40000000,
+      "followerLamports": 5000000,
+      "followers": 0,
+      "openedAt": 1791608609,
+      "revealDeadline": 1791612209,
+      "mint": "CYb9KSmsBEFf7Y7SqRMdF1qCgA6XG7XJ2V1tCPhJXNyS",
+      "lamportsIn": "10890000",
+      "tokensOut": "9180380724989",
+      "executedSlot": "509428971",
+      "raw": "PuepOpqWU8T11yrfUhxlkSK99Bk/lwdkT8P8vz7rTFqhYgUiby7ugenZMSShAQAA+88ef3p1KvmDh+tCC8SMTdW/p+ytMfvw3a5E9P2EBTwhx8lqAAAAANpEXR4AAAAAMdXJagAAAACAUQEAAAAAAABaYgIAAAAAxAlkALgLgI1bAAAAAABAS0wAAAAAAAAAAAABq4gq15sMe0G7/y8NNNeN7/8XpHaFAsz5cvSRYEG36H2CYJo5RMoX3DKa+9iNl2ZDJM+7t++OqKbl2yHtu9nWcBArpgAAAAAA/f5UeVkIAAAlx8lqAAAAAOtEXR4AAAAAROg9lMsDAAAA//s="
+    }
+  ]
+}

@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
-import { Fraunces, IBM_Plex_Mono } from "next/font/google";
+import { Bodoni_Moda, Source_Serif_4, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { WalletProvider } from "@/components/wallet-provider";
 
-const fraunces = Fraunces({ variable: "--font-fraunces", subsets: ["latin"], axes: ["SOFT", "WONK", "opsz"] });
-const plex = IBM_Plex_Mono({ variable: "--font-plex-mono", subsets: ["latin"], weight: ["400", "500", "600"] });
+const display = Bodoni_Moda({ variable: "--font-display", subsets: ["latin"], weight: ["400", "500"], style: ["normal", "italic"] });
+const body = Source_Serif_4({ variable: "--font-body", subsets: ["latin"], weight: ["400", "600"], style: ["normal", "italic"] });
+const mono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400"] });
 
 export const metadata: Metadata = {
-  title: "Sealed Call — one call, one transaction, one price",
-  description: "A memecoin caller seals a token. Followers deposit blind. At reveal, everyone buys in the same Solana transaction at the same price.",
+  title: "Sealed Call: the ledger of sealed memecoin calls",
+  description: "A caller seals a token in a hash. Followers deposit blind. At reveal, one Solana transaction buys for everyone at one price.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${plex.variable}`}>
+    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body>
         <WalletProvider>{children}</WalletProvider>
       </body>
