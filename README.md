@@ -148,3 +148,17 @@ Run locally: `cd app && npm install && npm run dev` (set `NEXT_PUBLIC_RPC_URL` f
 Note: the demo pool must satisfy the program's reveal guards (seasoned before the call opened, locked liquidity, fixed-supply mint), so step 5 uses the e2e pool `9mwSK2…j8K`.
 
 Pool check (Oct 10): `RPC_URL=https://api.devnet.solana.com npx tsx scripts/pool-check.ts` ran a fresh open → deposit → reveal → claim on `9mwSK2…j8K`; reveal executed (call `4sQqsg6LXnw8zdh4xLmCFgQVoJHAZ49UxFaeAt2m1QnF`, tx `zmqTCHYX…B1hjuH`), so the app's prefilled pool still qualifies.
+
+
+## Business model
+
+Every filled vault pays a 1% fee (`fee_bps` = 100 in the devnet config), which the program takes from the vault in the reveal transaction; a lapsed call refunds in full and pays nothing. Of that fee, 30% (`caller_fee_share_bps` = 3000) goes to the caller and 70% to the protocol treasury (`math.rs::split_fee`), so a caller earns only when followers actually fill alongside them. The next revenue line is a caller subscription for a verified on-chain track-record page and private follower lists; it is planned, not built.
+
+### Demand evidence (sources in sol/gtm/sealed-call/DEMAND.md and USERS.md)
+
+- @milianstx asks for market mechanisms that need hiding or batching on transparent chains: https://x.com/milianstx/status/2098040544744112212
+- @slingoorio: callers under 50K market cap "get bundled sniped and farmed": https://x.com/slingoorio/status/2105210573663174817 (now protected; text archived in research/demand/x/fx/slingoorio_2105210573663174817.json)
+- @skrootimburg on callers who "keep getting bundled": https://x.com/skrootimburg/status/2105973149053448320
+- @0xSatre on devs buying 45% in block 0 while 5,000 wallets bought after: https://x.com/0xSatre/status/2105074051538391084
+- r/GMGNAI, a copy-trader filling 1-2 s late into the caller's sell: https://www.reddit.com/r/GMGNAI/comments/1wf6doe/copytrading/
+- r/SolanaMemeCoins, "call channels are just exit liquidity": https://www.reddit.com/r/SolanaMemeCoins/comments/1umm7d8/reminder_that_call_channels_are_just_exit/

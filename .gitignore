@@ -13,3 +13,4 @@ test-ledger/
 fixtures/*.so
 .test-ledger/
 .test-validator.log
+app/.gstack/screens-*/

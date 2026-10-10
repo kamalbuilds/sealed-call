@@ -84,10 +84,10 @@ export function LedgerView() {
             <h2 className="t2 strong">The record of № 1, as it happened on devnet</h2>
             <ol className="mt-3">
               {[
-                ["5 Oct, 15:17 IST", "The caller sealed the call: 0.006 SOL stake and a sha256 commitment. The token stayed off chain.", RECORDED_DEVNET_RUN.openTx],
-                ...RECORDED_DEVNET_RUN.depositTxs.map((t, i) => ["5 Oct", `A follower deposited ${fmtSol(RECORDED_DEVNET_RUN.followerFills[i].lamports)} SOL without knowing the token.`, t]),
-                ["5 Oct", "A reveal with the wrong salt was rejected by the program.", RECORDED_DEVNET_RUN.rejectedRevealTx],
-                ["5 Oct, 15:17 IST", "The real reveal: one swap filled the caller and all three followers at one price, slot 507,691,251.", RECORDED_DEVNET_RUN.revealTx],
+                ["5 Oct 2026", "The caller sealed the call: 0.006 SOL stake and a sha256 commitment. The token stayed off chain.", RECORDED_DEVNET_RUN.openTx],
+                ...RECORDED_DEVNET_RUN.depositTxs.map((t, i) => ["", `A follower deposited ${fmtSol(RECORDED_DEVNET_RUN.followerFills[i].lamports)} SOL without knowing the token.`, t]),
+                ["", "A reveal with the wrong salt was rejected by the program.", RECORDED_DEVNET_RUN.rejectedRevealTx],
+                ["", "The real reveal: one swap filled the caller and all three followers at one price, slot 507,691,251.", RECORDED_DEVNET_RUN.revealTx],
               ].map(([d, what, tx]) => (
                 <li key={tx} className="grid gap-x-6 py-3 rule-b sm:grid-cols-[128px_minmax(0,1fr)_auto]">
                   <span className="t1 muted lining">{d}</span>
@@ -97,15 +97,31 @@ export function LedgerView() {
               ))}
             </ol>
           </div>
+          <div className="mt-16 heavy-t pt-3 grid gap-10 sm:grid-cols-2">
+            <div>
+              <h2 className="t2 strong">How it pays</h2>
+              <p className="mt-3">Every filled vault pays a 1% fee, which the program takes in the reveal transaction. A lapsed call refunds in full and pays nothing.</p>
+              <p className="mt-3">Of that fee, 30% goes to the caller and 70% to the protocol treasury, both set in the on-chain config, so a caller earns only when followers fill alongside them.</p>
+              <p className="mt-3 muted">Next: a caller subscription for a verified track-record page and private follower lists. Planned, not built.</p>
+            </div>
+            <div>
+              <h2 className="t2 strong">Who asked for it</h2>
+              <ul className="mt-3 grid gap-3">
+                <li>Mechanisms that only work with hiding or batching, asked for by <a className="textlink" href="https://x.com/milianstx/status/2098040544744112212" target="_blank" rel="noreferrer">@milianstx</a>.</li>
+                <li>Callers under 50K market cap get &ldquo;bundled sniped and farmed&rdquo;, <a className="textlink" href="https://x.com/slingoorio/status/2105210573663174817" target="_blank" rel="noreferrer">@slingoorio</a> <span className="muted">(post since protected; text archived)</span>.</li>
+                <li>&ldquo;the ones who keep getting bundled&rdquo;, <a className="textlink" href="https://x.com/skrootimburg/status/2105973149053448320" target="_blank" rel="noreferrer">@skrootimburg</a>.</li>
+                <li>Followers fill 1 to 2 seconds late and sell into the caller&rsquo;s red candle, <a className="textlink" href="https://www.reddit.com/r/GMGNAI/comments/1wf6doe/copytrading/" target="_blank" rel="noreferrer">r/GMGNAI</a>.</li>
+              </ul>
+            </div>
+          </div>
         </section>
         <aside className="margin">
           <Link href="/open/" className="btn btn-seal mb-8 hidden md:inline-flex">Seal a call</Link>
           {filled.map((e, i) => (
-            <p key={e.address} className="mb-4"><sup className="fn">{i + 1}</sup> № {entries.indexOf(e) + 1} filled the caller and {fmtSol(e.followerLamports)} SOL of deposits in one transaction, slot {e.executedSlot}{e.address === RECORDED_DEVNET_RUN.call && <>, <a className="textlink hash" href={explorerTx(RECORDED_DEVNET_RUN.revealTx)} target="_blank" rel="noreferrer">{short(RECORDED_DEVNET_RUN.revealTx, 6)}</a></>}.</p>
+            <p key={e.address} className="mb-4"><sup className="fn">{i + 1}</sup> Filled at slot {e.executedSlot}{e.address === RECORDED_DEVNET_RUN.call && <>; record below</>}.</p>
           ))}
           <p className="mb-4">One reveal checks the hash, the pool and the mint, then swaps the whole vault through Meteora DAMM v2.</p>
           <p className="mb-4">№ 1 and № 3 are two calls by one caller on the same devnet pool, so they share a token.</p>
-          <p>A call that is not revealed before its deadline lapses, and every follower takes their SOL back.</p>
         </aside>
 
       </main>

@@ -1,0 +1,10 @@
+ok   references: 3 captured
+ok   components logged
+FAIL score 6.7 min 6 (need >=8.0 and every axis >=7)
+ok   critic fresh:claude-p-rubric-r17
+ok   r17-1440.png fresh
+ok   r17-390.png fresh
+ok   design-review grades A/B
+ok   uicraft gate
+ok   cwf banned grep
+---- 1 failure(s)

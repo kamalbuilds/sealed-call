@@ -23,6 +23,7 @@ export function OpenView() {
   const { setVisible } = useWalletModal();
   const program = useSealedProgram();
 
+  const [editPool, setEditPool] = useState(false);
   const [cfg, setCfg] = useState<ConfigAccount | null>(null);
   const [poolAddress, setPoolAddress] = useState(DEMO_POOL);
   const [pool, setPool] = useState<PoolInfo | null>(null);
@@ -99,8 +100,9 @@ export function OpenView() {
             <div className="clause">
               <div className="clause-n">§&thinsp;1</div>
               <div className="field">
-                <label htmlFor="pool">The pool: Meteora DAMM v2, paired with wSOL</label>
-                <input id="pool" className="input hashin" value={poolAddress} onChange={(e) => { setError(""); setPoolAddress(e.target.value); }} disabled={!!sealed} spellCheck={false} />
+                <label htmlFor={editPool ? "pool" : undefined}>The pool: Meteora DAMM v2, paired with wSOL</label>
+                {editPool ? <input id="pool" className="input hashin" autoFocus value={poolAddress} onChange={(e) => { setError(""); setPoolAddress(e.target.value); }} onBlur={() => setEditPool(false)} disabled={!!sealed} spellCheck={false} />
+                  : <div className="input hashin flex items-baseline justify-between gap-4"><span id="pool" className="hash">{short(poolAddress, 8)}</span>{!sealed && <button className="textlink t1" onClick={() => setEditPool(true)}>Change the pool</button>}</div>}
                 <span className="help">
                   {poolErr ? <span className="red">{poolErr}</span> : pool && mint ? <>Reads as token <span className="hash">{short(mint.toBase58(), 6)}</span>. Hidden once sealed.</> : "Reading the pool from devnet."}
                   {poolAddress !== DEMO_POOL && !sealed && <> <button className="textlink" onClick={() => setPoolAddress(DEMO_POOL)}>Use the demo pool</button></>}

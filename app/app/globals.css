@@ -102,7 +102,6 @@
   .term > .input { font-size: var(--t2); text-align: right; padding: 0 0 4px; }
   .term > .help { grid-column: 1 / -1; margin-top: 4px; }
   .term > span:nth-child(2) { text-align: right; }
-  @media (max-width: 640px) { .input.hashin { font-size: 11px; } }
   @media (max-width: 640px) { .clause { grid-template-columns: 40px minmax(0, 1fr); } }
 
   /* the ledger table (signature) */
@@ -127,7 +126,7 @@
   .rowin { animation: rowin 300ms var(--ease) both; }
 
   .footnote { counter-increment: fn; }
-  sup.fn { font-size: 0.7em; color: var(--muted); font-variant-numeric: lining-nums; margin-left: 1px; }
+  sup.fn { font-size: var(--t1); line-height: 0; color: var(--muted); font-variant-numeric: lining-nums; margin-left: 1px; }
 
   /* wallet adapter: flatten to the house style */
   .wallet-adapter-button { font-family: var(--font-body), Georgia, serif !important; font-size: var(--t1) !important; font-weight: 600 !important; height: 36px !important; padding: 0 16px !important; border-radius: 0 !important; background: transparent !important; color: var(--ink) !important; border: 1px solid var(--ink) !important; line-height: 1 !important; }

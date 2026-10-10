@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "predeploy": "bash ~/Desktop/solana/cwf/docs/design/cwf-ui-gate.sh . && npm run build",
+    "deploy": "wrangler pages deploy out --project-name sealed-call --branch main"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.30.1",
