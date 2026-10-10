@@ -21,6 +21,7 @@ export function Masthead() {
         <div className="flex items-center gap-6 t1">
           {link("/", "Ledger")}
           {link("/open/", "Seal a call")}
+          {link("/try/", "Try it in 60s")}
           <WalletMultiButton />
         </div>
       </div>

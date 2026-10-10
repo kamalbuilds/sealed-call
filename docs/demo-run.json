@@ -1,0 +1,85 @@
+{
+ "call": "https://sealed-call.pages.dev/call/?c=9gcBext3pB5ErPbdf7oZBbid8PE7CiiLBc5a8sEaj8Ab",
+ "marks": [
+  [
+   0.4,
+   "home"
+  ],
+  [
+   21.5,
+   "recorded call"
+  ],
+  [
+   26.5,
+   "replay"
+  ],
+  [
+   38.2,
+   "open page as caller"
+  ],
+  [
+   43.2,
+   "seal clicked"
+  ],
+  [
+   44.5,
+   "sealed"
+  ],
+  [
+   47.5,
+   "seal file downloaded"
+  ],
+  [
+   57.6,
+   "call page sealed https://sealed-call.pages.dev/call/?c=9gcBext3pB5ErPbdf7oZBbid8PE7CiiLBc5a8sEaj8Ab"
+  ],
+  [
+   73.4,
+   "follower view"
+  ],
+  [
+   80.6,
+   "deposit clicked"
+  ],
+  [
+   81.9,
+   "deposited"
+  ],
+  [
+   89.0,
+   "hover withdraw"
+  ],
+  [
+   95.6,
+   "caller back"
+  ],
+  [
+   98.6,
+   "reveal clicked"
+  ],
+  [
+   101.4,
+   "revealed"
+  ],
+  [
+   133.5,
+   "follower claim view"
+  ],
+  [
+   136.6,
+   "claim clicked"
+  ],
+  [
+   138.4,
+   "claimed"
+  ],
+  [
+   146.0,
+   "caller lock view"
+  ],
+  [
+   153.1,
+   "home end"
+  ]
+ ]
+}

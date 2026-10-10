@@ -49,7 +49,7 @@ export default function CallView() {
   const [cfg, setCfg] = useState<ConfigAccount | null>(null);
   const [decimals, setDecimals] = useState(6);
   const [seal, setSeal] = useState<SealData | null>(null);
-  const [amount, setAmount] = useState("0.1");
+  const [amount, setAmount] = useState("0.01");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [lastSig, setLastSig] = useState<{ label: string; sig: string } | null>(null);
@@ -253,7 +253,7 @@ export default function CallView() {
               <h2 className="display t3">Break the seal</h2>
               {seal ? <>
                 <p className="muted">The seal is in this browser. Revealing swaps the whole vault, your stake and every deposit, in one transaction.</p>
-                <div><button className="btn btn-seal" disabled={!!busy || call.followerCount === 0} onClick={reveal}>{busy === "reveal" ? "Revealing" : call.followerCount === 0 ? "Waiting for a follower" : "Reveal and fill everyone"}</button></div>
+                <div><button className="btn btn-seal" disabled={!!busy} onClick={reveal}>{busy === "reveal" ? "Revealing" : call.followerCount === 0 ? "Reveal with your stake only" : "Reveal and fill everyone"}</button></div>
               </> : <>
                 <p className="muted">This browser does not hold the seal. Load the .seal.json you downloaded.</p>
                 <input type="file" accept=".json,application/json" className="t1" onChange={(e) => e.target.files?.[0] && importSeal(e.target.files[0])} />
@@ -274,6 +274,7 @@ export default function CallView() {
             <div><button className="btn btn-seal" disabled={!!busy} onClick={() => run("refund", async () => [await refundIx(program, callPk, publicKey)])}>Take my SOL back</button></div>
           )}
 
+          {executed && publicKey && !isCaller && !myPos && lastSig?.label === "claim" && <p>Claimed. The tokens are in your wallet, and the position account is closed.</p>}
           {executed && publicKey && !isCaller && myPos && (myPos.account.claimed
             ? <p>Claimed. The tokens are in your wallet.</p>
             : <div><button className="btn btn-seal" disabled={!!busy} onClick={() => run("claim", async () => [await claimIx(program, publicKey, callPk)])}>Claim my tokens</button></div>)}

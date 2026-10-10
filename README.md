@@ -162,3 +162,16 @@ Every filled vault pays a 1% fee (`fee_bps` = 100 in the devnet config), which t
 - @0xSatre on devs buying 45% in block 0 while 5,000 wallets bought after: https://x.com/0xSatre/status/2105074051538391084
 - r/GMGNAI, a copy-trader filling 1-2 s late into the caller's sell: https://www.reddit.com/r/GMGNAI/comments/1wf6doe/copytrading/
 - r/SolanaMemeCoins, "call channels are just exit liquidity": https://www.reddit.com/r/SolanaMemeCoins/comments/1umm7d8/reminder_that_call_channels_are_just_exit/
+
+
+## For judges: try it in 60 seconds
+
+Open https://sealed-call.pages.dev/try/. Every step is a real devnet transaction.
+
+1. **Wallet:** press "Use a burner wallet" (a throwaway devnet key kept in your browser), or connect Phantom or Solflare set to devnet.
+2. **Devnet SOL:** about 0.012 SOL is enough. Use "Request 0.1 SOL here" or https://faucet.solana.com/ (paste the address shown, pick devnet).
+3. **Seal:** go to "Seal a call". The form is prefilled with the demo Meteora DAMM v2 pool `9mwSK2b1CL6knpy5A8SK2uv4UJfQ2P7FyKkbYiC19j8K`, a 0.006 SOL stake, a 0.04 SOL cap and a 60-minute window. Sign once.
+4. **Reveal:** press "Open the call", then "Reveal". One transaction checks the hash, swaps the vault and fills every row at one price.
+5. **Optional follower:** open the call link in a private window, pick a burner there, fund it, deposit 0.005 SOL, then reveal from the first window. The follower can claim at once; the caller's tokens stay locked for 24 h by design.
+
+No wallet? The recorded devnet call with three followers is at https://sealed-call.pages.dev/call/?c=HaaRaA1TCG3YMHu8vCtoCr5jkrdgUP5PjjUJnUsEtnw3 ("Replay the reveal").
