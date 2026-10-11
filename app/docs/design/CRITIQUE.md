@@ -29,3 +29,12 @@ Top 3 to fix: (a) stack recorded-run rows on mobile, (b) rail seal formula on wh
 6. Try rail: the open calls are bare links with numbers; no status chip, no hover row.
 7. Slop-check PASS, uicraft 0 high findings.
 Top 3 to fix: (a) tokens-out tile spans the row at 390, (b) step 4 cut to a 3-item checklist, (c) open calls in the try rail as hover rows with an Open chip.
+
+## Round 4 (r4-*.png): first fresh critic, frozen rubric (critic/dash-r4.md)
+Fresh critic (independent `claude -p`, rubric only): A=8 B=7 C=5 D=7 E=5 F=7, avg 6.5, min 5.
+1. C3 fail: linked addresses and tx hashes fell back to Space Grotesk because `.textlink { font: inherit }` overrode `.hash`. Real bug; mono was lost on every link.
+2. E2 fail: the seal stamp (call 88px, open 48px) repeats the status chip; decoration left from the print look.
+3. C2 fail: off-scale sizes (logo 13px, exponent 24px, stamp 8px text).
+4. E1 fail: info-blue used on a non-status chip on /try.
+5. Not-8 notes: yellow revealed mints down the ledger compete with the CTA; call 390 metrics 1/2/1 orphan; commitment card stretched; mobile rows said "0 followers" where desktop said claimed; "1 followers".
+Top fixes applied (all of the above, the top 3 being mono links, removing the stamp, on-scale sizes): mints in ink inside tables, 5-tile call strip (2/2/2 at 390), cards top-aligned, plural fix, slots comma-grouped, Devnet chip on mobile, leftover footnote marker removed.

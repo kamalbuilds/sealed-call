@@ -101,14 +101,14 @@ export function LedgerView() {
             <div><h2 className="t4">Call ledger</h2><p className="t1 muted mt-1">{source}</p></div>
             <span className="t1 muted hidden sm:block">Refreshes every 20 s</span>
           </div>
-          <ul className="sm:hidden">
+          <ul className="sm:hidden ledger-list">
             {numbered.map(({ e, n }) => (
               <li key={e.address}>
                 <Link href={`/call/?c=${e.address}`} className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2 px-4 py-3 rule-b transition-colors hover:bg-[var(--surface-elevated)]">
                   <span className="flex items-center gap-2 min-w-0"><span className="hash t1 muted">#{n}</span>{status(e, now)}</span>
-                  <span className="hash ink text-right">{fmtSol(e.stake + e.followerLamports)} <span className="muted t1">SOL</span></span>
+                  <span className="hash ink text-right">{fmtSol(e.stake + e.followerLamports)}<span className="muted t1"> / {fmtSol(e.cap)} SOL</span></span>
                   <span className="flex items-center gap-2 min-w-0 t1 muted">Token <Redaction text={short(e.mint, 4)} open={e.state === "executed"} chars={9} className="hash t1" /></span>
-                  <span className="t1 muted text-right">{followerCount(e)} followers</span>
+                  <span className="t1 muted text-right">{e.state === "executed" && followerCount(e) === 0 && e.followerLamports > 0 ? "followers claimed" : `${followerCount(e)} follower${followerCount(e) === 1 ? "" : "s"}`}</span>
                 </Link>
               </li>
             ))}

@@ -67,7 +67,7 @@ export function TryView() {
       <Masthead />
       <main className="frame mt-8 md:mt-12">
         <section className="col">
-          <span className="chip chip-open">For judges, about 60 seconds</span>
+          <span className="chip chip-muted chip-plain">For judges, about 60 seconds</span>
           <h1 className="display t6 mt-3">Try it in 60 seconds</h1>
           <p className="t3 mt-2 muted" style={{ maxWidth: "40em" }}>Seal a call of your own, then break the seal. Every step below is a real devnet transaction signed by you; nothing is simulated.</p>
 

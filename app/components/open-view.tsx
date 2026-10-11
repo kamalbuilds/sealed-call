@@ -6,7 +6,6 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
 import { Masthead } from "@/components/masthead";
-import { SealStamp } from "@/components/seal-stamp";
 import { Redaction } from "@/components/redaction";
 import { useSealedProgram } from "@/hooks/use-sealed-program";
 import { mapProgramError } from "@/lib/program-errors";
@@ -151,15 +150,14 @@ export function OpenView() {
               <div className="[&>*]:w-full">{cta}</div>
             </div>
           )}
-          <SealStamp size={48} className={sealed ? "strike" : ""} />
-          <p className="mt-4 label">What the chain will hold</p>
+          <p className="label">What the chain will hold</p>
           <dl className="mt-2 grid gap-2 t1">
             <div className="panel px-3 py-2"><dt className="t1 muted">Token</dt><dd className="m-0"><Redaction text="" open={false} chars={10} /></dd></div>
             <div className="panel px-3 py-2"><dt className="t1 muted">Seal</dt><dd className={sealed ? "m-0 hash t1 break-all" : "m-0 hash t1"} style={{ whiteSpace: "normal" }}>{sealed ? sealed.hash : "sha256(call, mint, pool, salt)"}</dd></div>
           </dl>
           {sealed && (
             <div className="mt-6 grid gap-3">
-              <p><sup className="fn">1</sup> Sealed in <a className="textlink hash" href={explorerTx(sealed.sig)} target="_blank" rel="noreferrer">{short(sealed.sig, 6)}</a>.</p>
+              <p><span className="chip chip-filled">Sealed</span> in <a className="textlink hash" href={explorerTx(sealed.sig)} target="_blank" rel="noreferrer">{short(sealed.sig, 6)}</a>.</p>
               <p>The salt is saved in this browser. Keep a copy: without it you cannot reveal and your followers will refund.</p>
               <button className="btn btn-line" onClick={() => downloadSeal(sealed.data)}>Download the seal</button>
               <Link className="btn btn-seal" href={`/call/?c=${sealed.data.call}`}>Open the call</Link>

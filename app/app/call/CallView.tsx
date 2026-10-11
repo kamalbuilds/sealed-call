@@ -6,7 +6,6 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { Masthead } from "@/components/masthead";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { SealStamp } from "@/components/seal-stamp";
 import { Redaction } from "@/components/redaction";
 import { Ticker } from "@/components/ticker";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +27,7 @@ type Pos = { publicKey: PublicKey; account: PositionAccount };
 const unhex = (h: string) => Uint8Array.from(Buffer.from(h, "hex"));
 
 const SUP: Record<string, string> = { "-": "\u207b", "0": "\u2070", "1": "\u00b9", "2": "\u00b2", "3": "\u00b3", "4": "\u2074", "5": "\u2075", "6": "\u2076", "7": "\u2077", "8": "\u2078", "9": "\u2079" };
-function Sci({ x }: { x: number }) { const [m, e] = x.toExponential(3).split("e"); return <>{m}&thinsp;×&thinsp;10<sup style={{ fontSize: "0.6em", verticalAlign: "0.45em", lineHeight: 0 }}>{e.replace("+", "").replace("-", "\u2212")}</sup></>; }
+function Sci({ x }: { x: number }) { const [m, e] = x.toExponential(3).split("e"); return <>{m}&thinsp;×&thinsp;10<sup style={{ fontSize: "0.5em", verticalAlign: "0.8em", lineHeight: 0 }}>{e.replace("+", "").replace("-", "\u2212")}</sup></>; }
 function sci(x: number) { const [m, e] = x.toExponential(3).split("e"); return `${m} \u00d7 10${e.replace("+", "").split("").map((c) => SUP[c] ?? c).join("")}`; }
 
 export default function CallView() {
@@ -179,22 +178,22 @@ export default function CallView() {
             </h1>
             <p className="t2 muted mt-2">Call <a className="textlink hash" href={explorerAddr(address)} target="_blank" rel="noreferrer">{short(address, 6)}</a> by <a className="textlink hash" href={explorerAddr(call.caller.toBase58())} target="_blank" rel="noreferrer">{short(call.caller.toBase58())}</a>{isCaller && " (you)"}</p>
           </div>
-          <SealStamp size={88} broken={executed && stage >= 1} className={`shrink-0 hidden sm:block ${executed && stage >= 1 ? "strike" : ""}`} />
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr_1fr] gap-3 md:gap-4">
           {executed && stage >= 4
             ? <div className="col-span-2 lg:col-span-1 grid"><Metric value={<Sci x={price} />} label="Fill price, SOL per token" sub="Every row paid this" accent /></div>
             : <div className="col-span-2 lg:col-span-1 grid"><Metric value={executed ? "…" : "Sealed"} label="Fill price" sub={executed ? "Revealing" : "Set by one swap at reveal"} accent /></div>}
           <Metric value={totalIn.toFixed(3)} unit="SOL" label="In the vault" sub={`cap ${sol(call.maxVaultLamports.toNumber())} SOL`} />
-          <Metric value={Math.max(call.followerCount, fills.length - 1)} label="Followers" sub={`caller stake ${sol(call.callerStakeLamports.toNumber())} SOL`} />
+          <Metric value={Math.max(call.followerCount, fills.length - 1)} label="Followers" sub="deposited blind" />
+          <Metric value={sol(call.callerStakeLamports.toNumber()).toFixed(3)} unit="SOL" label="Caller stake" sub="buys in the same fill" />
           {executed && stage >= 4
-            ? <div className="col-span-2 lg:col-span-1 grid"><Metric value={<Ticker value={tokensOut} format={fmt} />} label="Tokens out" sub={`${swapped.toFixed(4)} SOL swapped`} /></div>
-            : <div className="col-span-2 lg:col-span-1 grid"><Metric value={executed ? "…" : hms(deadline - now)} label={executed ? "Tokens out" : pastDeadline ? "Window closed" : "Until reveal deadline"} /></div>}
+            ? <div className="grid"><Metric value={<Ticker value={tokensOut} format={fmt} />} label="Tokens out" sub={`${swapped.toFixed(4)} SOL swapped`} /></div>
+            : <div className="grid"><Metric value={executed ? "…" : hms(deadline - now)} label={executed ? "Tokens out" : pastDeadline ? "Window closed" : "Until reveal deadline"} /></div>}
         </div>
 
         <div className="card">
-          <div className="card-h"><h2 className="t4">Token</h2><span className="t1 muted">{executed ? `Revealed at slot ${call.executedSlot.toString()}` : "Hidden behind a sha256 commitment"}</span></div>
+          <div className="card-h"><h2 className="t4">Token</h2><span className="t1 muted">{executed ? `Revealed at slot ${Number(call.executedSlot.toString()).toLocaleString("en-US")}` : "Hidden behind a sha256 commitment"}</span></div>
           <div className="card-b grid gap-4">
             <div className="hash hash-long t3" style={{ wordBreak: "normal" }}>
               <Redaction text={executed ? mintStr.replace(/(.{4})/g, "$1 ").trim() : ""} open={opened} chars={30} />
@@ -298,11 +297,11 @@ export default function CallView() {
         </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3 items-start">
           <div className="card card-b">
             <div className="label">Commitment on chain</div>
             <p className="mt-2 hash hash-long t1" style={{ wordBreak: "normal" }}>{Buffer.from(call.commitment).toString("hex").replace(/(.{8})/g, "$1 ").trim()}</p>
-            <p className="t1 muted mt-3">{executed ? `Matched and broken at slot ${call.executedSlot.toString()}.` : pastDeadline ? "Never broken." : `Breaks within ${hms(deadline - now)}, or the call lapses.`}</p>
+            <p className="t1 muted mt-3">{executed ? `Matched and broken at slot ${Number(call.executedSlot.toString()).toLocaleString("en-US")}.` : pastDeadline ? "Never broken." : `Breaks within ${hms(deadline - now)}, or the call lapses.`}</p>
           </div>
           {notes.length > 0 && (
             <div className="card md:col-span-2 overflow-hidden">

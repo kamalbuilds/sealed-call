@@ -17,7 +17,7 @@ export function Masthead() {
       <div className="shell flex items-center justify-between gap-4 h-16">
         <div className="flex items-center gap-6 min-w-0">
           <Link href="/" className="flex items-center gap-2 shrink-0" aria-label="Sealed Call home">
-            <span aria-hidden className="inline-flex h-7 w-7 items-center justify-center rounded-md" style={{ background: "var(--primary)", color: "var(--on-primary)", fontWeight: 700, fontSize: 13 }}>SC</span>
+            <span aria-hidden className="inline-flex h-7 w-7 items-center justify-center rounded-md" style={{ background: "var(--primary)", color: "var(--on-primary)", fontWeight: 700, fontSize: 12 }}>SC</span>
             <span className="t3 ink" style={{ fontWeight: 700, letterSpacing: "-0.01em" }}>Sealed Call</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
@@ -27,7 +27,7 @@ export function Masthead() {
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          <span className="chip chip-muted hidden sm:inline-flex">Devnet</span>
+          <span className="chip chip-muted">Devnet</span>
           <WalletMultiButton />
         </div>
       </div>

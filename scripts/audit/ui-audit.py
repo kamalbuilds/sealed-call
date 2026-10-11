@@ -36,7 +36,7 @@ with sync_playwright() as p:
         pg.get_by_role("button", name="Take my SOL back").first.click(); pg.wait_for_timeout(25000); log("refund_err", err(pg))
         pg.reload(); pg.wait_for_timeout(7000); pg.screenshot(path=f"{SHOT}/refund.png", full_page=True)
         pg.get_by_role("button", name="Mark the call lapsed").click(); pg.wait_for_timeout(25000); log("expire_err", err(pg))
-        pg.reload(); pg.wait_for_timeout(7000); t = pg.locator("main").inner_text(); log("after_state", re.findall(r"Lapsed\. Refunds are open\.|The window has closed\.|Sealed, and taking deposits\.", t)); pg.screenshot(path=f"{SHOT}/expired.png", full_page=True)
+        pg.reload(); pg.wait_for_timeout(7000); t = pg.locator("main").inner_text(); log("after_state", re.findall(r"Lapsed\. Refunds are open\.|Window closed\. Refunds open\.|Sealed, taking deposits\.", t)); pg.screenshot(path=f"{SHOT}/expired.png", full_page=True)
     elif step == "main":  # caller key, follower key
         ck, fk = sys.argv[2], sys.argv[3]
         c, pg = ctx_as(b, ck); pg.goto(BASE + "/open/", wait_until="load"); pg.wait_for_timeout(6000)
@@ -63,7 +63,7 @@ with sync_playwright() as p:
         other = dict(seal); other["call"] = "HaaRaA1TCG3YMHu8vCtoCr5jkrdgUP5PjjUJnUsEtnw3"; op = os.path.join(SHOT, "_other.seal.json"); json.dump(other, open(op, "w"))
         pg.set_input_files("input[type=file]", op); pg.wait_for_timeout(1500); log("other_call_seal_err", err(pg))
         pg.set_input_files("input[type=file]", sealp); pg.wait_for_timeout(1500)
-        pg.get_by_role("button", name=re.compile(r"^Reveal")).click(); wait_text(pg, r"The seal is broken\.", 120000); pg.wait_for_timeout(9000)
+        pg.get_by_role("button", name=re.compile(r"^Reveal")).click(); wait_text(pg, r"Seal broken\. Vault filled\.", 120000); pg.wait_for_timeout(9000)
         log("reveal_loaded_file", "ok"); log("caller_lock_text", "unlock in" in pg.content()); pg.screenshot(path=f"{SHOT}/revealed.png", full_page=True); c.close()
         c, pg = ctx_as(b, fk); pg.goto(f"{BASE}/call/?c={call}", wait_until="load"); pg.wait_for_timeout(6000)
         pg.get_by_role("button", name="Claim my tokens").click(); wait_text(pg, r"Claimed\.", 90000); log("claim", "ok"); pg.screenshot(path=f"{SHOT}/claimed.png", full_page=True)
@@ -73,15 +73,15 @@ with sync_playwright() as p:
         addr = pg.evaluate("() => { const r = localStorage.getItem('sealed-call:devnet-burner'); return r }"); json.dump(addr, open(os.path.join(SHOT, "_burner.b64.json"), "w"))
         log("burner_connected", pg.locator("p:has-text('Connected:')").inner_text())
         pg.get_by_role("button", name="Request 0.1 SOL here").click(); pg.wait_for_timeout(40000); log("airdrop_msg", pg.locator(".help").first.inner_text()); pg.screenshot(path=f"{SHOT}/try-burner.png", full_page=True)
-        log("open_calls_listed", pg.locator("aside tbody tr").count())
+        log("open_calls_listed", pg.locator("aside a.panel").count())
     elif step == "solo":
-        raw = json.load(open(os.path.join(SHOT, "_burner.b64.json")))
+        raw = b64(sys.argv[2]) if len(sys.argv) > 2 else json.load(open(os.path.join(SHOT, "_burner.b64.json")))
         c = b.new_context(accept_downloads=True, viewport={"width": 1280, "height": 900}); pg = c.new_page(); pg.goto(BASE + "/", wait_until="load")
         pg.evaluate("([k,v]) => { localStorage.setItem(k,v); localStorage.setItem('walletName', JSON.stringify('Devnet burner (this browser)')); }", [KEY, raw])
         pg.goto(BASE + "/open/", wait_until="load"); pg.wait_for_timeout(6000)
         pg.get_by_role("button", name="Seal the call").click(); pg.get_by_role("link", name="Open the call").wait_for(timeout=90000)
         pg.get_by_role("link", name="Open the call").click(); pg.wait_for_load_state("load"); pg.wait_for_timeout(7000); log("solo_call", pg.url)
-        pg.get_by_role("button", name="Reveal with your stake only").click(); wait_text(pg, r"The seal is broken\.", 120000); pg.wait_for_timeout(8000); log("solo_reveal_stored_seal", "ok"); pg.screenshot(path=f"{SHOT}/solo-revealed.png", full_page=True)
+        pg.get_by_role("button", name="Reveal with your stake only").click(); wait_text(pg, r"Seal broken\. Vault filled\.", 120000); pg.wait_for_timeout(8000); log("solo_reveal_stored_seal", "ok"); pg.screenshot(path=f"{SHOT}/solo-revealed.png", full_page=True)
     elif step == "callerclaim":
         call, ck = sys.argv[2], sys.argv[3]
         c, pg = ctx_as(b, ck); pg.goto(f"{BASE}/call/?c={call}", wait_until="load"); pg.wait_for_timeout(7000)

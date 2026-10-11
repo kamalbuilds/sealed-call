@@ -135,7 +135,7 @@
   .btn-line { background: transparent; color: var(--ink); border-color: var(--hairline-strong); }
   .btn-line:hover:not(:disabled) { background: var(--surface-elevated); }
   .btn-lg { height: 48px; padding: 0 24px; font-size: var(--t3); }
-  .textlink { color: var(--ink); text-decoration: underline; text-decoration-color: var(--hairline-strong); text-underline-offset: 3px; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; transition: text-decoration-color 150ms var(--ease), color 150ms var(--ease); }
+  .textlink { color: var(--ink); text-decoration: underline; text-decoration-color: var(--hairline-strong); text-underline-offset: 3px; background: none; border: 0; padding: 0; cursor: pointer; font-size: inherit; font-weight: inherit; line-height: inherit; transition: text-decoration-color 150ms var(--ease), color 150ms var(--ease); }
   .textlink:hover { color: var(--primary); text-decoration-color: var(--primary); }
   .navlink { font-size: var(--t2); font-weight: 500; color: var(--muted); padding: 8px 12px; border-radius: var(--radius-sm); transition: color 150ms var(--ease), background-color 150ms var(--ease); }
   .navlink:hover { color: var(--ink); background: var(--surface-elevated); }
@@ -184,6 +184,8 @@
   /* hidden token bar */
   .redact { display: inline-block; background: repeating-linear-gradient(135deg, #2e2e2e 0 6px, #242424 6px 12px); border: 1px solid var(--hairline-strong); border-radius: 4px; color: transparent; height: 1.1em; vertical-align: -0.2em; user-select: none; }
   .typed { overflow-wrap: anywhere; color: var(--primary); }
+  .ledger .typed, .ledger-list .typed { color: var(--ink); }
+  button.textlink:not(.hash) { font-family: inherit; }
   .caret { display: inline-block; width: 2px; height: 1em; background: var(--primary); vertical-align: -0.1em; margin-left: 2px; }
 
   .stamp-ring { color: var(--primary); }
