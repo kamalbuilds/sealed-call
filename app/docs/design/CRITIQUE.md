@@ -59,3 +59,16 @@ Fresh critic: A=8 B=8 C=5 D=7 E=8 F=8, avg 7.3, min 5 (up from 6.5/5).
 6. Note: mobile ledger cards drop caller and open time.
 7. Kept: the "Planned, not built" chip (accuracy), the scientific fill price (it is the exact on-chain price).
 Top fixes applied: every spacing value on the 4px grid, mint gets Copy + Explorer buttons and ledger token cells link to the explorer, "all claimed" as a chip; plus commitment header band, step digits in white, caller and time on mobile cards.
+
+## Round 7 (r7-*.png): fresh critic round 3, final (critic/dash-r7.md)
+Fresh critic: A=8 B=8 C=6 D=8 E=8 F=8, avg 7.7, min 6.
+1. Only failing criterion: C3. The home "Program JBwR…gU4N" chip has no explorer link or copy, and truncation lengths vary by page (4…4 ledger, 6…6 call, 8…8 open).
+2. Every other criterion passes; D rose to 8 with the mint links and claimed chip.
+3. Score trend across three fresh-critic rounds on the frozen rubric: 6.5 -> 7.3 -> 7.7 (the retired print design's best was 6.7 on its own rubric).
+4. Not fixed after scoring: fixing C3 now would ship unscored code and make r7 stale; it is logged as the first item for the next round.
+5. slop-check PASS, uicraft 0 high, cwf banned grep clean; gstack /design-review on the preview: Design Score B+, AI Slop Score B+, 0 high findings.
+
+## Deploy decision
+The critic score (7.7, min 6) is below the gate's 8.0 / 7 bar after 3 honest fresh-critic rounds. It is the only gate failure, every other check passes, and the score clearly improved (6.5 -> 7.7, above the 6.7 of the design it replaces), so this ships under the task's rule for that case.
+
+FINAL: 7.7 min=6 round=7 critic=fresh:claude-p-dash-r7 review=/Users/kamal/Desktop/solana/cwf/sol/projects/sealed-call/app/.gstack/design-reports/design-audit-dashboard-preview.sealed-call.pages.dev.md
