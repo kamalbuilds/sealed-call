@@ -58,6 +58,7 @@ export default function CallView() {
   const [revealTx, setRevealTx] = useState<string | null>(address === RECORDED_DEVNET_RUN.call ? RECORDED_DEVNET_RUN.revealTx : null);
   const [stage, setStage] = useState(0); // 0 sealed · 1 crack · 2 open · 3 ticker · 4 stamp · 5 fills
   const [now, setNow] = useState(() => Date.now() / 1000);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => { const t = setInterval(() => setNow(Date.now() / 1000), 1000); return () => clearInterval(t); }, []);
 
@@ -196,8 +197,16 @@ export default function CallView() {
         <div className="card">
           <div className="card-h"><h2 className="t4">Token</h2><span className="t1 muted">{executed ? `Revealed at slot ${Number(call.executedSlot.toString()).toLocaleString("en-US")}` : "Hidden behind a sha256 commitment"}</span></div>
           <div className="card-b grid gap-4">
-            <div className="hash hash-long t3" style={{ wordBreak: "normal" }}>
-              <Redaction text={executed ? mintStr.replace(/(.{4})/g, "$1 ").trim() : ""} open={opened} chars={30} />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="hash hash-long t3 min-w-0" style={{ wordBreak: "normal" }}>
+                <Redaction text={executed ? mintStr.replace(/(.{4})/g, "$1 ").trim() : ""} open={opened} chars={30} />
+              </div>
+              {executed && opened && (
+                <div className="flex gap-2 shrink-0">
+                  <button className="btn btn-line" onClick={() => { void navigator.clipboard.writeText(mintStr); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>{copied ? "Copied" : "Copy mint"}</button>
+                  <a className="btn btn-line" href={explorerAddr(mintStr)} target="_blank" rel="noreferrer">Explorer</a>
+                </div>
+              )}
             </div>
             <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <Cell k="Worst impact" v={`${call.maxImpactBps / 100}%`} />
@@ -299,10 +308,12 @@ export default function CallView() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-3 items-start">
-          <div className="card card-b">
-            <div className="label">Commitment on chain</div>
-            <p className="mt-2 hash hash-long t1" style={{ wordBreak: "normal" }}>{Buffer.from(call.commitment).toString("hex").replace(/(.{8})/g, "$1 ").trim()}</p>
+          <div className="card">
+            <div className="card-h"><h2 className="t4">Commitment</h2><span className="t1 muted">sha256, on chain</span></div>
+            <div className="card-b">
+            <p className="hash hash-long t1" style={{ wordBreak: "normal" }}>{Buffer.from(call.commitment).toString("hex").replace(/(.{8})/g, "$1 ").trim()}</p>
             <p className="t1 muted mt-3">{executed ? `Matched and broken at slot ${Number(call.executedSlot.toString()).toLocaleString("en-US")}.` : pastDeadline ? "Never broken." : `Breaks within ${hms(deadline - now)}, or the call lapses.`}</p>
+          </div>
           </div>
           {notes.length > 0 && (
             <div className="card md:col-span-2 overflow-hidden">

@@ -48,3 +48,14 @@ Top fixes applied (all of the above, the top 3 being mono links, removing the st
 6. /design-review FINDING-006: "Change the pool" wraps inside the pool field at 390.
 7. Kept on purpose: FINDING-009 (the "Planned, not built" chip) because the business claims must stay accurate.
 Top 3 fixed: hydration (first render uses the snapshot time), a real link in each row's call cell, the dead end now links to the ledger and the seal form; plus the pool field wraps cleanly.
+
+## Round 6 (r6-*.png): fresh critic round 2, same frozen rubric (critic/dash-r6.md)
+Fresh critic: A=8 B=8 C=5 D=7 E=8 F=8, avg 7.3, min 5 (up from 6.5/5).
+1. C2 fail: spacing off the 4px grid (chip 0 10px / gap 6px, term inputs 6px 10px, 1-2px margins; table cells 14px).
+2. C3 fail: the revealed mint on the call page has no explorer link or copy; the ledger token cell has no link of its own.
+3. Note: the Followers column mixes numbers and the word "claimed".
+4. Note: commitment card is the only card without a header band.
+5. Note: yellow step digits on /open and /try thin out the accent.
+6. Note: mobile ledger cards drop caller and open time.
+7. Kept: the "Planned, not built" chip (accuracy), the scientific fill price (it is the exact on-chain price).
+Top fixes applied: every spacing value on the 4px grid, mint gets Copy + Explorer buttons and ledger token cells link to the explorer, "all claimed" as a chip; plus commitment header band, step digits in white, caller and time on mobile cards.

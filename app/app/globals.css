@@ -111,8 +111,8 @@
   @media (max-width: 640px) { .metric { padding: 16px; } .metric-v { font-size: var(--t5); } }
 
   /* chips */
-  .chip { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; font-size: var(--t1); font-weight: 600; white-space: nowrap; border: 1px solid transparent; }
-  .chip::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; height: 24px; padding: 0 12px; border-radius: 999px; font-size: var(--t1); font-weight: 600; white-space: nowrap; border: 1px solid transparent; }
+  .chip::before { content: ""; width: 8px; height: 8px; border-radius: 999px; background: currentColor; }
   .chip-open { color: #93b4ff; background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.35); }
   .chip-filled { color: #4ade80; background: rgba(34, 197, 94, 0.12); border-color: rgba(34, 197, 94, 0.35); }
   .chip-lapsed { color: #fbbf24; background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.35); }
@@ -161,11 +161,11 @@
 
   /* step cards on /open and /try */
   .clause { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 16px; background: var(--surface-card); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-card); }
-  .clause-n { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 999px; background: var(--surface-elevated); border: 1px solid var(--hairline-strong); font-family: var(--font-code), monospace; font-size: var(--t2); font-weight: 600; color: var(--primary); }
+  .clause-n { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 999px; background: var(--surface-elevated); border: 1px solid var(--hairline-strong); font-family: var(--font-code), monospace; font-size: var(--t2); font-weight: 600; color: var(--ink); }
   .term { display: grid; grid-template-columns: minmax(0, 1fr) 112px; column-gap: 16px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--hairline); }
   .term:last-child { border-bottom: 0; }
   .term > label, .term > span:first-child { font-size: var(--t2); color: var(--ink); font-weight: 500; }
-  .term > .input { font-size: var(--t3); text-align: right; padding: 6px 10px; }
+  .term > .input { font-size: var(--t3); text-align: right; padding: 8px 12px; }
   .term > .help { grid-column: 1 / -1; margin-top: 4px; }
   .term > span:nth-child(2) { text-align: right; font-family: var(--font-code), monospace; color: var(--ink); }
   @media (max-width: 640px) { .clause { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 12px; } }
@@ -173,7 +173,7 @@
   /* the ledger table */
   .ledger { width: 100%; border-collapse: collapse; font-size: var(--t2); }
   .ledger th { font-weight: 600; font-size: var(--t1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--hairline); background: var(--surface); white-space: nowrap; }
-  .ledger td { padding: 14px 16px; border-bottom: 1px solid var(--hairline); vertical-align: middle; color: var(--body); }
+  .ledger td { padding: 16px; border-bottom: 1px solid var(--hairline); vertical-align: middle; color: var(--body); }
   .ledger tbody tr:last-child td { border-bottom: 0; }
   .ledger tr.row { cursor: pointer; transition: background-color 150ms var(--ease); }
   .ledger tr.row:hover td, .ledger tr.row:focus-visible td { background: var(--surface-elevated); }
@@ -186,14 +186,13 @@
   .typed { overflow-wrap: anywhere; color: var(--primary); }
   .ledger .typed, .ledger-list .typed { color: var(--ink); }
   button.textlink:not(.hash) { font-family: inherit; }
-  .caret { display: inline-block; width: 2px; height: 1em; background: var(--primary); vertical-align: -0.1em; margin-left: 2px; }
+  .caret { display: inline-block; width: 2px; height: 1em; background: var(--primary); vertical-align: -0.1em; margin-left: 4px; }
 
   .stamp-ring { color: var(--primary); }
   @keyframes strike { from { transform: scale(1.15); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .strike { animation: strike 300ms var(--ease) both; }
   @keyframes rowin { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   .rowin { animation: rowin 300ms var(--ease) both; }
-  sup.fn { font-size: var(--t1); line-height: 0; color: var(--muted); margin-left: 1px; }
 
   /* wallet adapter, in house style */
   .wallet-adapter-button { font-family: var(--font-ui), sans-serif !important; font-size: var(--t2) !important; font-weight: 600 !important; height: 40px !important; padding: 0 16px !important; border-radius: var(--radius-sm) !important; background: var(--surface-elevated) !important; color: var(--ink) !important; border: 1px solid var(--hairline-strong) !important; line-height: 1 !important; }

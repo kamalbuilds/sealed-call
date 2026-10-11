@@ -110,7 +110,8 @@ export function LedgerView() {
                   <span className="flex items-center gap-2 min-w-0"><span className="hash t1 muted">#{n}</span>{status(e, now)}</span>
                   <span className="hash ink text-right">{fmtSol(e.stake + e.followerLamports)}<span className="muted t1"> / {fmtSol(e.cap)} SOL</span></span>
                   <span className="flex items-center gap-2 min-w-0 t1 muted">Token <Redaction text={short(e.mint, 4)} open={e.state === "executed"} chars={9} className="hash t1" /></span>
-                  <span className="t1 muted text-right">{e.state === "executed" && followerCount(e) === 0 && e.followerLamports > 0 ? "followers claimed" : `${followerCount(e)} follower${followerCount(e) === 1 ? "" : "s"}`}</span>
+                  <span className="t1 muted">by <span className="hash t1">{short(e.caller)}</span>, {fmtDate(e.openedAt)}</span>
+                  <span className="t1 muted text-right col-start-2">{e.state === "executed" && followerCount(e) === 0 && e.followerLamports > 0 ? "followers claimed" : `${followerCount(e)} follower${followerCount(e) === 1 ? "" : "s"}`}</span>
                 </Link>
               </li>
             ))}
@@ -129,10 +130,10 @@ export function LedgerView() {
                 <TableRow key={e.address} className="row" tabIndex={0} onClick={() => router.push(`/call/?c=${e.address}`)} onKeyDown={(k) => k.key === "Enter" && router.push(`/call/?c=${e.address}`)}>
                   <TableCell><Link href={`/call/?c=${e.address}`} className="hash ink" onClick={(x) => x.stopPropagation()}><span className="num">#{n}</span> <span className="hidden sm:inline">{short(e.address, 4)}</span></Link></TableCell>
                   <TableCell>{status(e, now)}</TableCell>
-                  <TableCell><Redaction text={short(e.mint, 4)} open={e.state === "executed"} chars={9} className="hash" /></TableCell>
+                  <TableCell>{e.state === "executed" ? <a className="textlink hash" href={explorerAddr(e.mint)} target="_blank" rel="noreferrer" onClick={(x) => x.stopPropagation()}><Redaction text={short(e.mint, 4)} open chars={9} className="hash" /></a> : <Redaction text="" open={false} chars={9} className="hash" />}</TableCell>
                   <TableCell className="hidden md:table-cell"><a className="hash muted textlink" style={{ color: "var(--muted)" }} href={explorerAddr(e.caller)} target="_blank" rel="noreferrer" onClick={(x) => x.stopPropagation()}>{short(e.caller)}</a></TableCell>
                   <TableCell className="r">{fmtSol(e.stake + e.followerLamports)}<span className="muted hidden sm:inline"> / {fmtSol(e.cap)}</span></TableCell>
-                  <TableCell className="r hidden sm:table-cell">{e.state === "executed" && followerCount(e) === 0 && e.followerLamports > 0 ? <span className="muted">claimed</span> : followerCount(e)}</TableCell>
+                  <TableCell className="r hidden sm:table-cell">{e.state === "executed" && followerCount(e) === 0 && e.followerLamports > 0 ? <span className="chip chip-muted chip-plain" title="positions close after claim">all claimed</span> : followerCount(e)}</TableCell>
                   <TableCell className="r hidden lg:table-cell"><span className="muted">{fmtDate(e.openedAt)}</span></TableCell>
                 </TableRow>
               ))}
