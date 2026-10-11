@@ -104,9 +104,9 @@ export function OpenView() {
               <div className="field">
                 <label htmlFor={editPool ? "pool" : undefined}>The pool: Meteora DAMM v2, paired with wSOL</label>
                 {editPool ? <input id="pool" className="input hashin" autoFocus value={poolAddress} onChange={(e) => { setError(""); setPoolAddress(e.target.value); }} onBlur={() => setEditPool(false)} disabled={!!sealed} spellCheck={false} />
-                  : <div className="input hashin flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1"><span id="pool" className="hash">{short(poolAddress, 8)}</span>{!sealed && <button className="textlink t1" onClick={() => setEditPool(true)}>Change the pool</button>}</div>}
+                  : <div className="input hashin flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1"><span id="pool" className="hash">{short(poolAddress)}</span>{!sealed && <button className="textlink t1" onClick={() => setEditPool(true)}>Change the pool</button>}</div>}
                 <span className="help">
-                  {poolErr ? <span className="red">{poolErr}</span> : pool && mint ? <>Reads as token <span className="hash">{short(mint.toBase58(), 6)}</span>. Hidden once sealed.</> : "Reading the pool from devnet."}
+                  {poolErr ? <span className="red">{poolErr}</span> : pool && mint ? <>Reads as token <span className="hash">{short(mint.toBase58())}</span>. Hidden once sealed.</> : "Reading the pool from devnet."}
                   {poolAddress !== DEMO_POOL && !sealed && <> <button className="textlink" onClick={() => setPoolAddress(DEMO_POOL)}>Use the demo pool</button></>}
                 </span>
               </div>
@@ -157,7 +157,7 @@ export function OpenView() {
           </dl>
           {sealed && (
             <div className="mt-6 grid gap-3">
-              <p><span className="chip chip-filled">Sealed</span> in <a className="textlink hash" href={explorerTx(sealed.sig)} target="_blank" rel="noreferrer">{short(sealed.sig, 6)}</a>.</p>
+              <p><span className="chip chip-filled">Sealed</span> in <a className="textlink hash" href={explorerTx(sealed.sig)} target="_blank" rel="noreferrer">{short(sealed.sig)}</a>.</p>
               <p>The salt is saved in this browser. Keep a copy: without it you cannot reveal and your followers will refund.</p>
               <button className="btn btn-line" onClick={() => downloadSeal(sealed.data)}>Download the seal</button>
               <Link className="btn btn-seal" href={`/call/?c=${sealed.data.call}`}>Open the call</Link>

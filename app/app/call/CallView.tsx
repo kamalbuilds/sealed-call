@@ -178,7 +178,7 @@ export default function CallView() {
             <h1 className="display t6 mt-3">
               {executed ? "Seal broken. Vault filled." : state === "expired" ? "Lapsed. Refunds are open." : pastDeadline ? "Window closed. Refunds open." : "Sealed, taking deposits."}
             </h1>
-            <p className="t2 muted mt-2">Call <a className="textlink hash" href={explorerAddr(address)} target="_blank" rel="noreferrer">{short(address, 6)}</a> by <a className="textlink hash" href={explorerAddr(call.caller.toBase58())} target="_blank" rel="noreferrer">{short(call.caller.toBase58())}</a>{isCaller && " (you)"}</p>
+            <p className="t2 muted mt-2">Call <a className="textlink hash" href={explorerAddr(address)} target="_blank" rel="noreferrer">{short(address)}</a> by <a className="textlink hash" href={explorerAddr(call.caller.toBase58())} target="_blank" rel="noreferrer">{short(call.caller.toBase58())}</a>{isCaller && " (you)"}</p>
           </div>
         </div>
 
@@ -240,7 +240,7 @@ export default function CallView() {
               })}
             </TableBody>
           </Table>
-          {executed && stage >= 5 && revealTx && <p className="t1 muted px-4 sm:px-6 py-3 rule-t">One swap, one price, in transaction <a className="textlink hash" href={explorerTx(revealTx)} target="_blank" rel="noreferrer">{short(revealTx, 5)}</a>.</p>}
+          {executed && stage >= 5 && revealTx && <p className="t1 muted px-4 sm:px-6 py-3 rule-t">One swap, one price, in transaction <a className="textlink hash" href={explorerTx(revealTx)} target="_blank" rel="noreferrer">{short(revealTx)}</a>.</p>}
           {fills.length === 1 && <p className="t1 muted px-4 sm:px-6 py-3 rule-t">The caller is alone in the vault so far. Share this page with your followers.</p>}
         </div>
 
@@ -320,7 +320,7 @@ export default function CallView() {
               <div className="card-h"><h2 className="t4">Transactions</h2><span className="t1 muted">{notes.length} on devnet</span></div>
               <ol className="grid">
                 {notes.map((n) => (
-                  <li key={n.sig} className="flex items-center justify-between gap-4 px-4 sm:px-6 py-3 rule-b last:border-b-0"><span className="t2">{n.label}</span><a className="textlink hash t1" href={explorerTx(n.sig)} target="_blank" rel="noreferrer">{short(n.sig, 5)}</a></li>
+                  <li key={n.sig} className="flex items-center justify-between gap-4 px-4 sm:px-6 py-3 rule-b last:border-b-0"><span className="t2">{n.label}</span><a className="textlink hash t1" href={explorerTx(n.sig)} target="_blank" rel="noreferrer">{short(n.sig)}</a></li>
                 ))}
               </ol>
             </div>

@@ -81,7 +81,7 @@ export function TryView() {
                   {!publicKey ? <>
                     <button className="btn btn-seal btn-lg" onClick={useBurner}>Use a burner wallet</button>
                     <button className="btn btn-line" onClick={() => setVisible(true)}>Connect Phantom or Solflare</button>
-                  </> : <p>Connected: <span className="hash">{short(publicKey.toBase58(), 6)}</span> <button className="textlink t1" onClick={copy}>{copied ? "Copied" : "Copy address"}</button></p>}
+                  </> : <p>Connected: <span className="hash">{short(publicKey.toBase58())}</span> <button className="textlink t1" onClick={copy}>{copied ? "Copied" : "Copy address"}</button></p>}
                 </div>
               </div>
             </li>
@@ -128,7 +128,7 @@ export function TryView() {
           <Link className="btn btn-line mt-4" href={`/call/?c=${RECORDED_DEVNET_RUN.call}`}>See a reveal</Link>
           <p className="t4 strong mt-8 pt-6 rule-t">Join a live call as a follower</p>
           {open === null ? <p className="mt-2">Reading devnet.</p> : open.length === 0 ? <p className="mt-2">No call is taking deposits right now. Seal one in §3, or deposit from a second wallet into yours.</p> : (
-            <ul className="mt-3 grid gap-2">{open.map((e) => <li key={e.address}><Link className="panel flex items-center justify-between gap-3 px-3 py-2 transition-colors hover:bg-[var(--surface-elevated)]" href={`/call/?c=${e.address}`}><span className="flex items-center gap-2"><span className="chip chip-open">Open</span><span className="hash t1 ink">{short(e.address, 4)}</span></span><span className="hash t1">{fmtSol(e.stake + e.followerLamports)} / {fmtSol(e.cap)}</span></Link></li>)}</ul>
+            <ul className="mt-3 grid gap-2">{open.map((e) => <li key={e.address}><Link className="panel flex items-center justify-between gap-3 px-3 py-2 transition-colors hover:bg-[var(--surface-elevated)]" href={`/call/?c=${e.address}`}><span className="flex items-center gap-2"><span className="chip chip-open">Open</span><span className="hash t1 ink">{short(e.address)}</span></span><span className="hash t1">{fmtSol(e.stake + e.followerLamports)} / {fmtSol(e.cap)}</span></Link></li>)}</ul>
           )}
         </aside>
       </main>
