@@ -266,7 +266,9 @@ export default function CallView() {
               <h2 className="display t3">The caller did not reveal in time</h2>
               <div className="flex gap-4 flex-wrap">
                 {myPos && !isCaller && <button className="btn btn-seal" disabled={!!busy} onClick={() => run("refund", async () => [await refundIx(program, callPk, publicKey)])}>Take my SOL back</button>}
-                <button className="btn btn-line" disabled={!!busy} onClick={() => run("expire", async () => [await expireIx(program, callPk)])}>Mark the call lapsed</button>
+                {call.followerCount === 0
+                  ? <button className="btn btn-line" disabled={!!busy} onClick={() => run("expire", async () => [await expireIx(program, callPk)])}>Mark the call lapsed</button>
+                  : <p className="t1 muted">Once every follower has taken their SOL back, anyone can mark the call lapsed and the caller&rsquo;s stake returns.</p>}
               </div>
             </>
           )}

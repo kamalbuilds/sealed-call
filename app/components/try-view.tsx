@@ -8,8 +8,8 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Masthead } from "@/components/masthead";
 import { useSealedProgram } from "@/hooks/use-sealed-program";
 import { fetchCalls } from "@/lib/sealed-call-client";
-import { type Entry, fromAccount, fmtSol } from "@/lib/ledger";
-import { BurnerWalletName } from "@/lib/burner-wallet";
+import { type Entry, fromAccount, fmtSol, seedEntries } from "@/lib/ledger";
+import { BurnerWalletName, loadBurner } from "@/lib/burner-wallet";
 import { RECORDED_DEVNET_RUN } from "@/lib/recorded-run";
 import { short } from "@/lib/tx";
 
@@ -18,7 +18,7 @@ const NEED = 0.012; // stake 0.006 SOL + call and position rent + fees, with mar
 /** The judge path: a wallet, devnet SOL, a sealed call of your own, and its reveal, in about a minute. */
 export function TryView() {
   const { connection } = useConnection();
-  const { publicKey, wallet, select, connect } = useWallet();
+  const { publicKey } = useWallet();
   const { setVisible } = useWalletModal();
   const program = useSealedProgram();
   const [bal, setBal] = useState<number | null>(null);
@@ -36,11 +36,19 @@ export function TryView() {
 
   useEffect(() => {
     const now = Date.now() / 1000;
-    fetchCalls(program).then((rows) => setOpen(rows.map((r) => fromAccount(r.publicKey.toBase58(), r.account)).filter((e) => e.state === "open" && e.revealDeadline > now))).catch(() => setOpen([]));
+    const live = (es: Entry[]) => es.filter((e) => e.state === "open" && e.revealDeadline > now);
+    const read = () => fetchCalls(program).then((rows) => live(rows.map((r) => fromAccount(r.publicKey.toBase58(), r.account))));
+    // the public devnet RPC rate-limits getProgramAccounts: retry once, then fall back to the ledger snapshot
+    read().catch(() => new Promise((r) => setTimeout(r, 2500)).then(read)).then(setOpen).catch(() => setOpen(live(seedEntries())));
   }, [program]);
 
-  const useBurner = async () => { select(BurnerWalletName); };
-  useEffect(() => { if (wallet?.adapter.name === BurnerWalletName && !publicKey) connect().catch(() => {}); }, [wallet, publicKey, connect]);
+  // Selecting the burner in-session did not reliably connect (provider auto-connect race), so pick it
+  // the same way a returning visitor has it: store the choice, create the key, and reload. autoConnect does the rest.
+  const useBurner = () => {
+    loadBurner();
+    localStorage.setItem("walletName", JSON.stringify(BurnerWalletName));
+    window.location.reload();
+  };
 
   const airdrop = async () => {
     if (!publicKey) return;
