@@ -27,7 +27,7 @@ export function Masthead() {
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          <span className="chip chip-muted">Devnet</span>
+          <span className="chip chip-devnet">DEVNET</span>
           <WalletMultiButton />
         </div>
       </div>
