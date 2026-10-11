@@ -1,22 +1,19 @@
-# SEALED CALL 2 minute pitch (about 290 spoken words)
+# SEALED CALL: 2 minute pitch
 
 **Problem (0:00 to 0:25)**
-On Solana, memecoin callers post a token and their followers rush in after. The followers buy one by one, seconds late, at whatever price is left. Bots see the call coming and get in first. A caller named @slingoorio put it plainly: calls under 50K "get bundled sniped and farmed". A copy trader on Reddit said he lost money because he is "obviously 1-2 seconds late".
+On Solana, a memecoin caller posts a token and their followers rush in after. They buy one by one, seconds apart, at whatever price is left. Bundlers see the call first and get in ahead. One caller put it plainly: calls under 50K "get bundled sniped and farmed". A copy trader on Reddit lost money because he was one to two seconds late.
 
-**Product (0:25 to 0:50)**
-SEALED CALL fixes the order. The caller commits to a hidden token. Only a fingerprint goes on chain. Followers deposit SOL blind into a vault. At reveal, the program checks the token matches, checks the pool and the token are safe, then the whole vault buys in one transaction, at one price, through Meteora. Nobody can jump ahead, because there is nothing to see until it is done.
+**Product (0:25 to 0:55)**
+SEALED CALL fixes the order. The caller commits to a hidden token. Only a hash goes on chain. Followers deposit SOL blind into a vault, and can pull it out any time before the reveal. At reveal, the program checks the hash, checks the pool and the token are safe, then swaps the whole vault through Meteora in one transaction, at one price. There is nothing to front-run, because nobody sees the token until it is already bought.
 
-**Demo beat (0:50 to 1:10)**
-On our devnet run, a caller and three followers all filled at exactly the same price, in a single transaction. If the caller never reveals, everyone gets a full refund. The caller's tokens are locked for a while, so they cannot dump on their followers.
+**Proof (0:55 to 1:15)**
+On devnet, a caller and three followers filled at exactly the same price in a single transaction. If the caller never reveals, everyone gets a full refund. The caller's tokens stay locked after the fill, so they cannot dump on followers. 39 tests pass.
 
-**Honest number (1:10 to 1:20)**
-We measured 17 real caller posts. Followers did not always pay more. The median was actually 3.6% less. So we do not sell a discount. We sell the removal of front-running and the random spread between the first and last buyer.
+**Honest number (1:15 to 1:30)**
+We measured 17 real caller posts. The median follower actually paid 3.6% less than the post price. So we do not sell a discount. We remove front-running and the spread between the first and the last buyer.
 
-**Business (1:20 to 1:40)**
-A 1% fee on every filled vault. 30% goes to the caller, 70% to the protocol. Lapsed calls pay nothing. Callers earn by being trusted, not by selling to their followers.
+**Business (1:30 to 1:45)**
+A 1% fee on every filled vault. 30% goes to the caller, 70% to the protocol. Lapsed calls pay nothing. Callers earn when followers fill beside them, not by selling into them.
 
-**Demand (1:40 to 1:50)**
-Traders keep saying this: callers quitting, followers calling channels "exit liquidity", and Arcium's @milianstx asking for market mechanisms that transparent chains make impossible.
-
-**Ask (1:50 to 2:00)**
-It is live on devnet at sealed-call.pages.dev, with 39 passing tests. We want callers to run real sealed calls, and support to take it to mainnet.
+**Ask (1:45 to 2:00)**
+It is live now at sealed-call.pages.dev. A judge can try it in sixty seconds with a burner wallet. Next we want real callers running sealed calls, an audit, and mainnet.
