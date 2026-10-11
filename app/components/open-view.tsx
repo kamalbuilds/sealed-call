@@ -7,6 +7,9 @@ import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
 import { Masthead } from "@/components/masthead";
 import { Redaction } from "@/components/redaction";
+import { useRef } from "react";
+import { useTxFlow, ReviewSheet, TxStatus } from "@/components/tx-flow";
+import { useSolPrice, usd, priceStamp, localTime } from "@/lib/price";
 import { useSealedProgram } from "@/hooks/use-sealed-program";
 import { mapProgramError } from "@/lib/program-errors";
 import { sendInstructions, explorerTx, short } from "@/lib/tx";
@@ -32,7 +35,7 @@ export function OpenView() {
   const [windowMin, setWindowMin] = useState("60");
   const [lockHours, setLockHours] = useState("24");
   const [impact, setImpact] = useState("25");
-  const [busy, setBusy] = useState(false);
+  
   const [error, setError] = useState("");
   const [sealed, setSealed] = useState<{ data: SealData; sig: string; hash: string } | null>(null);
 
@@ -47,10 +50,17 @@ export function OpenView() {
 
   const mint = useMemo(() => { try { return pool ? poolSides(pool).mint : null; } catch { return null; } }, [pool]);
 
+  const solUsd = useSolPrice();
+  const pendingSeal = useRef<{ data: SealData; hash: string } | null>(null);
+  const flow = useTxFlow(async (_l, sig) => { if (pendingSeal.current) setSealed({ ...pendingSeal.current, sig }); });
+  const u = (x: number) => (usd(x, solUsd) ? ` (${usd(x, solUsd)})` : "");
+  const deadlineGuess = Date.now() / 1000 + (parseFloat(windowMin) || 0) * 60;
+
   async function seal() {
     if (!publicKey || !signTransaction || !pool || !mint) return;
-    setBusy(true); setError("");
-    try {
+    setError("");
+    const st = parseFloat(stake) || 0;
+    await flow.start("seal", async () => {
       const callId = BigInt(Date.now());
       const call = callPda(publicKey, callId);
       const salt = randomSalt();
@@ -65,10 +75,13 @@ export function OpenView() {
         maxImpactBps: Math.round(parseFloat(impact) * 100),
         callerStakeLamports: BigInt(Math.round(parseFloat(stake) * 1e9)),
       });
-      const sig = await sendInstructions(connection, { publicKey, signTransaction }, withComputeBudget(200_000, [ix]));
-      setSealed({ data, sig, hash: hex(c) });
-    } catch (e) { setError(mapProgramError(e)); }
-    finally { setBusy(false); }
+      pendingSeal.current = { data, hash: hex(c) };
+      return withComputeBudget(200_000, [ix]);
+    }, {
+      title: "Review sealed call",
+      lines: [<>You stake <b className="hash">{st} SOL</b>{u(st)} and buy alongside your followers at the one fill price.</>, <>Only a hash of the pool goes on chain. The token stays in this browser.</>, <>Vault cap <b className="hash">{cap} SOL</b>{u(parseFloat(cap) || 0)}.</>],
+      terms: <>Reveal by about <b className="ink">{localTime(deadlineGuess)}</b> or every follower can refund in full and your stake returns after they do. Your tokens lock for {lockHours} h after the fill.</>,
+    });
   }
 
   const term = (id: string, label: string, value: string, set: (v: string) => void, help: string, step = "any") => (
@@ -87,7 +100,7 @@ export function OpenView() {
   );
 
   const cta = !publicKey ? <button className="btn btn-seal btn-lg w-full sm:w-auto" onClick={() => setVisible(true)}>Connect a wallet</button>
-    : sealed ? <span className="chip chip-filled">Sealed on devnet</span> : <button className="btn btn-seal btn-lg w-full sm:w-auto" disabled={!pool || !mint || busy} onClick={seal}>{busy ? "Sealing" : "Seal the call"}</button>;
+    : sealed ? <span className="chip chip-filled">Sealed on devnet</span> : <button className="btn btn-seal btn-lg w-full sm:w-auto" disabled={!pool || !mint || !!flow.busy} onClick={seal}>{flow.busy ? "Preparing" : "Seal the call"}</button>;
 
   return (
     <div className="pb-24">
@@ -131,6 +144,8 @@ export function OpenView() {
               </div>
             </div>
             {error && <p className="err" role="alert">{error}</p>}
+            <TxStatus s={flow.status} />
+            <p className="t2 body lg:hidden">You stake <span className="hash ink">{parseFloat(stake) || 0} SOL</span>{u(parseFloat(stake) || 0)}. Followers can refund in full if you do not reveal by about <span className="ink">{localTime(deadlineGuess)}</span>.</p>
             <div className="flex items-center gap-4 flex-wrap lg:hidden">
               {cta}
               <span className="t1 muted">One signature on devnet.</span>
@@ -147,6 +162,8 @@ export function OpenView() {
                   <div key={k} className="panel px-3 py-2"><dt className="t1 muted">{k}</dt><dd className="m-0 hash ink">{v}</dd></div>
                 ))}
               </dl>
+              <p className="t2 body">You stake <span className="hash ink">{parseFloat(stake) || 0} SOL</span>{u(parseFloat(stake) || 0)}. Followers can refund in full if you do not reveal by about <span className="ink">{localTime(deadlineGuess)}</span>.</p>
+              {solUsd ? <p className="t1 muted">{priceStamp(solUsd)}</p> : null}
               <div className="[&>*]:w-full">{cta}</div>
             </div>
           )}
@@ -165,6 +182,7 @@ export function OpenView() {
           )}
         </aside>
       </main>
+      <ReviewSheet flow={flow} />
     </div>
   );
 }

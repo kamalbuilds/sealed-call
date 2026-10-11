@@ -202,7 +202,7 @@ export default function CallView() {
           {executed && stage >= 4
             ? <div className="col-span-2 lg:col-span-1 grid"><Metric value={<Sci x={price} />} label="Fill price, SOL per token" sub="Every row paid this" accent /></div>
             : <div className="col-span-2 lg:col-span-1 grid"><Metric value={executed ? "…" : "Sealed"} label="Fill price" sub={executed ? "Revealing" : "Set by one swap at reveal"} accent /></div>}
-          <Metric value={totalIn.toFixed(3)} unit="SOL" label="In the vault" sub={`cap ${sol(call.maxVaultLamports.toNumber())} SOL`} />
+          <Metric value={totalIn.toFixed(3)} unit="SOL" label="In the vault" sub={<><span>{(totalIn / Math.max(1e-9, sol(call.maxVaultLamports.toNumber())) * 100).toFixed(0)}% of {sol(call.maxVaultLamports.toNumber())} SOL cap{usd(totalIn, solUsd) ? `, ${usd(totalIn, solUsd)}` : ""}</span><span className={`bar mt-2 block ${executed ? "filled" : ""}`}><span style={{ width: `${Math.min(100, (totalIn / Math.max(1e-9, sol(call.maxVaultLamports.toNumber()))) * 100)}%` }} /></span></>} />
           <Metric value={Math.max(call.followerCount, fills.length - 1)} label="Followers" sub="deposited blind" />
           <Metric value={sol(call.callerStakeLamports.toNumber()).toFixed(3)} unit="SOL" label="Caller stake" sub="buys in the same fill" />
           {executed && stage >= 4
