@@ -14,14 +14,15 @@ import { RECORDED_DEVNET_RUN } from "@/lib/recorded-run";
 import { short, explorerTx, explorerAddr } from "@/lib/tx";
 import { Badge } from "@/components/ui/badge";
 import { Metric } from "@/components/metric";
+import { useSolPrice, usd, priceStamp, localTime } from "@/lib/price";
 
 
 function status(e: Entry, now: number) {
   if (e.state === "executed") return <Badge tone="filled">Filled</Badge>;
-  if (e.state === "expired") return <Badge tone="muted">Lapsed</Badge>;
-  if (now > e.revealDeadline) return <Badge tone="lapsed">Refundable</Badge>;
+  if (e.state === "expired") return <Badge tone="lapsed">Lapsed</Badge>;
+  if (now > e.revealDeadline) return <Badge tone="lapsed">Lapsed, refundable</Badge>;
   const s = Math.max(0, Math.floor(e.revealDeadline - now));
-  return <Badge tone="open">Open <span className="lining">{Math.floor(s / 3600)}h {Math.floor((s % 3600) / 60)}m</span></Badge>;
+  return <Badge tone="open">Sealed, <span className="lining">{Math.floor(s / 3600)}h {Math.floor((s % 3600) / 60)}m</span></Badge>;
 }
 
 const EVIDENCE: [string, string, string, string?][] = [
@@ -40,6 +41,7 @@ export function LedgerView() {
   const [readAt, setReadAt] = useState("");
   const [slot, setSlot] = useState<number | null>(null);
   // Start from the snapshot time so the static HTML and first client render match (no hydration mismatch).
+  const price = useSolPrice();
   const [now, setNow] = useState(() => Date.parse(SEED_TAKEN_AT) / 1000);
 
   useEffect(() => {
@@ -63,6 +65,7 @@ export function LedgerView() {
   const numbered = entries.map((e, i) => ({ e, n: i + 1 })).reverse();
   const filled = entries.filter((e) => e.state === "executed");
 
+  const openCalls = entries.filter((e) => e.state === "open" && now <= e.revealDeadline).sort((a, b) => a.revealDeadline - b.revealDeadline);
   const total = entries.reduce((t, e) => t + e.stake + e.followerLamports, 0);
   const openNow = entries.filter((e) => e.state === "open" && now <= e.revealDeadline).length;
   const callers = new Set(entries.map((e) => e.caller)).size;
@@ -81,7 +84,7 @@ export function LedgerView() {
       <main className="shell mt-8 md:mt-12 grid gap-6">
         <section className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
-            <div className="flex items-center gap-2"><span className="chip chip-muted chip-plain">Program <span className="hash t1">{short(RECORDED_DEVNET_RUN.programId)}</span></span><span className={`chip ${live ? "chip-filled" : "chip-muted"}`}>{live ? "Live" : "Snapshot"}</span></div>
+            <div className="flex items-center gap-2"><a className="chip chip-muted chip-plain hover:border-[var(--secondary)]" href={explorerAddr(RECORDED_DEVNET_RUN.programId)} target="_blank" rel="noreferrer" title={RECORDED_DEVNET_RUN.programId}>Program <span className="hash t1">{short(RECORDED_DEVNET_RUN.programId)}</span> ↗</a><span className="chip chip-devnet">DEVNET</span><span className={`chip ${live ? "chip-filled" : "chip-muted"}`}>{live ? "Live" : "Snapshot"}</span></div>
             <h1 className="display t6 mt-4" style={{ maxWidth: "18em" }}>Sealed calls. One fill, one price.</h1>
             <p className="t3 muted mt-2" style={{ maxWidth: "40em" }}>The caller buys with followers in the same transaction. Nobody sees the token until reveal, so nobody can front-run it.</p>
           </div>
@@ -89,6 +92,35 @@ export function LedgerView() {
             <Link href="/try/" className="btn btn-line btn-lg">Try it in 60s</Link>
             <Link href="/open/" className="btn btn-seal btn-lg">Seal a call</Link>
           </div>
+        </section>
+
+        <section className="card overflow-hidden" aria-labelledby="open-h">
+          <div className="card-h">
+            <div><h2 id="open-h" className="t4">Open calls, join now</h2><p className="t2 muted mt-1">Deposit blind. Full refund if the caller does not reveal in time.</p></div>
+            <span className="t2 muted hidden md:block">{price ? priceStamp(price) : "USD hidden: price feed unavailable"}</span>
+          </div>
+          {openCalls.length === 0 ? (
+            <div className="card-b flex flex-wrap items-center justify-between gap-4"><p className="t3 body">No call is taking deposits right now. Seal one and share the link.</p><Link href="/open/" className="btn btn-line">Seal a call</Link></div>
+          ) : (
+            <ul className="grid md:grid-cols-2">
+              {openCalls.map((e) => {
+                const v = e.stake + e.followerLamports; const pct = Math.min(100, (v / Math.max(1, e.cap)) * 100);
+                return (
+                  <li key={e.address} className="px-4 sm:px-6 py-4 rule-b grid gap-3 md:[&:nth-child(odd)]:border-r md:[&:nth-child(odd)]:border-[var(--hairline)]">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="flex items-center gap-2 min-w-0">{status(e, now)}<span className="hash t2 ink">{short(e.address)}</span></span>
+                      <Link href={`/call/?c=${e.address}`} className="btn btn-join">Join call</Link>
+                    </div>
+                    <div className="grid gap-1">
+                      <div className="flex items-baseline justify-between gap-3 t2"><span className="body"><span className="hash ink">{fmtSol(v)}</span> of {fmtSol(e.cap)} SOL filled{usd(v / 1e9, price) ? ` (${usd(v / 1e9, price)})` : ""}</span><span className="muted">{followerCount(e)} follower{followerCount(e) === 1 ? "" : "s"}</span></div>
+                      <div className="bar" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100} aria-label="vault filled"><span style={{ width: `${pct}%` }} /></div>
+                    </div>
+                    <p className="t2 muted">Refund opens if not revealed by <span className="ink">{localTime(e.revealDeadline)}</span>. Caller <span className="hash">{short(e.caller)}</span> staked {fmtSol(e.stake)} SOL.</p>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </section>
 
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4" aria-label="Ledger summary">
@@ -132,7 +164,7 @@ export function LedgerView() {
                   <TableCell>{status(e, now)}</TableCell>
                   <TableCell>{e.state === "executed" ? <a className="textlink hash" href={explorerAddr(e.mint)} target="_blank" rel="noreferrer" onClick={(x) => x.stopPropagation()}><Redaction text={short(e.mint)} open chars={9} className="hash" /></a> : <Redaction text="" open={false} chars={9} className="hash" />}</TableCell>
                   <TableCell className="hidden md:table-cell"><a className="hash muted textlink" style={{ color: "var(--muted)" }} href={explorerAddr(e.caller)} target="_blank" rel="noreferrer" onClick={(x) => x.stopPropagation()}>{short(e.caller)}</a></TableCell>
-                  <TableCell className="r">{fmtSol(e.stake + e.followerLamports)}<span className="muted hidden sm:inline"> / {fmtSol(e.cap)}</span></TableCell>
+                  <TableCell className="r"><div>{fmtSol(e.stake + e.followerLamports)}<span className="muted hidden sm:inline"> / {fmtSol(e.cap)}</span></div><div className={`bar mt-2 ml-auto w-24 ${e.state === "executed" ? "filled" : ""}`} aria-hidden><span style={{ width: `${Math.min(100, ((e.stake + e.followerLamports) / Math.max(1, e.cap)) * 100)}%` }} /></div></TableCell>
                   <TableCell className="r hidden sm:table-cell">{e.state === "executed" && followerCount(e) === 0 && e.followerLamports > 0 ? <span className="chip chip-muted chip-plain" title="positions close after claim">all claimed</span> : followerCount(e)}</TableCell>
                   <TableCell className="r hidden lg:table-cell"><span className="muted">{fmtDate(e.openedAt)}</span></TableCell>
                 </TableRow>

@@ -11,6 +11,8 @@ import { Redaction } from "@/components/redaction";
 import { Ticker } from "@/components/ticker";
 import { Badge } from "@/components/ui/badge";
 import { Metric } from "@/components/metric";
+import { useTxFlow, ReviewSheet, TxStatus, type Review } from "@/components/tx-flow";
+import { useSolPrice, usd, priceStamp, localTime } from "@/lib/price";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import seedJson from "@/lib/seed-calls.json";
 import { useSealedProgram } from "@/hooks/use-sealed-program";
@@ -52,7 +54,6 @@ export default function CallView() {
   const [decimals, setDecimals] = useState(6);
   const [seal, setSeal] = useState<SealData | null>(null);
   const [amount, setAmount] = useState("0.01");
-  const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [lastSig, setLastSig] = useState<{ label: string; sig: string } | null>(null);
   const [revealTx, setRevealTx] = useState<string | null>(address === RECORDED_DEVNET_RUN.call ? RECORDED_DEVNET_RUN.revealTx : null);
@@ -98,22 +99,38 @@ export default function CallView() {
   const played = useRef(false);
   useEffect(() => { if (executed && !played.current) { played.current = true; play(); } }, [executed, play]);
 
-  async function run(label: string, build: () => Promise<any[]>, units = 200_000) {
+  const solUsd = useSolPrice();
+  const flow = useTxFlow(async (label, sig) => {
+    setLastSig({ label, sig });
+    if (label === "reveal") { setRevealTx(sig); played.current = false; }
+    await refresh();
+  });
+  const busy = flow.busy;
+
+  function reviewFor(label: string): Review {
+    const amt = parseFloat(amount) || 0; const u = (x: number) => (usd(x, solUsd) ? ` (${usd(x, solUsd)})` : "");
+    const dl = call ? localTime(call.revealDeadline.toNumber()) : "";
+    const mine = myPos ? sol(myPos.account.lamports.toNumber()) : 0;
+    switch (label) {
+      case "deposit": return { title: "Review deposit", lines: [<>You deposit <b className="hash">{amt} SOL</b>{u(amt)} into this sealed vault.</>, <>You will not see the token until the caller reveals.</>], terms: <>Full refund if the caller does not reveal by <b className="ink">{dl}</b>. You can withdraw any time before the reveal. A 1% fee applies only if the vault fills.</> };
+      case "withdraw": return { title: "Review withdrawal", lines: [<>You take back <b className="hash">{mine} SOL</b>{u(mine)} from this vault.</>, <>Your position closes; you will not be in the fill.</>] };
+      case "reveal": return { title: "Review reveal", lines: [<>You reveal the token and swap the whole vault, <b className="hash">{totalIn.toFixed(3)} SOL</b>{u(totalIn)}, in one transaction.</>, <>Every row fills at the same price. A worse fill than {call ? call.maxImpactBps / 100 : 0}% impact reverts.</>], terms: <>Your own tokens stay locked for {call ? (call.callerLockSecs.toNumber() / 3600).toFixed(0) : 0} h after the fill.</> };
+      case "refund": return { title: "Review refund", lines: [<>You take back <b className="hash">{mine} SOL</b>{u(mine)}: the caller did not reveal in time.</>, <>No fee is charged on a lapsed call.</>] };
+      case "expire": return { title: "Review lapse", lines: [<>You mark this call lapsed. The caller&rsquo;s stake returns to the caller.</>] };
+      case "claim": return { title: "Review claim", lines: [<>You receive your pro-rata share of the tokens bought at the one fill price.</>, <>Your position account closes and its rent comes back to you.</>] };
+      default: return { title: "Review caller claim", lines: [<>You receive the caller&rsquo;s share of the tokens now that the lock has passed.</>] };
+    }
+  }
+
+  function run(label: string, build: () => Promise<any[]>, units = 200_000) {
     if (!publicKey || !signTransaction) return;
-    setBusy(label); setError("");
-    try {
-      const ixs = await build();
-      const sig = await sendInstructions(connection, { publicKey, signTransaction }, withComputeBudget(units, ixs));
-      setLastSig({ label, sig });
-      await refresh();
-      return sig;
-    } catch (e) { setError(mapProgramError(e)); }
-    finally { setBusy(null); }
+    setError("");
+    return flow.start(label, async () => withComputeBudget(units, await build()), reviewFor(label));
   }
 
   async function reveal() {
     if (!call || !callPk || !seal || !publicKey) return;
-    const sig = await run("reveal", async () => {
+    await run("reveal", async () => {
       const pool = await readPool(connection, new PublicKey(seal.pool));
       const { wsolIsA } = poolSides(pool);
       const total = BigInt(call.callerStakeLamports.toString()) + BigInt(call.followerLamports.toString());
@@ -123,7 +140,6 @@ export default function CallView() {
       if (minOut < 1n) minOut = 1n;
       return [await revealAndSwapIx(program, { caller: publicKey, call: callPk, mint: new PublicKey(seal.mint), pool: new PublicKey(seal.pool), salt: unhex(seal.salt), minimumAmountOut: minOut, poolVaults: pool })];
     }, 400_000);
-    if (sig) { setRevealTx(sig); played.current = false; }
   }
 
   async function importSeal(f: File) {
@@ -254,6 +270,8 @@ export default function CallView() {
               <div className="field">
                 <label htmlFor="amt">Deposit, SOL{cfg ? ` (min ${sol(cfg.minDepositLamports.toNumber())}, max ${sol(cfg.maxDepositLamports.toNumber())})` : ""}</label>
                 <input id="amt" className="input" type="number" inputMode="decimal" step="0.005" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                <p className="t2 body">You deposit <span className="hash ink">{parseFloat(amount) || 0} SOL</span>{usd(parseFloat(amount) || 0, solUsd) ? ` (${usd(parseFloat(amount) || 0, solUsd)})` : ""}; full refund if not revealed by <span className="ink">{localTime(deadline)}</span>.</p>
+                {solUsd && <p className="t1 muted">{priceStamp(solUsd)}</p>}
               </div>
               <div className="flex gap-4 flex-wrap items-center">
                 <button className="btn btn-seal" disabled={!!busy} onClick={() => run("deposit", async () => [await depositIx(program, publicKey, callPk, BigInt(Math.round(parseFloat(amount) * 1e9)))])}>{busy === "deposit" ? "Depositing" : "Deposit"}</button>
@@ -303,6 +321,7 @@ export default function CallView() {
           {executed && publicKey && !isCaller && !myPos && <p className="t2 muted">You were not in this call. <Link className="textlink" href="/">Find an open call on the ledger</Link> or <Link className="textlink" href="/open/">seal your own</Link>.</p>}
 
           {error && <p className="err" role="alert">{error}</p>}
+          <TxStatus s={flow.status} />
           {publicKey && <p className="t1 muted">Devnet SOL: <a className="textlink" href="https://faucet.solana.com" target="_blank" rel="noreferrer">faucet.solana.com</a>.</p>}
         </div>
         </div>
@@ -327,6 +346,7 @@ export default function CallView() {
           )}
         </div>
       </section>
+      <ReviewSheet flow={flow} />
     </Page>
   );
 }

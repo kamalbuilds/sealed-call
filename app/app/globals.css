@@ -137,6 +137,8 @@
   .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
   .btn-seal, .btn-primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
   .btn-seal:hover:not(:disabled), .btn-primary:hover:not(:disabled) { background: var(--primary-active); border-color: var(--primary-active); }
+  .btn-join { background: var(--secondary); border-color: var(--secondary); color: #0a0a0a; }
+  .btn-join:hover:not(:disabled) { background: #93c5fd; border-color: #93c5fd; }
   .btn-line { background: transparent; color: var(--ink); border-color: var(--hairline-strong); }
   .btn-line:hover:not(:disabled) { background: var(--surface-elevated); }
   .btn-lg { height: 48px; padding: 0 24px; font-size: var(--t3); }
