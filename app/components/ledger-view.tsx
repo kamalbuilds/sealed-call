@@ -39,7 +39,8 @@ export function LedgerView() {
   const [live, setLive] = useState(false);
   const [readAt, setReadAt] = useState("");
   const [slot, setSlot] = useState<number | null>(null);
-  const [now, setNow] = useState(() => Date.now() / 1000);
+  // Start from the snapshot time so the static HTML and first client render match (no hydration mismatch).
+  const [now, setNow] = useState(() => Date.parse(SEED_TAKEN_AT) / 1000);
 
   useEffect(() => {
     let alive = true;
@@ -53,6 +54,7 @@ export function LedgerView() {
       } catch { /* keep the snapshot */ }
     };
     void load();
+    setNow(Date.now() / 1000);
     const t = setInterval(load, 20000), c = setInterval(() => setNow(Date.now() / 1000), 30000);
     return () => { alive = false; clearInterval(t); clearInterval(c); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -125,7 +127,7 @@ export function LedgerView() {
             <TableBody>
               {numbered.map(({ e, n }) => (
                 <TableRow key={e.address} className="row" tabIndex={0} onClick={() => router.push(`/call/?c=${e.address}`)} onKeyDown={(k) => k.key === "Enter" && router.push(`/call/?c=${e.address}`)}>
-                  <TableCell><span className="num">#{n}</span> <span className="hash ink hidden sm:inline">{short(e.address, 4)}</span></TableCell>
+                  <TableCell><Link href={`/call/?c=${e.address}`} className="hash ink" onClick={(x) => x.stopPropagation()}><span className="num">#{n}</span> <span className="hidden sm:inline">{short(e.address, 4)}</span></Link></TableCell>
                   <TableCell>{status(e, now)}</TableCell>
                   <TableCell><Redaction text={short(e.mint, 4)} open={e.state === "executed"} chars={9} className="hash" /></TableCell>
                   <TableCell className="hidden md:table-cell"><a className="hash muted textlink" style={{ color: "var(--muted)" }} href={explorerAddr(e.caller)} target="_blank" rel="noreferrer" onClick={(x) => x.stopPropagation()}>{short(e.caller)}</a></TableCell>

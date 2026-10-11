@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
@@ -290,7 +291,7 @@ export default function CallView() {
               ? <p>Your tokens unlock in <span className="lining strong">{hms(unlock - now)}</span>. Until then you cannot sell into the people who followed you.</p>
               : <div><button className="btn btn-seal" disabled={!!busy} onClick={() => run("caller claim", async () => [await callerClaimIx(program, publicKey, callPk)])}>Claim the caller&rsquo;s tokens</button></div>;
           })())}
-          {executed && publicKey && !isCaller && !myPos && <p className="muted">You were not in this call. The next one is on the ledger.</p>}
+          {executed && publicKey && !isCaller && !myPos && <p className="t2 muted">You were not in this call. <Link className="textlink" href="/">Find an open call on the ledger</Link> or <Link className="textlink" href="/open/">seal your own</Link>.</p>}
 
           {error && <p className="err" role="alert">{error}</p>}
           {publicKey && <p className="t1 muted">Devnet SOL: <a className="textlink" href="https://faucet.solana.com" target="_blank" rel="noreferrer">faucet.solana.com</a>.</p>}

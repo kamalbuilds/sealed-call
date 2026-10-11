@@ -38,3 +38,13 @@ Fresh critic (independent `claude -p`, rubric only): A=8 B=7 C=5 D=7 E=5 F=7, av
 4. E1 fail: info-blue used on a non-status chip on /try.
 5. Not-8 notes: yellow revealed mints down the ledger compete with the CTA; call 390 metrics 1/2/1 orphan; commitment card stretched; mobile rows said "0 followers" where desktop said claimed; "1 followers".
 Top fixes applied (all of the above, the top 3 being mono links, removing the stamp, on-scale sizes): mints in ink inside tables, 5-tile call strip (2/2/2 at 390), cards top-aligned, plural fix, slots comma-grouped, Devnet chip on mobile, leftover footnote marker removed.
+
+## Round 5 (r5-*.png, after round 4 fixes) plus gstack /design-review on the r4 preview (Design B+, AI Slop B+, 0 high)
+1. Fixed and visible: links are mono again, no stamp, call strip is 2/2/2 at 390 and five even tiles at 1440, commitment card no longer stretches.
+2. Ledger mints read in white; yellow now only on the 0.148 total, the fill price and the one CTA.
+3. /design-review FINDING-010: React hydration error #418 on home (countdown computed at build time vs load time).
+4. /design-review FINDING-001: ledger rows navigate by onClick only; no real link to open in a new tab.
+5. /design-review FINDING-002: a non-participant on a filled call hits a dead-end sentence.
+6. /design-review FINDING-006: "Change the pool" wraps inside the pool field at 390.
+7. Kept on purpose: FINDING-009 (the "Planned, not built" chip) because the business claims must stay accurate.
+Top 3 fixed: hydration (first render uses the snapshot time), a real link in each row's call cell, the dead end now links to the ledger and the seal form; plus the pool field wraps cleanly.
