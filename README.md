@@ -21,7 +21,7 @@ We measured this instead of assuming it. Over 17 real caller posts, the median f
 2. **Follow.** Followers deposit SOL into the call's vault without knowing the token. They can withdraw any time before the reveal.
 3. **Reveal and fill.** The caller sends `reveal_and_swap` with the mint, pool and salt. The program checks the hash, checks the pool (seasoned before the call opened, mostly locked liquidity, deep enough) and the mint (fixed supply, no freeze authority, no value-taking extensions), checks the price impact limit, and swaps the whole vault (caller stake plus followers) through Meteora DAMM v2 in **one swap at one price**.
 4. **Claim.** Followers claim their tokens pro rata right away. The caller's share stays locked until the caller lock ends, so the caller cannot dump on followers.
-5. **Lapse.** If the caller never reveals before the deadline, the call expires and every depositor gets a full refund with no fee.
+5. **Lapse.** If the caller never reveals before the deadline, the reveal is refused and every follower can take a full refund with no fee. The call can be marked lapsed (`expire`) only after every follower has refunded.
 
 ## Architecture
 
@@ -48,9 +48,9 @@ flowchart LR
 | `open_call` | caller commits the hash, stake and call terms; fee terms are fixed at open |
 | `deposit`, `withdraw` | follower adds SOL to the vault, or takes it back before reveal |
 | `reveal_and_swap` | checks the commitment, pool and mint, then one CPI swap through DAMM v2 |
-| `claim`, `caller_claim` | pro rata token claims; caller only after the lock |
-| `expire`, `refund` | unrevealed call after the deadline returns all SOL |
-| `sweep_dust` | cleans up leftover rounding dust |
+| `claim`, `caller_claim` | pro rata token claims; caller only after the lock (both run on devnet: follower claim `3mqyKr8i…`, caller claim after the 24 h lock `r2mGz2YM…`) |
+| `refund`, `expire` | after an unrevealed deadline each follower refunds in full; `expire` marks the call lapsed once every follower has refunded |
+| `sweep_dust` | admin cleanup of leftover rounding dust once every claim is done (run on devnet: `5FWG8Qfd…`) |
 
 **PDAs:** `config` (`["config"]`), call (`["call", caller, call_id]`), vault (`["vault", call]`), position (`["pos", call, follower]`).
 
@@ -97,9 +97,9 @@ Note: `npm run deploy` in `app/` runs the design gate first and refuses to deplo
 Open https://sealed-call.pages.dev/try/. Every step is a real devnet transaction.
 
 1. **Wallet:** press "Use a burner wallet" (a throwaway devnet key kept in your browser), or connect Phantom or Solflare on devnet.
-2. **Devnet SOL:** about 0.012 SOL is enough. Use "Request 0.1 SOL here" or https://faucet.solana.com/.
+2. **Devnet SOL:** about 0.012 SOL is enough. Use https://faucet.solana.com/ (paste the address shown, pick devnet). The "Request 0.1 SOL here" button often hits the public RPC rate limit, so the faucet is the reliable path.
 3. **Seal:** go to "Seal a call". The form is prefilled with the demo Meteora DAMM v2 pool `9mwSK2b1CL6knpy5A8SK2uv4UJfQ2P7FyKkbYiC19j8K`, a 0.006 SOL stake, a 0.04 SOL cap and a 60-minute window. Sign once.
-4. **Reveal:** press "Open the call", then "Reveal". One transaction checks the hash, swaps the vault and fills every row at one price.
+4. **Reveal:** press "Open the call", then "Reveal with your stake only" (or "Reveal and fill everyone" once followers have deposited). One transaction checks the hash, swaps the vault and fills every row at one price.
 5. **Optional follower:** open the call link in a private window, use a burner there, fund it, deposit 0.005 SOL, then reveal from the first window. The follower can claim at once; the caller's tokens stay locked for 24 hours by design.
 
 No wallet? Open the recorded call above and press "Replay the reveal". In that run a caller and three followers all filled at 1.077e-9 SOL per token in one transaction (`3TiDGb...jbj3bhdJ`, 109,404 compute units). All recorded devnet signatures are in [demo/devnet-run.json](demo/devnet-run.json).
@@ -140,7 +140,19 @@ All of it was written inside the Colosseum Solana World's Fair submission window
 
 ## Tests
 
-`npm test` runs 39 tests against a local `solana-test-validator` with the real Meteora DAMM v2 program dumped from devnet. They cover config setup, opening calls, deposits and withdrawals, a reveal with the wrong mint or salt being rejected, the single-transaction reveal and swap, pro rata claims, the caller lock, expiry and refunds, pool and mint guards, and opening a call through CPI (`tests/zz-cpi-opener.ts`).
+`npm test` runs 39 tests against a local `solana-test-validator` with the real Meteora DAMM v2 program dumped from devnet. Areas covered:
+
+- config setup and the admin pause (blocks open, deposit and reveal while withdraw still works; only the admin may pause)
+- opening calls, the commitment bound to the call address (a copied commitment fails), non-caller reveal rejected
+- deposits, withdrawals, per-follower and vault caps, the caller cannot deposit into their own call
+- the single-transaction reveal and swap with the 1% fee split to treasury and caller
+- pool guards: seasoning, locked liquidity, depth, max price impact
+- mint guards: live mint or freeze authority, Token-2022 transfer-fee extension
+- pro rata claims, the caller lock and caller claim after it, `sweep_dust`
+- expiry and full refunds after an unrevealed deadline
+- opening a call from a PDA through CPI (`tests/zz-cpi-opener.ts`, 3 tests)
+
+The pool, mint, pause, CPI, caller-claim-after-lock and sweep paths are proven by tests only; the open, deposit, withdraw, reveal, follower claim, refund, expire and fee split paths were also run on devnet in the feature audit (`docs/FEATURE-AUDIT.md`).
 
 ## Program ID
 
