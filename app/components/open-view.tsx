@@ -87,18 +87,21 @@ export function OpenView() {
     </div>
   );
 
+  const cta = !publicKey ? <button className="btn btn-seal btn-lg w-full sm:w-auto" onClick={() => setVisible(true)}>Connect a wallet</button>
+    : sealed ? <span className="chip chip-filled">Sealed on devnet</span> : <button className="btn btn-seal btn-lg w-full sm:w-auto" disabled={!pool || !mint || busy} onClick={seal}>{busy ? "Sealing" : "Seal the call"}</button>;
+
   return (
     <div className="pb-24">
       <Masthead />
-      <main className="frame mt-12">
+      <main className="frame mt-8 md:mt-12">
         <section className="col">
-          <p className="t1 muted">Deed of a sealed call, devnet</p>
-          <h1 className="display t4 mt-2">Seal a call</h1>
-          <p className="t2 mt-4 muted" style={{ maxWidth: "36em" }}>Name the pool. Only its hash goes on chain, and the token stays in this browser until you reveal.</p>
+          <span className="chip chip-muted">Devnet, one signature</span>
+          <h1 className="display t6 mt-3">Seal a call</h1>
+          <p className="t3 mt-2 muted" style={{ maxWidth: "40em" }}>Name the pool. Only its hash goes on chain, and the token stays in this browser until you reveal.</p>
 
-          <div className="mt-10 grid gap-10">
+          <div className="mt-8 grid gap-4">
             <div className="clause">
-              <div className="clause-n">§&thinsp;1</div>
+              <div className="clause-n">1</div>
               <div className="field">
                 <label htmlFor={editPool ? "pool" : undefined}>The pool: Meteora DAMM v2, paired with wSOL</label>
                 {editPool ? <input id="pool" className="input hashin" autoFocus value={poolAddress} onChange={(e) => { setError(""); setPoolAddress(e.target.value); }} onBlur={() => setEditPool(false)} disabled={!!sealed} spellCheck={false} />
@@ -110,16 +113,16 @@ export function OpenView() {
               </div>
             </div>
             <div className="clause">
-              <div className="clause-n">§&thinsp;2</div>
+              <div className="clause-n">2</div>
               <div className="grid sm:grid-cols-2 gap-8">
                 {f("stake", "Your stake, SOL", stake, setStake, cfg ? `At least ${cfg.minCallerStakeBps / 100}% of the cap. It buys with the followers.` : "It buys with the followers.", "any", true)}
                 {f("cap", "Vault cap, SOL", cap, setCap, cfg ? `Up to ${(cfg.maxCallLamports.toNumber() / 1e9).toFixed(2)} SOL per call.` : "", "any", true)}
               </div>
             </div>
             <div className="clause">
-              <div className="clause-n">§&thinsp;3</div>
+              <div className="clause-n">3</div>
               <div>
-                <p className="t1 muted">Terms, fixed before anyone pays in</p>
+                <p className="label">Terms, fixed before anyone pays in</p>
                 <div className="mt-2">
                   {term("window", "Reveal window, minutes", windowMin, setWindowMin, "Miss it and every follower can refund.", "1")}
                   {term("lock", "Your lock after the fill, hours", lockHours, setLockHours, cfg ? `Minimum ${(cfg.minCallerLockSecs.toNumber() / 3600).toFixed(0)} h. You cannot sell into your followers.` : "You cannot sell into your followers.", "1")}
@@ -129,27 +132,37 @@ export function OpenView() {
               </div>
             </div>
             {error && <p className="err" role="alert">{error}</p>}
-            <div className="flex items-center gap-4 flex-wrap sm:pl-16">
-              {!publicKey ? <button className="btn btn-seal" onClick={() => setVisible(true)}>Connect a wallet</button>
-                : <button className="btn btn-seal" disabled={!pool || !mint || busy || !!sealed} onClick={seal}>{busy ? "Sealing" : sealed ? "Sealed" : "Seal the call"}</button>}
+            <div className="flex items-center gap-4 flex-wrap lg:hidden">
+              {cta}
               <span className="t1 muted">One signature on devnet.</span>
             </div>
           </div>
         </section>
 
-        <aside className="margin md:pt-24">
+        <aside className="margin lg:sticky lg:top-6">
+          {!sealed && (
+            <div className="hidden lg:grid gap-3 mb-6 pb-6 rule-b">
+              <p className="label">Summary</p>
+              <dl className="grid grid-cols-2 gap-2">
+                {[["Stake", `${stake} SOL`], ["Cap", `${cap} SOL`], ["Window", `${windowMin} min`], ["Lock", `${lockHours} h`]].map(([k, v]) => (
+                  <div key={k} className="panel px-3 py-2"><dt className="t1 muted">{k}</dt><dd className="m-0 hash ink">{v}</dd></div>
+                ))}
+              </dl>
+              <div className="[&>*]:w-full">{cta}</div>
+            </div>
+          )}
           <SealStamp size={72} className={sealed ? "strike" : ""} />
-          <p className="mt-4 t1">What the chain will hold:</p>
+          <p className="mt-4 label">What the chain will hold</p>
           <dl className="mt-2 grid gap-2 t1">
-            <div className="rule-b pb-2"><dt>Token</dt><dd className="m-0"><Redaction text="" open={false} chars={10} /></dd></div>
-            <div className="rule-b pb-2"><dt>Seal</dt><dd className="m-0 hash break-all">{sealed ? sealed.hash : "sha256(call, mint, pool, salt)"}</dd></div>
+            <div className="panel px-3 py-2"><dt className="t1 muted">Token</dt><dd className="m-0"><Redaction text="" open={false} chars={10} /></dd></div>
+            <div className="panel px-3 py-2"><dt className="t1 muted">Seal</dt><dd className="m-0 hash break-all">{sealed ? sealed.hash : "sha256(call, mint, pool, salt)"}</dd></div>
           </dl>
           {sealed && (
             <div className="mt-6 grid gap-3">
               <p><sup className="fn">1</sup> Sealed in <a className="textlink hash" href={explorerTx(sealed.sig)} target="_blank" rel="noreferrer">{short(sealed.sig, 6)}</a>.</p>
               <p>The salt is saved in this browser. Keep a copy: without it you cannot reveal and your followers will refund.</p>
               <button className="btn btn-line" onClick={() => downloadSeal(sealed.data)}>Download the seal</button>
-              <Link className="btn" href={`/call/?c=${sealed.data.call}`}>Open the call</Link>
+              <Link className="btn btn-seal" href={`/call/?c=${sealed.data.call}`}>Open the call</Link>
             </div>
           )}
         </aside>

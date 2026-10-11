@@ -1,6 +1,6 @@
 // Adapted from shadcn/ui Table (uicraft code shadcn/table, https://ui.shadcn.com/docs/components/table).
-// Kept: the forwardRef primitives and the overflow wrapper. Changed: Tailwind tokens -> the ledger's
-// ruled classes in globals.css (ink head rule, rule-coloured row rules, no zebra, no muted footer fill).
+// Kept: the forwardRef primitives and the overflow wrapper. Changed: Tailwind tokens -> the .ledger
+// classes in globals.css (uppercase muted head on a surface tier, hairline rows, hover row tint).
 import * as React from "react";
 
 const cx = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(" ");

@@ -9,6 +9,8 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { SealStamp } from "@/components/seal-stamp";
 import { Redaction } from "@/components/redaction";
 import { Ticker } from "@/components/ticker";
+import { Badge } from "@/components/ui/badge";
+import { Metric } from "@/components/metric";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import seedJson from "@/lib/seed-calls.json";
 import { useSealedProgram } from "@/hooks/use-sealed-program";
@@ -145,8 +147,8 @@ export default function CallView() {
 
   const lotNo = useMemo(() => { const i = (seedJson.calls as any[]).findIndex((c) => c.address === address); return i >= 0 ? i + 1 : null; }, [address]);
 
-  if (!callPk || missing) return <Page><section className="col"><h1 className="t3">No call at this address.</h1><p className="hash mt-4 break-all">{address}</p></section></Page>;
-  if (!call) return <Page><section className="col"><h1 className="display t4">Reading the call from devnet.</h1><p className="hash mt-4 muted break-all">{address}</p></section></Page>;
+  if (!callPk || missing) return <Page><section className="col"><h1 className="display t5">No call at this address.</h1><p className="hash mt-4 break-all">{address}</p></section></Page>;
+  if (!call) return <Page><section className="col"><h1 className="display t5">Reading the call from devnet.</h1><p className="hash mt-4 muted break-all">{address}</p></section></Page>;
 
   const opened = executed && stage >= 3;
   const mintStr = call.revealedMint.toBase58();
@@ -160,54 +162,58 @@ export default function CallView() {
   if (executed && revealTx) notes.push({ label: "The reveal: one swap for every row", sig: revealTx });
   if (lastSig && lastSig.sig !== revealTx) notes.push({ label: `Your ${lastSig.label}`, sig: lastSig.sig });
 
+  const chip = executed ? <Badge tone="filled">Filled</Badge> : state === "expired" ? <Badge tone="muted">Lapsed</Badge> : pastDeadline ? <Badge tone="lapsed">Refundable</Badge> : <Badge tone="open">Open, {hms(deadline - now)} left</Badge>;
+
   return (
     <Page>
-      <section className="span" style={{ maxWidth: 1032 }}>
-        <p className="t2 muted">
-          {lotNo ? <span className="display t3" style={{ color: "var(--ink)" }}>№&thinsp;{lotNo}</span> : null}
-          {lotNo ? " · " : ""}Call <a className="textlink hash" href={explorerAddr(address)} target="_blank" rel="noreferrer">{short(address, 6)}</a>, by <span className="hash">{short(call.caller.toBase58())}</span>{isCaller && " (you)"}
-        </p>
-        {snapshot && <p className="t1 muted mt-2">Shown from the devnet snapshot in this build until the RPC answers.</p>}
-        <div className="mt-4 flex items-center justify-between gap-6">
-        <h1 className="display t4">
-          {executed ? "The seal is broken." : state === "expired" ? "Lapsed. Refunds are open." : pastDeadline ? "The window has closed." : "Sealed, and taking deposits."}
-        </h1>
-          <SealStamp size={150} broken={executed && stage >= 1} className={`shrink-0 hidden sm:block ${executed && stage >= 1 ? "strike" : ""}`} />
-        </div>
-        {executed && stage >= 4 && (
-          <p className={stage < 6 ? "rowin mt-6" : "mt-6"}><span className="display t5 red lining" style={{ whiteSpace: "nowrap" }}><Sci x={price} /></span> <span className="t2 muted">SOL a token, the one price every row paid.</span></p>
-        )}
-
-        <dl className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 ink-t ink-b">
-          <Cell k="Caller stake" v={`${sol(call.callerStakeLamports.toNumber())} SOL`} />
-          <Cell k="Vault cap" v={`${sol(call.maxVaultLamports.toNumber())} SOL`} />
-          <Cell k="Followers" v={`${Math.max(call.followerCount, fills.length - 1)}`} />
-          <Cell k="Worst impact" v={`${call.maxImpactBps / 100}%`} />
-          <Cell k="Fee" v={`${call.feeBps / 100}%, ${call.callerFeeShareBps / 100}% to caller`} />
-          <Cell k="Caller lock" v={`${(call.callerLockSecs.toNumber() / 3600).toFixed(0)} h after the fill`} />
-        </dl>
-
-        {/* the entry: the token as a redaction bar that types itself in */}
-        <div className="ink-b py-6">
-          <div className="t1 muted">Token</div>
-          <div className="hash hash-long mt-2" style={{ fontSize: "var(--t2)", wordBreak: "normal" }}>
-            <Redaction text={executed ? mintStr.replace(/(.{4})/g, "$1 ").trim() : ""} open={opened} chars={30} />
+      <section className="span grid gap-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              {chip}
+              {lotNo ? <span className="chip chip-muted chip-plain">Call #{lotNo}</span> : null}
+              {snapshot && <span className="chip chip-muted chip-plain">Snapshot until RPC answers</span>}
+            </div>
+            <h1 className="display t6 mt-3">
+              {executed ? "Seal broken. Vault filled." : state === "expired" ? "Lapsed. Refunds are open." : pastDeadline ? "Window closed. Refunds open." : "Sealed, taking deposits."}
+            </h1>
+            <p className="t2 muted mt-2">Call <a className="textlink hash" href={explorerAddr(address)} target="_blank" rel="noreferrer">{short(address, 6)}</a> by <a className="textlink hash" href={explorerAddr(call.caller.toBase58())} target="_blank" rel="noreferrer">{short(call.caller.toBase58())}</a>{isCaller && " (you)"}</p>
           </div>
-          <p className="t3 mt-6" style={{ maxWidth: "34em" }}>
-            {executed && stage >= 4 ? (
-              <>The vault held <span className="lining">{totalIn.toFixed(3)}</span> SOL. The {call.feeBps / 100}% fee, <span className="lining">{(totalIn - swapped).toFixed(4)}</span> SOL, came out first, and <span className="lining">{swapped.toFixed(4)}</span> SOL went through the pool in one swap for <span className="lining"><Ticker value={tokensOut} format={fmt} /></span> tokens, split pro rata in the register below.</>
-            ) : (
-              <>The vault holds <span className="lining">{totalIn.toFixed(3)}</span> SOL. The swap, the tokens out and the one price stay sealed until the caller reveals.</>
-            )}
-          </p>
+          <SealStamp size={88} broken={executed && stage >= 1} className={`shrink-0 hidden sm:block ${executed && stage >= 1 ? "strike" : ""}`} />
         </div>
 
-        {/* fill register */}
-        <div className="mt-12 flex items-baseline justify-between gap-4">
-          <h2 className="display t4">Fill register</h2>
-          {executed && <button className="textlink t1" onClick={play}>Replay the reveal</button>}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          {executed && stage >= 4
+            ? <Metric value={<Sci x={price} />} label="Fill price, SOL per token" sub="Every row paid this" accent />
+            : <Metric value={executed ? "…" : "Sealed"} label="Fill price" sub={executed ? "Revealing" : "Set by one swap at reveal"} accent />}
+          <Metric value={totalIn.toFixed(3)} unit="SOL" label="In the vault" sub={`cap ${sol(call.maxVaultLamports.toNumber())} SOL`} />
+          <Metric value={Math.max(call.followerCount, fills.length - 1)} label="Followers" sub={`caller stake ${sol(call.callerStakeLamports.toNumber())} SOL`} />
+          {executed && stage >= 4
+            ? <Metric value={<Ticker value={tokensOut} format={fmt} />} label="Tokens out" sub={`${swapped.toFixed(4)} SOL swapped`} />
+            : <Metric value={executed ? "…" : hms(deadline - now)} label={executed ? "Tokens out" : pastDeadline ? "Window closed" : "Until reveal deadline"} />}
         </div>
-        <div className="mt-4">
+
+        <div className="card">
+          <div className="card-h"><h2 className="t4">Token</h2><span className="t1 muted">{executed ? `Revealed at slot ${call.executedSlot.toString()}` : "Hidden behind a sha256 commitment"}</span></div>
+          <div className="card-b grid gap-4">
+            <div className="hash hash-long t3" style={{ wordBreak: "normal" }}>
+              <Redaction text={executed ? mintStr.replace(/(.{4})/g, "$1 ").trim() : ""} open={opened} chars={30} />
+            </div>
+            <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <Cell k="Worst impact" v={`${call.maxImpactBps / 100}%`} />
+              <Cell k="Fee" v={`${call.feeBps / 100}%, ${call.callerFeeShareBps / 100}% to caller`} />
+              <Cell k="Caller lock" v={`${(call.callerLockSecs.toNumber() / 3600).toFixed(0)} h after fill`} />
+              <Cell k="Fee taken" v={executed ? `${(totalIn - swapped).toFixed(4)} SOL` : "at reveal"} />
+            </dl>
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] items-start">
+        <div className="card overflow-hidden">
+          <div className="card-h">
+            <h2 className="t4">Fill register</h2>
+            {executed && <button className="btn btn-line" onClick={play}>Replay the reveal</button>}
+          </div>
           <Table>
             <TableHeader><TableRow><TableHead>Wallet</TableHead><TableHead className="r">In, SOL</TableHead><TableHead className="r">Share</TableHead><TableHead className="r hidden sm:table-cell">Tokens</TableHead></TableRow></TableHeader>
             <TableBody>
@@ -216,27 +222,26 @@ export default function CallView() {
                 const show = executed && stage >= 5;
                 return (
                   <TableRow key={f.who} className={show && stage < 6 ? "rowin" : ""} style={{ animationDelay: `${i * 90}ms` }}>
-                    <TableCell><span className="hash">{short(f.who)}</span> <span className="t1 muted">{f.caller ? "caller" : ""}{publicKey?.toBase58() === f.who ? (f.caller ? ", you" : "you") : ""}</span><div className="t1 muted sm:hidden lining">{show ? `${fmt(tokensOut * share)} tokens` : "tokens sealed"}</div></TableCell>
-                    <TableCell className="r lining">{sol(f.lamports).toFixed(3)}</TableCell>
-                    <TableCell className="r lining">{(share * 100).toFixed(1)}%</TableCell>
-                    <TableCell className="r lining hidden sm:table-cell">{show ? fmt(tokensOut * share) : <span className="redact" style={{ width: "4em" }} />}</TableCell>
-                    
+                    <TableCell><a className="hash ink textlink" href={explorerAddr(f.who)} target="_blank" rel="noreferrer">{short(f.who)}</a> {f.caller && <span className="chip chip-muted chip-plain ml-1">caller</span>}{publicKey?.toBase58() === f.who && <span className="chip chip-open chip-plain ml-1">you</span>}<div className="t1 muted sm:hidden lining mt-1">{show ? `${fmt(tokensOut * share)} tokens` : "tokens sealed"}</div></TableCell>
+                    <TableCell className="r">{sol(f.lamports).toFixed(3)}</TableCell>
+                    <TableCell className="r">{(share * 100).toFixed(1)}%</TableCell>
+                    <TableCell className="r hidden sm:table-cell">{show ? fmt(tokensOut * share) : <span className="redact" style={{ width: "4em" }} />}</TableCell>
                   </TableRow>
                 );
               })}
             </TableBody>
           </Table>
+          {executed && stage >= 5 && revealTx && <p className="t1 muted px-4 sm:px-6 py-3 rule-t">One swap, one price, in transaction <a className="textlink hash" href={explorerTx(revealTx)} target="_blank" rel="noreferrer">{short(revealTx, 5)}</a>.</p>}
+          {fills.length === 1 && <p className="t1 muted px-4 sm:px-6 py-3 rule-t">The caller is alone in the vault so far. Share this page with your followers.</p>}
         </div>
-        {executed && stage >= 5 && <p className="mt-3 t1">Every row paid <span className="lining" style={{ whiteSpace: "nowrap" }}><Sci x={price} /></span> SOL a token{revealTx ? <>, in transaction <a className="textlink hash" href={explorerTx(revealTx)} target="_blank" rel="noreferrer">{short(revealTx, 5)}</a></> : null}.</p>}
-        {fills.length === 1 && <p className="mt-4 t1 muted">The caller is alone in the vault so far. Send this page to the people who follow your calls.</p>}
 
         {/* actions */}
-        <div className="mt-12 heavy-t pt-6 grid gap-4">
-          {!publicKey && <><p>Connect a devnet wallet to deposit, reveal or claim.</p><div><button className="btn btn-seal" onClick={() => setVisible(true)}>Connect a wallet</button></div></>}
+        <div className="card card-b grid gap-4 content-start">
+          {!publicKey && <><h2 className="t4">Take part</h2><p className="t2 muted">Connect a devnet wallet to deposit, reveal or claim.</p><div><button className="btn btn-seal btn-lg w-full" onClick={() => setVisible(true)}>Connect a wallet</button></div></>}
 
           {publicKey && !isCaller && state === "open" && !pastDeadline && (
             <>
-              <h2 className="display t3">Follow this call without seeing the token</h2>
+              <h2 className="t4">Follow this call without seeing the token</h2>
               <div className="field">
                 <label htmlFor="amt">Deposit, SOL{cfg ? ` (min ${sol(cfg.minDepositLamports.toNumber())}, max ${sol(cfg.maxDepositLamports.toNumber())})` : ""}</label>
                 <input id="amt" className="input" type="number" inputMode="decimal" step="0.005" value={amount} onChange={(e) => setAmount(e.target.value)} />
@@ -250,7 +255,7 @@ export default function CallView() {
 
           {isCaller && state === "open" && !pastDeadline && (
             <>
-              <h2 className="display t3">Break the seal</h2>
+              <h2 className="t4">Break the seal</h2>
               {seal ? <>
                 <p className="muted">The seal is in this browser. Revealing swaps the whole vault, your stake and every deposit, in one transaction.</p>
                 <div><button className="btn btn-seal" disabled={!!busy} onClick={reveal}>{busy === "reveal" ? "Revealing" : call.followerCount === 0 ? "Reveal with your stake only" : "Reveal and fill everyone"}</button></div>
@@ -263,7 +268,7 @@ export default function CallView() {
 
           {state === "open" && pastDeadline && publicKey && (
             <>
-              <h2 className="display t3">The caller did not reveal in time</h2>
+              <h2 className="t4">The caller did not reveal in time</h2>
               <div className="flex gap-4 flex-wrap">
                 {myPos && !isCaller && <button className="btn btn-seal" disabled={!!busy} onClick={() => run("refund", async () => [await refundIx(program, callPk, publicKey)])}>Take my SOL back</button>}
                 {call.followerCount === 0
@@ -291,33 +296,35 @@ export default function CallView() {
           {error && <p className="err" role="alert">{error}</p>}
           {publicKey && <p className="t1 muted">Devnet SOL: <a className="textlink" href="https://faucet.solana.com" target="_blank" rel="noreferrer">faucet.solana.com</a>.</p>}
         </div>
-      </section>
-
-      {/* marginalia */}
-      <section className="span mt-16 heavy-t pt-6 grid gap-10 md:grid-cols-3 t1">
-        <div>
-        <SealStamp size={64} broken={executed && stage >= 1} className="sm:hidden" />
-        <p className="mt-2">{executed ? `Broken at slot ${call.executedSlot.toString()}.` : pastDeadline ? "Never broken." : `Breaks by ${hms(deadline - now)} from now, or lapses.`}</p>
-        <p className="mt-4 muted">The commitment on chain</p>
-        <p className="mt-1 hash hash-long" style={{ wordBreak: "normal" }}>{Buffer.from(call.commitment).toString("hex").replace(/(.{8})/g, "$1 ").trim()}</p>
         </div>
-        {notes.length > 0 && (
-          <div className="md:col-span-2"><h2 className="t2 strong">Notes</h2><ol className="mt-3 grid gap-2 md:grid-cols-2 gap-x-8">
-            {notes.map((n, i) => (
-              <li key={n.sig}><sup className="fn">{i + 1}</sup> {n.label}, <a className="textlink hash" href={explorerTx(n.sig)} target="_blank" rel="noreferrer">{short(n.sig, 5)}</a>.</li>
-            ))}
-          </ol></div>
-        )}
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="card card-b">
+            <div className="label">Commitment on chain</div>
+            <p className="mt-2 hash hash-long t1" style={{ wordBreak: "normal" }}>{Buffer.from(call.commitment).toString("hex").replace(/(.{8})/g, "$1 ").trim()}</p>
+            <p className="t1 muted mt-3">{executed ? `Matched and broken at slot ${call.executedSlot.toString()}.` : pastDeadline ? "Never broken." : `Breaks within ${hms(deadline - now)}, or the call lapses.`}</p>
+          </div>
+          {notes.length > 0 && (
+            <div className="card md:col-span-2 overflow-hidden">
+              <div className="card-h"><h2 className="t4">Transactions</h2><span className="t1 muted">{notes.length} on devnet</span></div>
+              <ol className="grid">
+                {notes.map((n) => (
+                  <li key={n.sig} className="flex items-center justify-between gap-4 px-4 sm:px-6 py-3 rule-b last:border-b-0"><span className="t2">{n.label}</span><a className="textlink hash t1" href={explorerTx(n.sig)} target="_blank" rel="noreferrer">{short(n.sig, 5)}</a></li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </div>
       </section>
     </Page>
   );
 }
 
 function Page({ children }: { children: React.ReactNode }) {
-  return <div className="pb-24"><Masthead /><main className="frame mt-12">{children}</main></div>;
+  return <div className="pb-24"><Masthead /><main className="frame mt-8 md:mt-12">{children}</main></div>;
 }
 function Cell({ k, v }: { k: string; v: React.ReactNode }) {
-  return <div className="py-3 pr-4 rule-b lg:border-b-0"><dt className="t1 muted">{k}</dt><dd className="m-0 mt-1 lining">{v}</dd></div>;
+  return <div className="panel px-3 py-2"><dt className="t1 muted">{k}</dt><dd className="m-0 mt-1 t2 ink lining">{v}</dd></div>;
 }
 function hms(s: number) {
   const t = Math.max(0, Math.floor(s)); const p = (n: number) => String(n).padStart(2, "0");

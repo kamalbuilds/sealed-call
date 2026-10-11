@@ -65,21 +65,21 @@ export function TryView() {
   return (
     <div className="pb-24">
       <Masthead />
-      <main className="frame mt-12">
+      <main className="frame mt-8 md:mt-12">
         <section className="col">
-          <p className="t1 muted">For judges, devnet only</p>
-          <h1 className="display t4 mt-2">Try it in 60 seconds</h1>
-          <p className="t2 mt-4 muted" style={{ maxWidth: "36em" }}>Seal a call of your own, then break the seal. Every step below is a real devnet transaction signed by you; nothing is simulated.</p>
+          <span className="chip chip-open">For judges, about 60 seconds</span>
+          <h1 className="display t6 mt-3">Try it in 60 seconds</h1>
+          <p className="t3 mt-2 muted" style={{ maxWidth: "40em" }}>Seal a call of your own, then break the seal. Every step below is a real devnet transaction signed by you; nothing is simulated.</p>
 
-          <ol className="mt-10 grid gap-10">
+          <ol className="mt-8 grid gap-4">
             <li className="clause">
-              <div className="clause-n">§&thinsp;1</div>
+              <div className="clause-n">1</div>
               <div>
-                <h2 className="t3">A devnet wallet</h2>
+                <h2 className="t4">A devnet wallet</h2>
                 <p className="mt-2">Phantom or Solflare switched to devnet works. Or use a throwaway wallet kept in this browser, no install.</p>
                 <div className="mt-4 flex flex-wrap items-center gap-4">
                   {!publicKey ? <>
-                    <button className="btn btn-seal" onClick={useBurner}>Use a burner wallet</button>
+                    <button className="btn btn-seal btn-lg" onClick={useBurner}>Use a burner wallet</button>
                     <button className="btn btn-line" onClick={() => setVisible(true)}>Connect Phantom or Solflare</button>
                   </> : <p>Connected: <span className="hash">{short(publicKey.toBase58(), 6)}</span> <button className="textlink t1" onClick={copy}>{copied ? "Copied" : "Copy address"}</button></p>}
                 </div>
@@ -87,9 +87,9 @@ export function TryView() {
             </li>
 
             <li className="clause">
-              <div className="clause-n">§&thinsp;2</div>
+              <div className="clause-n">2</div>
               <div>
-                <h2 className="t3">About {NEED} devnet SOL</h2>
+                <h2 className="t4">About {NEED} devnet SOL</h2>
                 <p className="mt-2">The call stakes 0.006 SOL; the rest is rent and fees.{bal !== null && <> You hold <span className="lining strong">{bal.toFixed(4)}</span> SOL{funded ? ", enough." : "."}</>}</p>
                 <div className="mt-4 flex flex-wrap items-center gap-4">
                   <a className="btn btn-line" href="https://faucet.solana.com/" target="_blank" rel="noreferrer">Open the Solana faucet</a>
@@ -100,18 +100,18 @@ export function TryView() {
             </li>
 
             <li className="clause">
-              <div className="clause-n">§&thinsp;3</div>
+              <div className="clause-n">3</div>
               <div>
-                <h2 className="t3">Seal a small call</h2>
+                <h2 className="t4">Seal a small call</h2>
                 <p className="mt-2">The form is prefilled: the demo Meteora DAMM v2 pool, 0.006 SOL stake, 0.04 SOL cap, a 60-minute window. Press <span className="strong">Seal the call</span> and sign once. The token is hashed; only you hold the salt.</p>
-                <div className="mt-4"><Link className="btn btn-seal" href="/open/" aria-disabled={!funded}>Seal a call</Link></div>
+                <div className="mt-4"><Link className={funded ? "btn btn-seal" : "btn"} href="/open/">Open the seal form</Link></div>
               </div>
             </li>
 
             <li className="clause">
-              <div className="clause-n">§&thinsp;4</div>
+              <div className="clause-n">4</div>
               <div>
-                <h2 className="t3">Break the seal</h2>
+                <h2 className="t4">Break the seal</h2>
                 <p className="mt-2">After sealing, press <span className="strong">Open the call</span>, then <span className="strong">Reveal</span>. One transaction checks your hash, swaps the vault through the pool and fills every row at one price. You will watch the token type itself in.</p>
                 <p className="mt-2">Want a follower in the fill? Open your call&rsquo;s link in a private window, pick a burner there (it is a different wallet), fund it and deposit 0.005 SOL, then reveal from the first window. That follower can claim straight after.</p>
                 <p className="help mt-2">Your own tokens stay locked for 24 hours after the fill, by design: a caller cannot sell into their followers. Followers can claim at once.</p>
@@ -120,11 +120,11 @@ export function TryView() {
           </ol>
         </section>
 
-        <aside className="margin md:pt-24">
-          <p className="strong" style={{ color: "var(--ink)" }}>No wallet at hand?</p>
+        <aside className="margin">
+          <p className="t4 strong">No wallet at hand?</p>
           <p className="mt-2">Watch the recorded devnet call: three followers and the caller filled in one swap.</p>
           <Link className="btn btn-line mt-4" href={`/call/?c=${RECORDED_DEVNET_RUN.call}`}>See a reveal</Link>
-          <p className="strong mt-10" style={{ color: "var(--ink)" }}>Join a live call as a follower</p>
+          <p className="t4 strong mt-8 pt-6 rule-t">Join a live call as a follower</p>
           {open === null ? <p className="mt-2">Reading devnet.</p> : open.length === 0 ? <p className="mt-2">No call is taking deposits right now. Seal one in §3, or deposit from a second wallet into yours.</p> : (
             <ul className="mt-2 grid gap-2">{open.map((e) => <li key={e.address}><Link className="textlink hash" href={`/call/?c=${e.address}`}>{short(e.address, 5)}</Link> <span className="lining">{fmtSol(e.stake + e.followerLamports)} / {fmtSol(e.cap)} SOL</span></li>)}</ul>
           )}

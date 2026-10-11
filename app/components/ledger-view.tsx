@@ -11,14 +11,25 @@ import { useSealedProgram } from "@/hooks/use-sealed-program";
 import { fetchCalls } from "@/lib/sealed-call-client";
 import { type Entry, fromAccount, seedEntries, SEED_TAKEN_AT, followerCount, fmtSol, fmtDate } from "@/lib/ledger";
 import { RECORDED_DEVNET_RUN } from "@/lib/recorded-run";
-import { short, explorerTx } from "@/lib/tx";
+import { short, explorerTx, explorerAddr } from "@/lib/tx";
+import { Badge } from "@/components/ui/badge";
+import { Metric } from "@/components/metric";
+
 
 function status(e: Entry, now: number) {
-  if (e.state === "executed") return <span>Filled</span>;
-  if (e.state === "expired" || now > e.revealDeadline) return <span className="muted">Lapsed<span className="hidden sm:inline">, refundable</span></span>;
+  if (e.state === "executed") return <Badge tone="filled">Filled</Badge>;
+  if (e.state === "expired") return <Badge tone="muted">Lapsed</Badge>;
+  if (now > e.revealDeadline) return <Badge tone="lapsed">Refundable</Badge>;
   const s = Math.max(0, Math.floor(e.revealDeadline - now));
-  return <span className="red">Sealed, <span className="lining">{Math.floor(s / 3600)}h {Math.floor((s % 3600) / 60)}m</span> left</span>;
+  return <Badge tone="open">Open <span className="lining">{Math.floor(s / 3600)}h {Math.floor((s % 3600) / 60)}m</span></Badge>;
 }
+
+const EVIDENCE: [string, string, string, string?][] = [
+  ["Mechanisms that only work with hiding or batching", "@milianstx", "https://x.com/milianstx/status/2098040544744112212"],
+  ["Callers under 50K market cap get \u201cbundled sniped and farmed\u201d", "@slingoorio", "https://x.com/slingoorio/status/2105210573663174817", "post since protected; text archived"],
+  ["\u201cthe ones who keep getting bundled\u201d", "@skrootimburg", "https://x.com/skrootimburg/status/2105973149053448320"],
+  ["Followers fill 1 to 2 seconds late and sell into the caller\u2019s red candle", "r/GMGNAI", "https://www.reddit.com/r/GMGNAI/comments/1wf6doe/copytrading/"],
+];
 
 export function LedgerView() {
   const { connection } = useConnection();
@@ -50,80 +61,122 @@ export function LedgerView() {
   const numbered = entries.map((e, i) => ({ e, n: i + 1 })).reverse();
   const filled = entries.filter((e) => e.state === "executed");
 
+  const total = entries.reduce((t, e) => t + e.stake + e.followerLamports, 0);
+  const openNow = entries.filter((e) => e.state === "open" && now <= e.revealDeadline).length;
+  const callers = new Set(entries.map((e) => e.caller)).size;
+  const followersTotal = entries.reduce((t, e) => t + followerCount(e), 0);
+  const source = live && readAt ? `Live from devnet${slot ? `, slot ${slot.toLocaleString("en-US")}` : ""}, ${readAt} IST` : `Devnet snapshot, ${new Date(SEED_TAKEN_AT).toLocaleDateString("en-GB")}`;
+  const record: [string, string, string][] = [
+    ["Sealed", "Caller staked 0.006 SOL behind a sha256 commitment. Token stays off chain.", RECORDED_DEVNET_RUN.openTx],
+    ...RECORDED_DEVNET_RUN.depositTxs.map((t, i): [string, string, string] => [`Deposit ${i + 1}`, `Follower put in ${fmtSol(RECORDED_DEVNET_RUN.followerFills[i].lamports)} SOL blind.`, t]),
+    ["Rejected", "Reveal with a wrong salt, refused by the program.", RECORDED_DEVNET_RUN.rejectedRevealTx],
+    ["Filled", "One swap for caller and three followers, slot 507,691,251.", RECORDED_DEVNET_RUN.revealTx],
+  ];
+
   return (
     <div className="pb-24">
       <Masthead />
-      <main className="frame mt-12">
-        <section className="col">
-          <h1 className="t3" style={{ maxWidth: "26em" }}>The caller buys with you, in the same transaction, at the same price.</h1>
-          <Link href="/open/" className="btn btn-seal mt-6 md:hidden">Seal a call</Link>
-          <div className="mt-8 flex items-baseline justify-between gap-4 heavy-t pt-3">
-            <h2 className="t2 strong">The ledger of sealed calls</h2>
-            
+      <main className="shell mt-8 md:mt-12 grid gap-6">
+        <section className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2"><span className="chip chip-muted chip-plain">Program <span className="hash t1">{short(RECORDED_DEVNET_RUN.programId, 4)}</span></span><span className={`chip ${live ? "chip-filled" : "chip-muted"}`}>{live ? "Live" : "Snapshot"}</span></div>
+            <h1 className="display t6 mt-4" style={{ maxWidth: "18em" }}>Sealed calls. One fill, one price.</h1>
+            <p className="t3 muted mt-2" style={{ maxWidth: "40em" }}>The caller buys with followers in the same transaction. Nobody sees the token until reveal, so nobody can front-run it.</p>
           </div>
-          <p className="mt-6"><span className="display t5 lining">{fmtSol(entries.reduce((t, e) => t + e.stake + e.followerLamports, 0))}</span> <span className="t3">SOL sealed across {entries.length} calls, {filled.length} filled at one price each.</span></p>
-          <p className="t1 muted mt-1">Sum of the vault column, {live && readAt ? `read from devnet${slot ? ` at slot ${slot.toLocaleString("en-US")}` : ""}, ${readAt} IST` : `devnet snapshot of ${new Date(SEED_TAKEN_AT).toLocaleDateString("en-GB")}`}.</p>
-          <div className="mt-4 overflow-x-auto">
-            <Table>
-              <TableHeader><TableRow><TableHead>№</TableHead><TableHead>Token</TableHead><TableHead className="hidden sm:table-cell">Caller</TableHead><TableHead className="r">Vault<span className="hidden sm:inline">, SOL</span></TableHead><TableHead className="r hidden sm:table-cell">Followers</TableHead><TableHead className="r">Entry</TableHead></TableRow></TableHeader>
-              <TableBody>
-                {numbered.map(({ e, n }) => (
-                  <TableRow key={e.address} className="row" tabIndex={0} onClick={() => router.push(`/call/?c=${e.address}`)} onKeyDown={(k) => k.key === "Enter" && router.push(`/call/?c=${e.address}`)}>
-                    <TableCell className="num">№&thinsp;{n}{e.state === "executed" && <sup className="fn">{filled.indexOf(e) + 1}</sup>}</TableCell>
-                    <TableCell><Redaction text={short(e.mint, 4)} open={e.state === "executed"} chars={9} className="hash" /><div className="hash muted sm:hidden mt-1">by {short(e.caller)}</div></TableCell>
-                    <TableCell className="hidden sm:table-cell"><span className="hash muted">{short(e.caller)}</span></TableCell>
-                    <TableCell className="r lining">{fmtSol(e.stake + e.followerLamports)}<span className="muted hidden sm:inline"> / {fmtSol(e.cap)}</span></TableCell>
-                    <TableCell className="r lining hidden sm:table-cell">{e.state === "executed" && followerCount(e) === 0 && e.followerLamports > 0 ? <span className="muted t1">all claimed</span> : followerCount(e)}</TableCell>
-                    <TableCell className="r t1">{status(e, now)}<div className="muted">{fmtDate(e.openedAt)}</div></TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <div className="flex gap-3 shrink-0">
+            <Link href="/try/" className="btn btn-line btn-lg">Try it in 60s</Link>
+            <Link href="/open/" className="btn btn-seal btn-lg">Seal a call</Link>
           </div>
-          <div className="mt-16 heavy-t pt-3">
-            <h2 className="t2 strong">The record of № 1, as it happened on devnet</h2>
-            <ol className="mt-3">
-              {[
-                ["5 Oct 2026", "The caller sealed the call: 0.006 SOL stake and a sha256 commitment. The token stayed off chain.", RECORDED_DEVNET_RUN.openTx],
-                ...RECORDED_DEVNET_RUN.depositTxs.map((t, i) => ["", `A follower deposited ${fmtSol(RECORDED_DEVNET_RUN.followerFills[i].lamports)} SOL without knowing the token.`, t]),
-                ["", "A reveal with the wrong salt was rejected by the program.", RECORDED_DEVNET_RUN.rejectedRevealTx],
-                ["", "The real reveal: one swap filled the caller and all three followers at one price, slot 507,691,251.", RECORDED_DEVNET_RUN.revealTx],
-              ].map(([d, what, tx]) => (
-                <li key={tx} className="grid gap-x-6 py-3 rule-b sm:grid-cols-[128px_minmax(0,1fr)_auto]">
-                  <span className="t1 muted lining">{d}</span>
-                  <span>{what}</span>
-                  <a className="textlink hash t1" href={explorerTx(tx)} target="_blank" rel="noreferrer">{short(tx, 5)}</a>
+        </section>
+
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4" aria-label="Ledger summary">
+          <Metric value={fmtSol(total)} unit="SOL" label="Sealed in vaults" accent />
+          <Metric value={entries.length} label="Calls" sub={`${callers} caller wallets`} />
+          <Metric value={filled.length} label="Filled at one price" sub={`${followersTotal} follower fills`} />
+          <Metric value={openNow} label="Open for deposits" sub={openNow ? "Join blind as a follower" : "Seal one to start"} />
+        </section>
+
+        <section className="card overflow-hidden">
+          <div className="card-h">
+            <div><h2 className="t4">Call ledger</h2><p className="t1 muted mt-1">{source}</p></div>
+            <span className="t1 muted hidden sm:block">Refreshes every 20 s</span>
+          </div>
+          <ul className="sm:hidden">
+            {numbered.map(({ e, n }) => (
+              <li key={e.address}>
+                <Link href={`/call/?c=${e.address}`} className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2 px-4 py-3 rule-b transition-colors hover:bg-[var(--surface-elevated)]">
+                  <span className="flex items-center gap-2 min-w-0"><span className="hash t1 muted">#{n}</span>{status(e, now)}</span>
+                  <span className="hash ink text-right">{fmtSol(e.stake + e.followerLamports)} <span className="muted t1">SOL</span></span>
+                  <span className="flex items-center gap-2 min-w-0 t1 muted">Token <Redaction text={short(e.mint, 4)} open={e.state === "executed"} chars={9} className="hash t1" /></span>
+                  <span className="t1 muted text-right">{followerCount(e)} followers</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden sm:block">
+          <Table>
+            <TableHeader><TableRow>
+              <TableHead>Call</TableHead><TableHead>Status</TableHead><TableHead>Token</TableHead>
+              <TableHead className="hidden md:table-cell">Caller</TableHead>
+              <TableHead className="r">Vault</TableHead>
+              <TableHead className="r hidden sm:table-cell">Followers</TableHead>
+              <TableHead className="r hidden lg:table-cell">Opened</TableHead>
+            </TableRow></TableHeader>
+            <TableBody>
+              {numbered.map(({ e, n }) => (
+                <TableRow key={e.address} className="row" tabIndex={0} onClick={() => router.push(`/call/?c=${e.address}`)} onKeyDown={(k) => k.key === "Enter" && router.push(`/call/?c=${e.address}`)}>
+                  <TableCell><span className="num">#{n}</span> <span className="hash ink hidden sm:inline">{short(e.address, 4)}</span></TableCell>
+                  <TableCell>{status(e, now)}</TableCell>
+                  <TableCell><Redaction text={short(e.mint, 4)} open={e.state === "executed"} chars={9} className="hash" /></TableCell>
+                  <TableCell className="hidden md:table-cell"><a className="hash muted textlink" style={{ color: "var(--muted)" }} href={explorerAddr(e.caller)} target="_blank" rel="noreferrer" onClick={(x) => x.stopPropagation()}>{short(e.caller)}</a></TableCell>
+                  <TableCell className="r">{fmtSol(e.stake + e.followerLamports)}<span className="muted hidden sm:inline"> / {fmtSol(e.cap)}</span></TableCell>
+                  <TableCell className="r hidden sm:table-cell">{e.state === "executed" && followerCount(e) === 0 && e.followerLamports > 0 ? <span className="muted">claimed</span> : followerCount(e)}</TableCell>
+                  <TableCell className="r hidden lg:table-cell"><span className="muted">{fmtDate(e.openedAt)}</span></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          </div>
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-3">
+          <div className="card lg:col-span-2">
+            <div className="card-h"><h2 className="t4">Recorded run, call #1</h2><Badge tone="filled">Filled</Badge></div>
+            <ol className="grid">
+              {record.map(([k, what, tx]) => (
+                <li key={tx} className="grid grid-cols-[88px_minmax(0,1fr)] sm:grid-cols-[104px_minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-4 sm:px-6 py-3 rule-b last:border-b-0">
+                  <span className="label">{k}</span>
+                  <span className="t2">{what}</span>
+                  <a className="hash t1 textlink col-start-2 sm:col-start-auto" href={explorerTx(tx)} target="_blank" rel="noreferrer">{short(tx, 5)}</a>
                 </li>
               ))}
             </ol>
           </div>
-          <div className="mt-16 heavy-t pt-3 grid gap-10 sm:grid-cols-2">
-            <div>
-              <h2 className="t2 strong">How it pays</h2>
-              <p className="mt-3">Every filled vault pays a 1% fee, which the program takes in the reveal transaction. A lapsed call refunds in full and pays nothing.</p>
-              <p className="mt-3">Of that fee, 30% goes to the caller and 70% to the protocol treasury, both set in the on-chain config, so a caller earns only when followers fill alongside them.</p>
-              <p className="mt-3 muted">Next: a caller subscription for a verified track-record page and private follower lists. Planned, not built.</p>
-            </div>
-            <div>
-              <h2 className="t2 strong">Who asked for it</h2>
-              <ul className="mt-3 grid gap-3">
-                <li>Mechanisms that only work with hiding or batching, asked for by <a className="textlink" href="https://x.com/milianstx/status/2098040544744112212" target="_blank" rel="noreferrer">@milianstx</a>.</li>
-                <li>Callers under 50K market cap get &ldquo;bundled sniped and farmed&rdquo;, <a className="textlink" href="https://x.com/slingoorio/status/2105210573663174817" target="_blank" rel="noreferrer">@slingoorio</a> <span className="muted">(post since protected; text archived)</span>.</li>
-                <li>&ldquo;the ones who keep getting bundled&rdquo;, <a className="textlink" href="https://x.com/skrootimburg/status/2105973149053448320" target="_blank" rel="noreferrer">@skrootimburg</a>.</li>
-                <li>Followers fill 1 to 2 seconds late and sell into the caller&rsquo;s red candle, <a className="textlink" href="https://www.reddit.com/r/GMGNAI/comments/1wf6doe/copytrading/" target="_blank" rel="noreferrer">r/GMGNAI</a>.</li>
-              </ul>
+          <div className="card">
+            <div className="card-h"><h2 className="t4">How it pays</h2></div>
+            <div className="card-b grid gap-4">
+              <div className="grid grid-cols-3 gap-2">
+                {[["1%", "fee on fill"], ["30%", "to caller"], ["70%", "to protocol"]].map(([v, l]) => (
+                  <div key={l} className="panel p-3"><div className="hash t4 ink" style={{ fontWeight: 600 }}>{v}</div><div className="t1 muted mt-1">{l}</div></div>
+                ))}
+              </div>
+              <p className="t2">Taken in the reveal transaction, set in the on-chain config. A lapsed call refunds in full and pays nothing.</p>
+              <div className="flex items-center gap-2"><Badge tone="muted">Planned</Badge><span className="t1 muted">Caller subscription, not built</span></div>
             </div>
           </div>
         </section>
-        <aside className="margin">
-          <Link href="/open/" className="btn btn-seal mb-8 hidden md:inline-flex">Seal a call</Link>
-          {filled.map((e, i) => (
-            <p key={e.address} className="mb-4"><sup className="fn">{i + 1}</sup> Filled at slot {e.executedSlot}{e.address === RECORDED_DEVNET_RUN.call && <>; record below</>}.</p>
-          ))}
-          <p className="mb-4">One reveal checks the hash, the pool and the mint, then swaps the whole vault through Meteora DAMM v2.</p>
-          <p className="mb-4">№ 1 and № 3 are two calls by one caller on the same devnet pool, so they share a token.</p>
-        </aside>
 
+        <section className="card">
+          <div className="card-h"><h2 className="t4">Who asked for it</h2><span className="t1 muted">{EVIDENCE.length} public posts</span></div>
+          <ul className="grid sm:grid-cols-2">
+            {EVIDENCE.map(([q, who, url, note]) => (
+              <li key={url} className="px-4 sm:px-6 py-4 rule-b grid gap-1">
+                <span className="t2 ink">{q}</span>
+                <span className="t1 muted"><a className="textlink" href={url} target="_blank" rel="noreferrer">{who}</a>{note ? `, ${note}` : ""}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
       </main>
     </div>
   );
