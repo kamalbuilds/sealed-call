@@ -1,35 +1,43 @@
-# SEALED CALL: DESIGN.md (binding)
+# SEALED CALL design contract: dashboard ledger (supersedes the Notary's ledger print look)
 
-Direction: "Notary's ledger" (cwf/docs/DESIGN-DIRECTIONS.md, Sealed Call row), with the display face changed because uicraft gate bans Fraunces.
+System: `clickhouse` from ~/.config/design-md/INDEX.md (near-black canvas, one electric-yellow voltage, yellow stat numbers, hairline-bordered cards). Chosen because SEALED CALL is a live on-chain ledger: a dark data surface with big stat figures reads as a trading dashboard, not a document.
 
-## Art direction
-A sealed call is a notarised entry, not a trade ticket. The page reads like an auction catalogue's results page set as a research paper: one editorial column, a margin carrying footnotes (transaction signatures) and the seal, ruled rows instead of cards.
+1. Direction: dark dashboard ledger. Top strip of summary metrics (large numbers, small labels), status as colored chips, the ledger as a bordered card holding a styled table (row hover, mono truncated addresses with explorer links), one yellow primary action per screen. No cream, no Bodoni, no Source Serif, no print rules.
+2. Fonts: Space Grotesk (display + UI, 400/500/600/700) and JetBrains Mono (addresses, hashes, amounts), both via next/font/google (https://fonts.google.com/specimen/Space+Grotesk, https://fonts.google.com/specimen/JetBrains+Mono). Inter from the source system is swapped for Space Grotesk; no serif anywhere.
+3. Palette (CSS variables in app/globals.css): see token block. One accent (yellow) plus semantic success/warn/danger and a blue info tone for "open".
+4. Spacing: 4px base, scale 4/8/12/16/24/32/48/64. Radius 6px controls, 10px cards, 999px chips.
+5. Layout: max-width 1200px shell; header bar, metric strip (4 tiles), primary content card. Call page: state header + metric strip + action panel (right column at >=1024) + register table. Open page: two-column form card + summary rail.
 
-Structure stolen from: Paradigm research posts (720px text column, left/right margin apparatus, 38px display at -1.14px tracking), gwern.net and Tufte CSS (sidenotes in a right margin), Christie's auction results (light serif display 48px weight 300, lot listings as ruled rows, month index rail).
+## Type scale
+12 (caption, uppercase labels 0.08em) / 14 (body-sm, table) / 16 (body) / 20 (title) / 28 (section) / 40 (stat + page title). Tabular numerals everywhere numbers appear.
 
-## Type (two families + a mono for hashes only)
-- Display: **Bodoni Moda** 400/500 (catalogue didone; Christie's arizonaSerif and Paradigm Serif are high-contrast book faces). Tracking -0.02em at 36px and up.
-- Body: **Source Serif 4** 400/600 (gwern's body face; old-style figures in prose, `lining-nums tabular-nums` in tables).
-- Hashes and addresses only: **JetBrains Mono** 400, 13px. No mono uppercase labels.
-- Scale (five sizes): 13 / 17 / 22 / 36 / 60 px. Leading 1.6 prose, 1.3 at 22, 1.02 display.
+## Token block
+```css
+:root {
+  --canvas: #0a0a0a;
+  --surface: #121212;
+  --surface-card: #1a1a1a;
+  --surface-elevated: #242424;
+  --hairline: #2a2a2a;
+  --hairline-strong: #3a3a3a;
+  --ink: #ffffff;
+  --body: #cccccc;
+  --muted: #888888;
+  --primary: #faff69;
+  --primary-active: #e6eb52;
+  --on-primary: #0a0a0a;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --shadow-card: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px rgba(0,0,0,0.35);
+}
+```
 
-## Colour (70 / 20 / 10)
-- Paper #EFE6D2 (70%), ink #1C1A17 (20%), rule #CFC3A8 and muted #6E6455 (structure), seal red #A3201B (10% max, one job: sealed state, the primary action, and the one fill price).
-- No other hues. No gradients, no shadows, no noise.
-
-## Space and shape
-- 4 px base, steps 4/8/12/16/24/32/48/64.
-- Radius 0 everywhere. Borders 1px rule, 1px ink for table heads, 3px ink for the masthead and section breaks.
-
-## Components
-- Masthead: wordmark left, links and wallet right on one line, 3px rule, edition line. Not centred.
-- Ledger table (signature): № in old-style display numerals, token as a black redaction bar that types in over 400ms on reveal.
-- Flat one-colour seal stamp (SVG strokes, no fill gradient); it cracks at reveal.
-- Timeline commit -> deposit -> reveal as a ruled three-step register.
-- Serif number ticker for tokens out.
-
-## Motion
-One orchestrated moment: the reveal (stamp strikes 300ms, token types in 400ms, figures tick 600ms, rows fade in 90ms stagger). Everything else 150ms colour transitions. All of it off under prefers-reduced-motion.
+## Status chips
+Open (blue, countdown) / Filled (green) / Lapsed, refundable (amber) / Expired (grey). Always text plus color.
 
 ## Refusals
-Cards, card grids, I/II/III feature rows, stat trios, status pills, mono caps labels, gradients, drop shadows, radial glows, centred hero, empty loading states (the ledger opens from a seeded devnet snapshot), emoji, em dashes in copy.
+Cream paper, serif faces, newspaper masthead, footnote margins, № numbering, walls of prose, gradient text, backdrop blur, glows, rounded-2xl+, emoji, em dashes.
