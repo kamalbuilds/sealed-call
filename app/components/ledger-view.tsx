@@ -144,10 +144,10 @@ export function LedgerView() {
             <div className="card-h"><h2 className="t4">Recorded run, call #1</h2><Badge tone="filled">Filled</Badge></div>
             <ol className="grid">
               {record.map(([k, what, tx]) => (
-                <li key={tx} className="grid grid-cols-[88px_minmax(0,1fr)] sm:grid-cols-[104px_minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-4 sm:px-6 py-3 rule-b last:border-b-0">
+                <li key={tx} className="grid sm:grid-cols-[104px_minmax(0,1fr)_auto] sm:items-center gap-x-4 gap-y-1 px-4 sm:px-6 py-3 rule-b last:border-b-0">
                   <span className="label">{k}</span>
                   <span className="t2">{what}</span>
-                  <a className="hash t1 textlink col-start-2 sm:col-start-auto" href={explorerTx(tx)} target="_blank" rel="noreferrer">{short(tx, 5)}</a>
+                  <a className="hash t1 textlink justify-self-start" href={explorerTx(tx)} target="_blank" rel="noreferrer">{short(tx, 5)}</a>
                 </li>
               ))}
             </ol>

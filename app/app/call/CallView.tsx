@@ -184,8 +184,8 @@ export default function CallView() {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {executed && stage >= 4
-            ? <Metric value={<Sci x={price} />} label="Fill price, SOL per token" sub="Every row paid this" accent />
-            : <Metric value={executed ? "…" : "Sealed"} label="Fill price" sub={executed ? "Revealing" : "Set by one swap at reveal"} accent />}
+            ? <div className="col-span-2 lg:col-span-1 grid"><Metric value={<Sci x={price} />} label="Fill price, SOL per token" sub="Every row paid this" accent /></div>
+            : <div className="col-span-2 lg:col-span-1 grid"><Metric value={executed ? "…" : "Sealed"} label="Fill price" sub={executed ? "Revealing" : "Set by one swap at reveal"} accent /></div>}
           <Metric value={totalIn.toFixed(3)} unit="SOL" label="In the vault" sub={`cap ${sol(call.maxVaultLamports.toNumber())} SOL`} />
           <Metric value={Math.max(call.followerCount, fills.length - 1)} label="Followers" sub={`caller stake ${sol(call.callerStakeLamports.toNumber())} SOL`} />
           {executed && stage >= 4

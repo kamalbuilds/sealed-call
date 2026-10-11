@@ -151,11 +151,11 @@ export function OpenView() {
               <div className="[&>*]:w-full">{cta}</div>
             </div>
           )}
-          <SealStamp size={72} className={sealed ? "strike" : ""} />
+          <SealStamp size={48} className={sealed ? "strike" : ""} />
           <p className="mt-4 label">What the chain will hold</p>
           <dl className="mt-2 grid gap-2 t1">
             <div className="panel px-3 py-2"><dt className="t1 muted">Token</dt><dd className="m-0"><Redaction text="" open={false} chars={10} /></dd></div>
-            <div className="panel px-3 py-2"><dt className="t1 muted">Seal</dt><dd className="m-0 hash break-all">{sealed ? sealed.hash : "sha256(call, mint, pool, salt)"}</dd></div>
+            <div className="panel px-3 py-2"><dt className="t1 muted">Seal</dt><dd className={sealed ? "m-0 hash t1 break-all" : "m-0 hash t1"} style={{ whiteSpace: "normal" }}>{sealed ? sealed.hash : "sha256(call, mint, pool, salt)"}</dd></div>
           </dl>
           {sealed && (
             <div className="mt-6 grid gap-3">

@@ -9,3 +9,13 @@
 6. Metric sub-lines and table muted text are legible but low contrast; acceptable.
 7. Seal stamp on the call page is dim grey once broken; it carries state, keep it.
 Top 3 to fix: (a) mobile ledger as stacked cards, (b) open-page summary rail with the primary action at >=1024, (c) Transactions as a single-column list and fix .hash.t1 sizing.
+
+## Round 2 (r2-*.png, after fixing r1 top 3)
+1. Fixed: 390 ledger is now a stacked card list (status chip, vault, token, followers per row); nothing clipped, scrollWidth 390.
+2. Fixed: open page has a sticky summary rail at 1440 with the one yellow action above the fold.
+3. Fixed: transactions are a single-column list; mono links now match their 12px labels.
+4. 390 home: recorded-run rows keep an 88px label column, so the description wraps into 3-4 short lines. Wasted width.
+5. Open rail: "sha256(call, mint, pool, salt)" breaks mid-word ("sal t"), and the stamp duplicates the rail heading.
+6. Call 390: the fill price exponent (10^-9) presses against the card edge in the 2-col metric grid.
+7. Overall: one accent, chips everywhere status appears, consistent card style across pages.
+Top 3 to fix: (a) stack recorded-run rows on mobile, (b) rail seal formula on whole words, smaller stamp, (c) fill price metric spans 2 columns on mobile.
