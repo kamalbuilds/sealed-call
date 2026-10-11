@@ -1,0 +1,42 @@
+# SEALED CALL feature audit
+
+Audited Oct 11 2026, 10:10 to 11:35 IST, against https://sealed-call.pages.dev (devnet program `JBwReCk6DRFZREGjCfNiMQUsFFc66FSLBrejnjzKgU4N`).
+Method: headless Chrome (Playwright, `scripts/audit/ui-audit.py`) driving the live site with real devnet keys loaded into the site's burner wallet, chain checks in `scripts/audit/survey.ts` and `scripts/audit/sweep-and-fee.ts`, plus `npm test` (local validator with real Meteora DAMM v2 dumped from devnet). Screenshots are in `docs/audit/`.
+
+Status: **working** = exercised end to end in this audit; **fixed** = was broken, fixed and redeployed, then re-verified; **test-only** = proven by `npm test` but not run on devnet (on purpose, see note); **not working** = still broken.
+
+| # | Feature | Claimed in | Status | Evidence |
+|---|---|---|---|---|
+| 1 | Burner wallet ("Use a burner wallet") | /try, README judges | **fixed** | Before: clicking the button stored a key but never connected (no "Connected:"; provider auto-connect race with an extra `connect()` in `try-view.tsx`). Now it stores the key + wallet choice and reloads, autoConnect connects. Re-run: `Connected: H1dPxZ…nQ1Wp3`, screenshot `try-burner.png` |
+| 2 | "Request 0.1 SOL here" airdrop | /try, README judges | **working (degraded)** | Public devnet RPC refused the airdrop twice (rate-limit); the page shows the designed fallback "The public RPC refused the airdrop … Use the faucet link instead". The faucet link is the reliable path |
+| 3 | Open a call ("Seal the call", prefilled demo pool) | /open, /try, README | **working** | call `cnq9uCmutAsvLLTHu3emRet5bKHdMe3iPU4arvq3pFM`, tx `4xf5YEWbGFZeZyeKvcJzaeNGoZPYesoend2MC7HbVVb3MWGVs8ciaQCUCkRzkmBDAUczUTaFe2bU6g5dgFU2ARwQ`; `open-sealed.png` |
+| 4 | Seal file download (`.seal.json`) | /open, README UI | **working** | Downloaded file has `call, callId, mint, pool, salt, createdAt` |
+| 5 | Seal file load on a browser without the seal | call page, README UI | **working** | Fresh browser shows "This browser does not hold the seal"; loading the file enables Reveal |
+| 6 | Seal file for another call is rejected | call page | **working** | "this seal file belongs to another call" |
+| 7 | Deposit (blind) | call page, README | **working** | tx `4a1cxV5jnhjYKdTWJ3PBvbqsmS9jpHgMuGAkXQeKJgCpjXCo7dBB7iwMtzHT9XmQb67HGzjD3GGaWenMUHEvwSAQ`; re-deposit `2WgkG7bNB7A116aNvatWGCFy3NYDaiHyVjWGNshWnKrd1UcXR4Fh2UdpmcjQFnQpykinfxn41NitNgaT6Yim6WoT` |
+| 8 | Withdraw before reveal | call page, README | **working** | tx `5QDvVPuDjQf7MbX6dE8n5RTXxKmZMCY5MLVYiZz9nEyVqFrkwbJcfqcGpuK7exSMVegH7xFmynrN94PR8mvnKDvN`; test "withdraw by a follower before execution refunds in full…" |
+| 9 | Reveal from a loaded seal file, fills everyone at one price | call page, README | **working** | tx `2uc47zaXsuogWD1YxWHbkEUMeSLFeam6AEnv1EmCEaa5mjpAKrPyAgVow12AJyqPva6VWtsDezQynkEtXenjxT4Y`; `revealed.png` |
+| 10 | Reveal from the seal stored in the browser + solo reveal ("Reveal with your stake only") | /try §4, call page | **working** | call `BxbLegv97EinAwVzGqmoXYne9itkpRPYVCkC5uLitpkz`, open `3PNc8XS8CzZvBiFKDyRMYbhqyLMFxtPG1cdcuJQTcXBbyLGE5yoXuj8Y2w7qEH2KMFMNfmBG6Y4CViYngw12QCbV`, reveal `AqY2fcQ1oX1MerX858rqqq1fR2xjVZm7dT47QDYcqQc5XwHQd4hj7Hd7hkYyB5Ui4Ps3XDw4NhhTgGJMSAdLzqB`; `solo-revealed.png` |
+| 11 | Follower claim | call page, README | **working** | tx `3mqyKr8iv3zmx63cApFqQRzJDErazAtx41ePPScVTz72sA1HtMb3cnoxvNrSoxC4ydFBKxbbNp9qE18W8igvvB4s`; `claimed.png` |
+| 12 | Caller lock countdown, caller claim after the lock | call page, /try, README | **working** | Lock countdown "Your tokens unlock in …" shown after reveal `2uc47z…`. Caller claim after the 24 h lock on call `4sQqsg6LXnw8zdh4xLmCFgQVoJHAZ49UxFaeAt2m1QnF` through the UI: tx `r2mGz2YMxRjip1MixiUDi8cjMVyg6THHDpeyd98hy315NgjorLt53GKmaT45NXGM9aGRkreKAW9fPUSDZTWKQXU`; `caller-claim.png`; tests "caller_claim before the lock reverts…", "caller_claim succeeds after the lock…" | |
+| 13 | Expire (mark lapsed) and refund | call page, README, ledger | **fixed** | Refund `5WKpneDN8RkASgUfseen6qNT4PTghDQprzQm42aNDieWpDUck3mKyx8sYpqPm2xPBKTgTUJSazcRsZQUbDdKwM1c`, expire `54XVxAaScEwMe7d3By31TbhcPBXLBoBbPCfTZ6C9wYWjYdbwYTrpSJk3QEfnrN8JBZ14jAxLaBbnrcpUzNA3zT9f` on call `8vZGyAb7xoERG4RLoqdv2hkVDNpvjDxYAoGTWqRyCJx8`. Before the fix, "Mark the call lapsed" was offered while followers still had SOL in and failed with "follower positions remain (6035)" (`expire-dbg.png`). Now it shows only once every follower has refunded, with an explanation otherwise |
+| 14 | sweep_dust (admin) | README architecture | **working** | Admin (deployer) swept call `4sQqsg…QnF` after every claim: tx `5FWG8QfdBsLWxWzg1dQkodBSUTaj4EMo9MVvNk9ccxzsBub9RnNEJ6HCqDYp9rBnhbHqGHdd9Wa5roG5Q2nvfKBP`. On a call with an unclaimed caller it is refused with FollowersRemain (6035), as designed. Test "sweep_dust by a non-admin is rejected…" | |
+| 15 | Live ledger (`getProgramAccounts`) | /, README UI | **working** | Home and /try list live calls (/try: `4ZEuZ…nFVzu`, `Hec1d…SB2CR` open); `home.png` |
+| 16 | Seed fallback when the RPC fails | / | **working** | With all RPC requests blocked the home page renders the snapshot ("devnet snapshot of 11/10/2026", 11 calls); `seed-fallback.png` |
+| 17 | /try "Join a live call" list under RPC rate-limit | /try | **fixed** | A 429 used to show "No call is taking deposits right now" while calls were open. Now it retries once, then falls back to the snapshot |
+| 18 | Decoded program error messages | call page, README UI | **working** | Tampered seal: "revealed (mint, pool, salt) does not match the commitment (6015)" (`bad-seal-error.png`); 0.001 SOL deposit: "deposit is below the minimum (6032)" |
+| 19 | Replay the reveal (recorded run `HaaRa…Etnw3`) | /, /try, README demo | **working** | "Every row paid … SOL a token" after replay; `replay.png` |
+| 20 | Fee split, 1% fee, 30% caller / 70% treasury | landing, README business | **working** | Reveal `2uc47z…`: 11,000,000 lamports in, 10,890,000 swapped (1% = 110,000 fee), treasury `DSansM…` +77,000 (70%), the remaining 33,000 (30%) to the caller; test "caller reveals in ONE transaction, fills at one price, fee goes to treasury and caller" |
+| 21 | Lapsed call refunds in full, no fee | landing, README business | **working** | Refund `5WKpne…` returned the full 0.005 SOL; test "after the deadline reveal reverts, refunds return every lamport…" |
+| 22 | Mint hygiene: live mint authority / freeze authority rejected | README architecture | **test-only** | tests "an output mint with … reverts with MintAuthorityLive" (2 cases) |
+| 23 | Token-2022 transfer-fee mint rejected | README architecture | **test-only** | test "a Token-2022 mint with a TransferFeeConfig extension reverts with UnsafeMintExtension" |
+| 24 | Pool seasoning, locked liquidity, depth, max impact guards | README architecture | **test-only** | tests PoolNotSeasoned, PoolLiquidityUnlocked, PoolTooThin, PriceImpactExceeded |
+| 25 | Pause (admin) | README tests | **test-only** | test "blocks open, deposit and reveal while withdraw still works; only the admin may pause". Not run on devnet: pausing would take the live judge path down |
+| 26 | Hash binds call address (copied commitment fails), non-caller reveal fails, caller cannot deposit, caps | README | **test-only** | tests HashMismatch (copied), Unauthorized, "the caller cannot deposit into the own call", "per-follower cap and vault cap" |
+| 27 | CPI opener (open a call from a PDA) | README repo structure | **test-only** | tests in `tests/zz-cpi-opener.ts` (3) |
+| 28 | Business model "caller subscription, verified track-record page, private follower lists" | README business, landing | **planned (labelled)** | Not built; the README already says "planned, not built". Keep that label everywhere it appears |
+| 29 | `npm test` suite | README tests | **working** | `npm test`: 39 passing (2m), Oct 11 11:30 IST | |
+
+Notes
+- Mint/freeze, Token-2022, pool guards, pause and CPI opener need fabricated mints, pools or the admin key; they run against real DAMM v2 code in the local validator. Running pause on devnet would break the live site for judges, so it stays test-only.
+- Devnet SOL spent in this audit: about 0.035 SOL from demo wallets (`keys/devnet/caller.json`, `keys/demo/follower.json`) and a few thousand lamports from the deployer. 0.013 SOL went to a throwaway burner whose key was lost between runs (`4z53jG…oUJicB`); unrecoverable, devnet only.
