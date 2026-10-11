@@ -164,7 +164,6 @@ export function LedgerView() {
                 ))}
               </div>
               <p className="t2">Taken in the reveal transaction, set in the on-chain config. A lapsed call refunds in full and pays nothing.</p>
-              <div className="flex items-center gap-2"><Badge tone="muted">Planned</Badge><span className="t1 muted">Caller subscription, not built</span></div>
             </div>
           </div>
         </section>

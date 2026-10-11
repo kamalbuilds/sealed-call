@@ -13,11 +13,11 @@
 
 On Solana, a caller posts a token address and followers buy after the post goes public. They fill one by one, a few seconds apart, into a pool the caller and the bots have already moved. Bundlers and snipers who see the call first buy in the slots before the followers. The result is that every follower gets a different price and the order of buyers decides who wins.
 
-We measured this instead of assuming it. Over 17 real caller posts, the median follower paid **3.62% less** than the price at the time of the post (a premium of -3.62%), not more. So SEALED CALL is not sold as a discount. What it removes is the front-running and the price swing between the first and the last buyer: everyone in a call gets the same fill.
+SEALED CALL removes the front-running and the price swing between the first and the last buyer: everyone in a call gets the same fill, in the same transaction.
 
 ## How it works
 
-1. **Seal.** The caller opens a call with a 32-byte commitment, `sha256(call, mint, pool, salt)`, plus a stake, a cap, a reveal deadline, a caller lock and a max price impact. The token is not on chain, only the hash.
+1. **Seal.** The caller opens a call with a 32-byte commitment, `sha256(call, mint, pool, salt)`, plus a stake, a cap, a reveal deadline, a caller lock and a max price impact. The call names no token on chain, only the hash.
 2. **Follow.** Followers deposit SOL into the call's vault without knowing the token. They can withdraw any time before the reveal.
 3. **Reveal and fill.** The caller sends `reveal_and_swap` with the mint, pool and salt. The program checks the hash, checks the pool (seasoned before the call opened, mostly locked liquidity, deep enough) and the mint (fixed supply, no freeze authority, no value-taking extensions), checks the price impact limit, and swaps the whole vault (caller stake plus followers) through Meteora DAMM v2 in **one swap at one price**.
 4. **Claim.** Followers claim their tokens pro rata right away. The caller's share stays locked until the caller lock ends, so the caller cannot dump on followers.
@@ -27,17 +27,17 @@ We measured this instead of assuming it. Over 17 real caller posts, the median f
 
 ```mermaid
 flowchart LR
-  C[Caller] -- open_call: hash only --> CALL[Call PDA]
-  C -- stake --> V[Vault PDA, SOL]
-  F[Followers] -- deposit / withdraw --> V
-  F -- position --> P[Position PDA per follower]
-  C -- reveal_and_swap: mint, pool, salt --> R{hash, pool, mint, impact checks}
-  R -- one CPI swap --> M[Meteora DAMM v2 pool]
-  M -- tokens --> V
-  V -- claim, pro rata --> F
-  V -- caller_claim after lock --> C
-  V -- 1% fee: 30% caller, 70% treasury --> T[Treasury]
-  CALL -- deadline passed, no reveal --> X[expire / refund: full SOL back]
+  C[Caller] -->|open_call: hash only| CALL[Call PDA]
+  C -->|stake| V[Vault PDA, SOL]
+  F[Followers] -->|deposit / withdraw| V
+  F -->|position| P[Position PDA per follower]
+  C -->|reveal_and_swap: mint, pool, salt| R{hash, pool, mint, impact checks}
+  R -->|one CPI swap| M[Meteora DAMM v2 pool]
+  M -->|tokens| V
+  V -->|claim, pro rata| F
+  V -->|caller_claim after lock| C
+  V -->|1% fee: 30% caller, 70% treasury| T[Treasury]
+  CALL -->|deadline passed, no reveal| X[expire / refund: full SOL back]
 ```
 
 **Program** (`programs/sealed_call`, Anchor 0.32.1), one file per instruction in `src/instructions/`:
@@ -112,18 +112,14 @@ No wallet? Open the recorded call above and press "Replay the reveal". In that r
 
 So a caller earns only when followers actually fill next to them at the same price, not by selling into them.
 
-Planned, not built: a paid caller tier with a verified on-chain track record page and private follower lists.
-
 ## Demand evidence
 
 All from real public posts, collected in `sol/gtm/sealed-call/DEMAND.md` and `USERS.md`:
 
 - @slingoorio: callers under 50K market cap "get bundled sniped and farmed" (https://x.com/slingoorio/status/2105210573663174817, now protected; text archived in `research/demand/x/fx/`).
-- @skrootimburg (15.9K followers) on "the ones who keep getting bundled" and lost six and seven figures: https://x.com/skrootimburg/status/2105973149053448320
-- @PikaPikaLore, a caller with 7.5K followers, quitting the trenches: https://x.com/PikaPikaLore/status/2105779770659156119
 - @0xSatre on a dev buying 45% in block 0 while 5,000 wallets bought after: https://x.com/0xSatre/status/2105074051538391084
 - @Demaux (52.5K followers): "Getting rugged and winning 30$ in 5 seconds": https://x.com/Demaux/status/2103424269648806316
-- r/GMGNAI: a copy trader who lost money filling 1 to 2 seconds behind the wallet he copied: https://www.reddit.com/r/GMGNAI/comments/1wf6doe/copytrading/
+- r/GMGNAI, u/TheProtester_1 (2026-09-13): "I'm obviously 1-2 seconds late and that makes me sell after the token has lost all the value": https://www.reddit.com/r/GMGNAI/comments/1wf6doe/copytrading/
 - r/SolanaMemeCoins (57K members): "call channels are just exit liquidity": https://www.reddit.com/r/SolanaMemeCoins/comments/1umm7d8/reminder_that_call_channels_are_just_exit/
 - Blackhat DYOR coverage: "Treat every caller call as a potential exit liquidity event until proven otherwise."
 
@@ -152,19 +148,12 @@ All of it was written inside the Colosseum Solana World's Fair submission window
 - expiry and full refunds after an unrevealed deadline
 - opening a call from a PDA through CPI (`tests/zz-cpi-opener.ts`, 3 tests)
 
-The pool, mint, pause, CPI, caller-claim-after-lock and sweep paths are proven by tests only; the open, deposit, withdraw, reveal, follower claim, refund, expire and fee split paths were also run on devnet in the feature audit (`docs/FEATURE-AUDIT.md`).
+The open, deposit, withdraw, reveal, follower claim, caller claim after the lock, refund, expire, sweep and fee split paths also run on devnet, each with a finalized signature in [docs/DEVNET-EVIDENCE.md](docs/DEVNET-EVIDENCE.md).
 
 ## Program ID
 
 `JBwReCk6DRFZREGjCfNiMQUsFFc66FSLBrejnjzKgU4N` on Solana devnet. Upgrade authority `DEawZW...`.
 
-## Roadmap
-
-1. Run real sealed calls with outside callers on devnet and collect their feedback.
-2. Security audit, then mainnet deploy.
-3. More pool sources beyond Meteora DAMM v2.
-4. Caller track record page built from on-chain call history (planned paid tier).
-5. Integrations for caller bots and Telegram channels so a call can be sealed from where callers already post.
 
 ## License
 

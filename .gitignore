@@ -16,3 +16,8 @@ fixtures/*.so
 app/.gstack/screens-*/
 docs/audit/_*
 *mitm*.db
+
+# internal working docs, kept local
+docs/PORTAL-DRAFTS.md
+docs/pitch/INVITES.md
+docs/FEATURE-AUDIT.md

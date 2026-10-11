@@ -89,7 +89,7 @@ The Verge uses **zero decorative gradients**. The only gradient-like treatment i
 - **Manuka is always the hero, never the UI.** If you see Manuka below 60px you're looking at a bug. It exists to *shout the brand*, not to label a button.
 - **PolySans is the workhorse, PolySans Mono is its uniformed sibling.** Mono is used exclusively for UPPERCASE labels, timestamps, tags, and certain buttons. Lowercase mono doesn't exist in this system.
 - **Thin-weight (300) capitalized headlines** are a signature Verge move. The 19–20px weight-300 with 1.9px tracking creates a "fashion magazine whisper" that contrasts with the 107px Manuka shout above it. This whisper-vs-shout contrast is the typographic fingerprint.
-- **Letter-spacing has two registers**: positive (0.72–1.9px) for ALL-CAPS mono and sans labels, negative (`-0.16px`) for the rare serif appearances, barely-positive (0.32px, 1.07px) for massive display. Plain 0 letter-spacing is rare.
+- **Letter-spacing**: 0.72 to 1.9px for all-caps mono and sans labels, -0.16px for serif, 0.32px and 1.07px for display sizes.
 - **FK Roman Standard is the editorial exception**, not the rule. Reserve it for long-form print-voice moments, reviews, critic pulls, masthead essays. Never use it in UI.
 - **Line heights are tight** (0.80–1.30) for every display and label, relaxed (1.60–2.00) only for reading body and mono button labels. The leading jump is intentional, it gives the page a "telegraph ticker" rhythm.
 
@@ -168,7 +168,7 @@ The 0.80 line-height on Manuka display (107px, 90px, 60px) assumes the **proprie
 - Each entry is a pill-cornered rectangle separated from its neighbors by 12–16px vertical gap
 
 ### Inputs & Forms
-- **Default**: `#131313` background, 1px solid `#ffffff` or `#949494` border, `2px` border radius (tight, newspaper-form feel), PolySans 15px text in `#ffffff`, placeholder in `#949494`.
+- **Default**: `#131313` background, 1px solid `#ffffff` or `#949494` border, `2px` border radius (tight, newspaper-form feel), PolySans 15px text in `#ffffff`, hint text in `#949494`.
 - **Focus**: border transitions to `#3cffd0` (jelly mint) with optional `1px solid #5200ff` inner ring on deep focus. No glow.
 - **Error**: border turns `#5200ff` (ultraviolet, used as error/alert accent here, not the usual red).
 - **Transition**: ~150ms ease on border-color.
@@ -234,7 +234,7 @@ Eight discrete radius values, a **lot** for a single site. This is deliberate: t
 | Level | Treatment | Use |
 |---|---|---|
 | 0 | No border, no shadow | Default `#131313` canvas text |
-| 1 | `rgba(0,0,0,0) 0px 0px 0px 0px inset` (placeholder) | Reset state for interactive elements |
+| 1 | `rgba(0,0,0,0) 0px 0px 0px 0px inset` | Reset state for interactive elements |
 | 2 | `1px solid #ffffff` or `#313131` hairline | Image frames and quiet card outlines |
 | 3 | `1px solid #3cffd0` hairline | Active button outlines, focused story tiles |
 | 4 | `1px solid #5200ff` hairline | Promotional/alternate state outlines |
