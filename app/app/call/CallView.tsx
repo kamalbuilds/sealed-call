@@ -189,8 +189,8 @@ export default function CallView() {
           <Metric value={totalIn.toFixed(3)} unit="SOL" label="In the vault" sub={`cap ${sol(call.maxVaultLamports.toNumber())} SOL`} />
           <Metric value={Math.max(call.followerCount, fills.length - 1)} label="Followers" sub={`caller stake ${sol(call.callerStakeLamports.toNumber())} SOL`} />
           {executed && stage >= 4
-            ? <Metric value={<Ticker value={tokensOut} format={fmt} />} label="Tokens out" sub={`${swapped.toFixed(4)} SOL swapped`} />
-            : <Metric value={executed ? "…" : hms(deadline - now)} label={executed ? "Tokens out" : pastDeadline ? "Window closed" : "Until reveal deadline"} />}
+            ? <div className="col-span-2 lg:col-span-1 grid"><Metric value={<Ticker value={tokensOut} format={fmt} />} label="Tokens out" sub={`${swapped.toFixed(4)} SOL swapped`} /></div>
+            : <div className="col-span-2 lg:col-span-1 grid"><Metric value={executed ? "…" : hms(deadline - now)} label={executed ? "Tokens out" : pastDeadline ? "Window closed" : "Until reveal deadline"} /></div>}
         </div>
 
         <div className="card">

@@ -112,9 +112,11 @@ export function TryView() {
               <div className="clause-n">4</div>
               <div>
                 <h2 className="t4">Break the seal</h2>
-                <p className="mt-2">After sealing, press <span className="strong">Open the call</span>, then <span className="strong">Reveal</span>. One transaction checks your hash, swaps the vault through the pool and fills every row at one price. You will watch the token type itself in.</p>
-                <p className="mt-2">Want a follower in the fill? Open your call&rsquo;s link in a private window, pick a burner there (it is a different wallet), fund it and deposit 0.005 SOL, then reveal from the first window. That follower can claim straight after.</p>
-                <p className="help mt-2">Your own tokens stay locked for 24 hours after the fill, by design: a caller cannot sell into their followers. Followers can claim at once.</p>
+                <ul className="mt-3 grid gap-2 t2">
+                  <li className="panel px-3 py-2"><span className="strong">Reveal:</span> on your call page press Reveal. One transaction checks the hash and fills every row at one price.</li>
+                  <li className="panel px-3 py-2"><span className="strong">Add a follower:</span> open the call link in a private window, use a second burner, deposit 0.005 SOL, then reveal.</li>
+                  <li className="panel px-3 py-2"><span className="strong">Claim:</span> followers claim at once; the caller&rsquo;s tokens unlock after 24 h.</li>
+                </ul>
               </div>
             </li>
           </ol>
@@ -126,7 +128,7 @@ export function TryView() {
           <Link className="btn btn-line mt-4" href={`/call/?c=${RECORDED_DEVNET_RUN.call}`}>See a reveal</Link>
           <p className="t4 strong mt-8 pt-6 rule-t">Join a live call as a follower</p>
           {open === null ? <p className="mt-2">Reading devnet.</p> : open.length === 0 ? <p className="mt-2">No call is taking deposits right now. Seal one in §3, or deposit from a second wallet into yours.</p> : (
-            <ul className="mt-2 grid gap-2">{open.map((e) => <li key={e.address}><Link className="textlink hash" href={`/call/?c=${e.address}`}>{short(e.address, 5)}</Link> <span className="lining">{fmtSol(e.stake + e.followerLamports)} / {fmtSol(e.cap)} SOL</span></li>)}</ul>
+            <ul className="mt-3 grid gap-2">{open.map((e) => <li key={e.address}><Link className="panel flex items-center justify-between gap-3 px-3 py-2 transition-colors hover:bg-[var(--surface-elevated)]" href={`/call/?c=${e.address}`}><span className="flex items-center gap-2"><span className="chip chip-open">Open</span><span className="hash t1 ink">{short(e.address, 4)}</span></span><span className="hash t1">{fmtSol(e.stake + e.followerLamports)} / {fmtSol(e.cap)}</span></Link></li>)}</ul>
           )}
         </aside>
       </main>

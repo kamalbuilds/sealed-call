@@ -19,3 +19,13 @@ Top 3 to fix: (a) mobile ledger as stacked cards, (b) open-page summary rail wit
 6. Call 390: the fill price exponent (10^-9) presses against the card edge in the 2-col metric grid.
 7. Overall: one accent, chips everywhere status appears, consistent card style across pages.
 Top 3 to fix: (a) stack recorded-run rows on mobile, (b) rail seal formula on whole words, smaller stamp, (c) fill price metric spans 2 columns on mobile.
+
+## Round 3 (r3-*.png, after fixing r2 top 3)
+1. Fixed: 390 recorded-run rows stack (label, text, tx link) and use the full width.
+2. Fixed: rail formula wraps on whole words; stamp is 48px and sits under the action.
+3. Fixed: fill price takes the full row on 390, exponent no longer touches the edge.
+4. Call 390: the 4th metric (tokens out) is now an orphan half-width tile in a row of its own.
+5. Try 1440: step 4 is two paragraphs of 3-4 lines each, the last document-like block in the app.
+6. Try rail: the open calls are bare links with numbers; no status chip, no hover row.
+7. Slop-check PASS, uicraft 0 high findings.
+Top 3 to fix: (a) tokens-out tile spans the row at 390, (b) step 4 cut to a 3-item checklist, (c) open calls in the try rail as hover rows with an Open chip.
