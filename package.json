@@ -6,7 +6,8 @@
     "test": "bash scripts/run-tests.sh",
     "stats": "tsx scripts/stats.ts",
     "sync-idl": "cp target/idl/sealed_call.json sdk/src/idl/sealed_call.json && cp target/types/sealed_call.ts sdk/src/idl/sealed_call.ts",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "check:overlap": "/tmp/pwenv/bin/python scripts/overlap-check.py"
   },
   "bin": {
     "sealed-call": "./scripts/stats.ts",

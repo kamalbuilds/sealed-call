@@ -84,7 +84,7 @@ export function LedgerView() {
       <main className="shell mt-8 md:mt-12 grid gap-6">
         <section className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
-            <div className="flex items-center gap-2"><a className="chip chip-muted chip-plain hover:border-[var(--secondary)]" href={explorerAddr(RECORDED_DEVNET_RUN.programId)} target="_blank" rel="noreferrer" title={RECORDED_DEVNET_RUN.programId}>Program <span className="hash t1">{short(RECORDED_DEVNET_RUN.programId)}</span> ↗</a><span className="chip chip-devnet">DEVNET</span><span className={`chip ${live ? "chip-filled" : "chip-muted"}`}>{live ? "Live" : "Snapshot"}</span></div>
+            <div className="flex items-center gap-2"><a className="chip chip-muted chip-plain hover:border-[var(--secondary)]" href={explorerAddr(RECORDED_DEVNET_RUN.programId)} target="_blank" rel="noreferrer" title={RECORDED_DEVNET_RUN.programId}>Program <span className="hash t1">{short(RECORDED_DEVNET_RUN.programId)}</span> ↗</a><span className={`chip ${live ? "chip-filled" : "chip-muted"}`}>{live ? "Live" : "Snapshot"}</span></div>
             <h1 className="display t6 mt-4" style={{ maxWidth: "18em" }}>Sealed calls. One fill, one price.</h1>
             <p className="t3 muted mt-2" style={{ maxWidth: "40em" }}>The caller buys with followers in the same transaction. Nobody sees the token until reveal, so nobody can front-run it.</p>
           </div>

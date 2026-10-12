@@ -7,7 +7,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "predeploy": "bash ~/Desktop/solana/cwf/docs/design/cwf-ui-gate.sh . && npm run build",
+    "predeploy": "bash ~/Desktop/solana/cwf/docs/design/cwf-ui-gate.sh . && npm run build && (cd .. && npm run check:overlap -- ${BASE:-https://dashboard-preview.sealed-call.pages.dev})",
     "deploy": "wrangler pages deploy out --project-name sealed-call --branch main"
   },
   "dependencies": {
