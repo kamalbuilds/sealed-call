@@ -26,10 +26,9 @@ function status(e: Entry, now: number) {
 }
 
 const EVIDENCE: [string, string, string, string?][] = [
-  ["Mechanisms that only work with hiding or batching", "@milianstx", "https://x.com/milianstx/status/2098040544744112212"],
-  ["Callers under 50K market cap get \u201cbundled sniped and farmed\u201d", "@slingoorio", "https://x.com/slingoorio/status/2105210573663174817", "post since protected; text archived"],
+  ["Calling anything under 50K \u201cgets bundled sniped and farmed\u201d", "@slingoorio", "https://x.com/slingoorio/status/2105210573663174817", "sharing a caller\u2019s account"],
   ["\u201cthe ones who keep getting bundled\u201d", "@skrootimburg", "https://x.com/skrootimburg/status/2105973149053448320"],
-  ["Followers fill 1 to 2 seconds late and sell into the caller\u2019s red candle", "r/GMGNAI", "https://www.reddit.com/r/GMGNAI/comments/1wf6doe/copytrading/"],
+  ["\u201cI\u2019m obviously 1-2 seconds late and that makes me sell after the token has lost all the value\u201d", "r/GMGNAI copy trader", "https://www.reddit.com/r/GMGNAI/comments/1wf6doe/copytrading/"],
 ];
 
 export function LedgerView() {

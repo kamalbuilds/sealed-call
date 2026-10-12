@@ -118,12 +118,18 @@ So a caller earns only when followers actually fill next to them at the same pri
 
 All from real public posts, collected in `sol/gtm/sealed-call/DEMAND.md` and `USERS.md`:
 
-- @slingoorio: callers under 50K market cap "get bundled sniped and farmed" (https://x.com/slingoorio/status/2105210573663174817, now protected; text archived in `research/demand/x/fx/`).
+- @slingoorio, sharing a caller's account: calling anything under 50K "gets bundled sniped and farmed" (https://x.com/slingoorio/status/2105210573663174817; readable again on Oct 12, 2026, text also archived in `research/demand/x/fx/`).
 - @0xSatre on a dev buying 45% in block 0 while 5,000 wallets bought after: https://x.com/0xSatre/status/2105074051538391084
-- @Demaux (52.5K followers): "Getting rugged and winning 30$ in 5 seconds": https://x.com/Demaux/status/2103424269648806316
+- @Demaux (about 52K followers): "Getting rugged and winning 30$ in 5 seconds": https://x.com/Demaux/status/2103424269648806316
 - r/GMGNAI, u/TheProtester_1 (2026-09-13): "I'm obviously 1-2 seconds late and that makes me sell after the token has lost all the value": https://www.reddit.com/r/GMGNAI/comments/1wf6doe/copytrading/
 - r/SolanaMemeCoins (57K members): "call channels are just exit liquidity": https://www.reddit.com/r/SolanaMemeCoins/comments/1umm7d8/reminder_that_call_channels_are_just_exit/
 - Blackhat DYOR coverage: "Treat every caller call as a potential exit liquidity event until proven otherwise."
+
+## Traction, honestly
+
+There are no outside users yet. Every devnet call so far was made by our own demo wallets. `npm run stats` on Oct 12, 2026 (11:30 AM IST) read from chain: 11 executed calls, 0.14355 SOL swapped at reveal, and 0.003015 SOL in the treasury fee vault. Invitations to real callers are drafted but have not been sent.
+
+There has been no external security audit. The program's guards are covered by the test suite below, not by a third party.
 
 ## Built before vs during the hackathon
 

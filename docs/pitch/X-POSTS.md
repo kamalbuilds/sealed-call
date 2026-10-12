@@ -8,7 +8,7 @@ A caller seals a hidden token. Followers deposit blind. At reveal, the whole vau
 Nothing to front-run. Live on devnet: sealed-call.pages.dev
 
 ## Post 2
-Honest data point: we measured 17 real caller posts. The median follower actually paid 3.6% less than the post price, not more.
+Honest data point: we matched 17 real caller posts to minute-by-minute prices. Over the next 5 minutes the median follower paid 3.6% less than the post price, not more.
 
 So SEALED CALL is not a discount. It removes front-running and the spread between first and last buyer. One fill, one price.
 

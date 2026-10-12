@@ -13,7 +13,7 @@ Deadline: Tue Oct 13 2026, 12:29 PM IST. Verified live on Sun Oct 11 2026, about
 | 7 | Repo and commit | GAP | Local git repo at `sol/projects/sealed-call`, has NO remote. `gh repo list kamalbuilds` shows no sealed-call repo. See missing items. |
 | 8 | README judge section | DONE | `README.md` "For judges: try it in 60 seconds" (plus UI, Demo, Business model sections) |
 | 9 | Pitch and demo scripts | DONE | `docs/pitch/PITCH-SCRIPT.md`, `docs/pitch/DEMO-SCRIPT.md` present |
-| 10 | Demand evidence | DONE | README "Demand evidence": @slingoorio (post now protected, text archived), @skrootimburg, @0xSatre, two Reddit threads, @milianstx (cited as a public quote only; he is a judge and is not in any outreach) |
+| 10 | Demand evidence | DONE | README "Demand evidence": @slingoorio (readable again Oct 12, text archived), @skrootimburg, @0xSatre, two Reddit threads; @milianstx removed from public copy (he is a judge) |
 | 11 | Devnet activity | DONE | Ledger: 11 calls, 6 caller wallets; sealed calls open past the deadline: A `4ZEuZ…` until Oct 14 12:29 AM IST |
 
 ## Still missing

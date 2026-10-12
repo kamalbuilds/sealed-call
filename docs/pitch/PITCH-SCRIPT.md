@@ -4,7 +4,7 @@
 I'm Kamal. I'm building SEALED CALL, on Solana. A memecoin caller and their followers buy the same token in one transaction, at one price, and nobody sees the token until that transaction runs.
 
 **The problem (0:20 to 0:45)**
-Today a caller posts a token address and followers buy after it. They fill one by one, seconds apart, behind bots that saw the post first. A caller wrote that small calls get "bundled sniped and farmed". A copy trader on Reddit lost money because he was one to two seconds late.
+Today a caller posts a token address and followers buy after it. They fill one by one, seconds apart, behind bots that saw the post first. One widely shared post said small calls get "bundled sniped and farmed". A copy trader on Reddit lost money because he was one to two seconds late.
 
 **How it works (0:45 to 1:05)**
 The caller puts only a hash on chain. Followers deposit SOL blind and can withdraw before the reveal. At reveal, the program checks the hash, the pool and the token, then swaps the whole vault through Meteora in one swap. If the caller never reveals, everyone gets a full refund.
