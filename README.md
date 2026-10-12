@@ -13,6 +13,8 @@
 
 On Solana, a caller posts a token address and followers buy after the post goes public. They fill one by one, a few seconds apart, into a pool the caller and the bots have already moved. Bundlers and snipers who see the call first buy in the slots before the followers. The result is that every follower gets a different price and the order of buyers decides who wins.
 
+We measured this instead of assuming it. On Oct 10, 2026 we matched 17 X caller posts carrying pump.fun token addresses to GeckoTerminal 1-minute candles of each token's top pool. The median follower premium (5-minute volume-weighted price after the post vs the close of the posting minute) was -3.62%, with a range of -59.7% to +88.3%. So followers do not systematically overpay; what they face is wide price dispersion and front-running. Caveats: minute candles, not individual follower fills, and small callers (5 to 3.7K followers). Data: [docs/evidence/sealedcall-baseline.json](docs/evidence/sealedcall-baseline.json).
+
 SEALED CALL removes the front-running and the price swing between the first and the last buyer: everyone in a call gets the same fill, in the same transaction.
 
 ## How it works
