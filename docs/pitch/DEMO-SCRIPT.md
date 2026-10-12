@@ -1,19 +1,20 @@
-# SEALED CALL demo walkthrough (target 2:50, hard cap 3:00)
+# SEALED CALL demo script (2:50, shot by shot)
 
-Setup before recording:
-- Site: https://sealed-call.pages.dev (devnet). Two browser profiles: Wallet A (caller) and Wallet B (follower), both Phantom or Solflare set to devnet and funded.
-- The demo wallets hold little devnet SOL. On the open page set stake to 0.006 SOL and cap to 0.04 SOL (defaults are 0.2 and 2 SOL).
-- Keep the prefilled demo pool `9mwSK2…j8K`. It passes the reveal guards (seasoned, locked liquidity, fixed supply mint).
-- Have the recorded call `HaaRa…Etnw3` ready as a fallback if a live reveal fails.
+Site: https://sealed-call.pages.dev (Solana devnet). Program `JBwReCk6DRFZREGjCfNiMQUsFFc66FSLBrejnjzKgU4N`.
+Before recording: two browser windows. Window A (caller) and window B (follower), each with a funded devnet burner (use faucet.solana.com; the in-page airdrop often hits the RPC rate limit). Open call to join: `4ZEuZahQDScihenwVkHaWMj1AjwkFQzLCUfcUk8nFVzu` (deposits open until Oct 14, 12:29 AM IST). Recorded fill: `HaaRaA1TCG3YMHu8vCtoCr5jkrdgUP5PjjUJnUsEtnw3`.
 
-| Time | Screen action | Narration |
-|---|---|---|
-| 0:00 to 0:20 | Home page `/` (The Ledger). Slow scroll past sealed calls with countdowns, then settled calls. | "This is SEALED CALL, on Solana devnet. When a caller posts a token today, followers buy one after another, behind the caller and behind the bots. Here, every call is a sealed envelope. Nobody can see the token until it is opened." |
-| 0:20 to 0:35 | Click the revealed call `HaaRa…Etnw3`. Click "Replay the reveal". | "This one already happened. Watch: the seal cracks, the token appears, and the caller and three followers all got the same price, in one transaction." |
-| 0:35 to 1:10 | Wallet A. Go to `/open`. Show the demo pool, set stake 0.006 and cap 0.04, 60 minute window. Point at the right panel: redaction bar and hash. Click "Press the seal", approve in wallet, download the seal file. | "Now I am the caller. I pick the token and the pool, put up my own stake, and set a cap and a deadline. The chain only gets a fingerprint of my pick, not the token. The secret stays in my browser, and I keep a backup file. This is what the world sees: a black bar and a hash." |
-| 1:10 to 1:45 | Copy the `/call?c=` link. Switch to Wallet B profile, open the link. Deposit 0.01 SOL with a quick amount button. Show the new row in the fill register marked "sealed". Hover the withdraw button. | "Now I am a follower. I deposit blind. There is no token to front-run, because nobody knows it yet. My row shows up as sealed. Until the reveal, I can pull my SOL back any time." |
-| 1:45 to 2:20 | Switch to Wallet A. Click "Break the seal & fill everyone", approve one signature. Let the ceremony play: seal cracks, token replaces the bar, ONE PRICE stamp, rows fill with the same price. Click the transaction link. | "Back to the caller. One signature. The program checks the token matches the fingerprint, checks the pool and the token are safe, then the whole vault buys in a single swap on Meteora. One transaction, one price for everyone, the caller included." |
-| 2:20 to 2:40 | Wallet B. Click Claim, approve. Switch to Wallet A, show the caller claim lock countdown. | "The follower claims their share. The caller's tokens stay locked for a while, so the caller cannot dump on the people who followed." |
-| 2:40 to 2:50 | Back to home, point at a refundable call. | "And if the caller never reveals before the deadline, everyone takes their SOL back in full. No fee. A 1% fee is only taken on filled vaults. SEALED CALL: one call, one fill, one price." |
+| Time | Screen | Action | Voiceover |
+|---|---|---|---|
+| 0:00 to 0:15 | Home: "Open calls, join now" at the top, DEVNET badge and Live chip in the header | Hold, then slowly scroll the open calls list | "This is SEALED CALL on Solana devnet. Open calls come first. Each one is a caller who has staked SOL behind a hidden token." |
+| 0:15 to 0:30 | Open call rows with vault fill bars and Join call buttons | Point at a fill bar, then the Program chip | "The bar shows how full each vault is. The token itself is not on chain. Only a hash is." |
+| 0:30 to 0:50 | Window A: "Seal a call" (/open) | Press "Use the demo pool". Show stake, vault cap, reveal window, lock and worst price impact | "As a caller, I pick a Meteora pool and set the terms. They are fixed before anyone pays in." |
+| 0:50 to 1:05 | Review sheet: "Review sealed call" with simulated outcome, network fee and USD | Read the sheet, press "Sign and send" | "Before I sign, a review sheet shows what will happen and what it costs. It simulates on devnet first." |
+| 1:05 to 1:15 | Status chip goes Pending, then Confirmed. "Download the seal" | Click "Download the seal" | "Pending, then confirmed. I keep the seal file. Only I can reveal." |
+| 1:15 to 1:40 | Window B: call page for `4ZEuZ...nFVzu`, "Follow this call without seeing the token" | Press Join call from the home list, choose an amount, "Review deposit", "Sign and send" | "As a follower, I join blind. The sheet says it plainly: full refund if the caller does not reveal in time. I can withdraw any time before the reveal." |
+| 1:40 to 1:50 | Fill register gains a row; vault bar moves | Hold | "My row is in. Its price says sealed, because nobody knows it yet." |
+| 1:50 to 2:15 | Window A: own call page, "Reveal and fill everyone" | "Review reveal", "Sign and send", Pending to Confirmed | "Now I break the seal. One transaction checks the hash, the pool and the token, then swaps the whole vault in one swap." |
+| 2:15 to 2:35 | Reveal ceremony: seal breaks, token replaces the redaction bar, fill register shows one price per row | Then window B: "Review claim", "Claim my tokens" | "Every row paid the same price. The follower claims right away. The caller's tokens stay locked, so I cannot sell into my followers." |
+| 2:35 to 2:45 | Call `HaaRaA1T...Etnw3`, "Replay the reveal" | Press replay | "Here is an earlier run: a caller and three followers, one swap, one price, at slot 507,691,251." |
+| 2:45 to 2:50 | Home, DEVNET badge | Hold | "One percent fee only when a vault fills. Lapsed calls refund in full. Try it at sealed-call.pages.dev slash try." |
 
-If something fails live: say "here is the same flow recorded on devnet" and show `HaaRa…Etnw3` (0.030 SOL swapped, 27.58M tokens, caller and 3 followers at 1.077e-9 SOL per token, tx `3TiDGb…jbj3bhdJ`).
+Fallback if a live step fails on camera: cut to `/call/?c=HaaRaA1TCG3YMHu8vCtoCr5jkrdgUP5PjjUJnUsEtnw3` and the signatures in `docs/DEVNET-EVIDENCE.md`.

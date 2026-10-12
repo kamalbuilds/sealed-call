@@ -1,19 +1,19 @@
-# SEALED CALL: 2 minute pitch
+# SEALED CALL: what I'm building and why me (2 minutes)
 
-**Problem (0:00 to 0:25)**
-On Solana, a memecoin caller posts a token and their followers rush in after. They buy one by one, seconds apart, at whatever price is left. Bundlers see the call first and get in ahead. One caller put it plainly: calls under 50K "get bundled sniped and farmed". A copy trader on Reddit lost money because he was one to two seconds late.
+**What it is (0:00 to 0:20)**
+I'm Kamal. I'm building SEALED CALL, on Solana. A memecoin caller and their followers buy the same token in one transaction, at one price, and nobody sees the token until that transaction runs.
 
-**Product (0:25 to 0:55)**
-SEALED CALL fixes the order. The caller commits to a hidden token. Only a hash goes on chain. Followers deposit SOL blind into a vault, and can pull it out any time before the reveal. At reveal, the program checks the hash, checks the pool and the token are safe, then swaps the whole vault through Meteora in one transaction, at one price. There is nothing to front-run, because nobody sees the token until it is already bought.
+**The problem (0:20 to 0:45)**
+Today a caller posts a token address and followers buy after it. They fill one by one, seconds apart, behind bots that saw the post first. A caller wrote that small calls get "bundled sniped and farmed". A copy trader on Reddit lost money because he was one to two seconds late.
 
-**Proof (0:55 to 1:15)**
-On devnet, a caller and three followers filled at exactly the same price in a single transaction. If the caller never reveals, everyone gets a full refund. The caller's tokens stay locked after the fill, so they cannot dump on followers. 39 tests pass.
+**How it works (0:45 to 1:05)**
+The caller puts only a hash on chain. Followers deposit SOL blind and can withdraw before the reveal. At reveal, the program checks the hash, the pool and the token, then swaps the whole vault through Meteora in one swap. If the caller never reveals, everyone gets a full refund.
 
-**Honest number (1:15 to 1:30)**
-We measured 17 real caller posts. The median follower actually paid 3.6% less than the post price. So we do not sell a discount. We remove front-running and the spread between the first and the last buyer.
+**How I think about it (1:05 to 1:30)**
+I started out pitching this as "followers overpay". Then I measured 17 real caller posts, and the median follower actually paid 3.6% less than the post price. [KAMAL: confirm the source data for this figure before you say it.] So I changed the pitch. It is not a discount. It removes front-running and the gap between the first and the last buyer. I would rather say the true thing.
 
-**Business (1:30 to 1:45)**
-A 1% fee on every filled vault. 30% goes to the caller, 70% to the protocol. Lapsed calls pay nothing. Callers earn when followers fill beside them, not by selling into them.
+**Why me (1:30 to 1:55)**
+I build trading tools fast. On GitHub as kamalbuilds I have shipped hundreds of public repos. That includes HyperTWAP-Shield, MEV-protected TWAP orders, and hypermirror, copy trading, both at Hyperliquid hackathons, plus solmate and shadowlend on Solana. [KAMAL: confirm any wins or placings.] SEALED CALL has 39 passing tests and every path verified on devnet.
 
-**Ask (1:45 to 2:00)**
-It is live now at sealed-call.pages.dev. A judge can try it in sixty seconds with a burner wallet. Next we want real callers running sealed calls, an audit, and mainnet.
+**Close (1:55 to 2:00)**
+It's live at sealed-call.pages.dev. Try it in sixty seconds.
