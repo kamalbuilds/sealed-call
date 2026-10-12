@@ -13,7 +13,14 @@ The caller puts only a hash on chain. Followers deposit SOL blind and can withdr
 I started out pitching this as "followers overpay". Then I matched 17 real caller posts to minute-by-minute prices. Over the five minutes after a post, the median follower actually paid 3.6% less than the price when it went up. Minute candles are not individual fills, and these were small callers, but it was enough to change the pitch. It is not a discount. It removes front-running and the gap between the first and the last buyer. I would rather say the true thing.
 
 **Why me (1:30 to 1:55)**
-I build trading tools fast. On GitHub as kamalbuilds I have shipped hundreds of public repos. That includes HyperTWAP-Shield, MEV-protected TWAP orders, and hypermirror, copy trading, both at Hyperliquid hackathons, plus solmate and shadowlend on Solana. [KAMAL: confirm any wins or placings.] SEALED CALL has 39 passing tests and every path verified on devnet.
+I check my own claims. On devnet, one reveal transaction filled a caller and three followers at exactly the same price. 39 tests cover the rest, including the token safety guards that refuse unsafe mints and thin or unlocked pools. Then I audited every feature the site claims, found three that were broken, and fixed them before calling it done.
 
 **Close (1:55 to 2:00)**
 It's live at sealed-call.pages.dev. Try it in sixty seconds.
+
+---
+Sources (not spoken):
+- One-price reveal: call `HaaRaA1TCG3YMHu8vCtoCr5jkrdgUP5PjjUJnUsEtnw3`, tx `3TiDGbEQ3DPXqBnT43U8M9PERz514pcqVWxLkM8nwA3asJ2osHMBdPP44E5vCtv9DjCWXkYSx8MAmdVjjbj3bhdJ` (caller and three followers at 1.077e-9 SOL per token, slot 507,691,251), in `demo/devnet-run.json` and `docs/DEVNET-EVIDENCE.md`.
+- 39 tests: `npm test`; mint guards (live mint or freeze authority, Token-2022 transfer fee) and pool guards (seasoning, locked liquidity, depth, price impact) listed in `docs/DEVNET-EVIDENCE.md`.
+- Three broken features found and fixed (burner wallet connect, "Mark the call lapsed" offered too early, /try open-calls list under RPC rate limit): Oct 11 feature audit, kept private (removed from the public repo in commit `0e4c22c`).
+- Follower baseline (-3.62% median): `docs/evidence/sealedcall-baseline.json`.
