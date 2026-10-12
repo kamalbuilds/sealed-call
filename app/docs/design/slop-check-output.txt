@@ -3,11 +3,13 @@ ok   primary font: Space Grotesk
 warn 2 <table> without class (global table CSS present)
 ok   no Markdown rendering
 ok   links styled
-ok   CSS variables defined (55 decls)
+ok   CSS variables defined (57 decls)
 ok   button styles present
-ok   status chips/badges styled (20)
+ok   status chips/badges styled (21)
 ok   surfaces/cards present
 ok   summary metrics present
-ok   radius mixed (1 zero, 9 non-zero)
+ok   radius mixed (1 zero, 11 non-zero)
+ok   explorer/contract link present (4)
+ok   confirm/sign CTA has summary/simulation language nearby
 ---
 slop-check: PASS

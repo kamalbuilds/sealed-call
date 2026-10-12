@@ -71,4 +71,11 @@ Fresh critic: A=8 B=8 C=6 D=8 E=8 F=8, avg 7.7, min 6.
 ## Deploy decision
 The critic score (7.7, min 6) is below the gate's 8.0 / 7 bar after 3 honest fresh-critic rounds. It is the only gate failure, every other check passes, and the score clearly improved (6.5 -> 7.7, above the 6.7 of the design it replaces), so this ships under the task's rule for that case.
 
-FINAL: 7.7 min=6 round=7 critic=fresh:claude-p-dash-r7 review=/Users/kamal/Desktop/solana/cwf/sol/projects/sealed-call/app/.gstack/design-reports/design-audit-dashboard-preview.sealed-call.pages.dev.md
+
+## Round 8 (r8-*.png, Web3 pass on the preview): one fresh critic, not chased (critic/dash-r8.md)
+Fresh critic: A=5 B=7 C=7 D=8 E=5 F=8, avg 6.7, min 6 -> 5.
+1. A2 and E1 fail by design. Kamal's Web3 brief asks for open calls with Join first (ahead of the metric strip) and a deliberate secondary accent (blue Join, fill bars, DEVNET). The frozen dashboard rubric predates that brief.
+2. A1: the /open rail consequence line runs to 4 lines at 1440. E2: the one-price claim repeats three times on /call.
+3. Per the brief, the critic is not chased; ship once slop-check passes.
+
+FINAL: 6.7 min=5 round=8 critic=fresh:claude-p-dash-r8 review=/Users/kamal/Desktop/solana/cwf/sol/projects/sealed-call/app/.gstack/design-reports/design-audit-dashboard-preview.sealed-call.pages.dev.md

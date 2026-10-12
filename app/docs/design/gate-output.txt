@@ -1,9 +1,9 @@
 ok   references: 3 captured
 ok   components logged
-FAIL score 7.7 min 6 (need >=8.0 and every axis >=7)
-ok   critic fresh:claude-p-dash-r7
-ok   r7-1440.png fresh
-ok   r7-390.png fresh
+FAIL score 6.7 min 5 (need >=8.0 and every axis >=7)
+ok   critic fresh:claude-p-dash-r8
+ok   r8-1440.png fresh
+ok   r8-390.png fresh
 ok   design-review grades A/B
 ok   uicraft gate
 ok   cwf banned grep
