@@ -33,6 +33,20 @@ SEALED CALL removes the front-running and the price swing between the first and 
 4. **Claim.** Followers claim their tokens pro rata right away. The caller's share stays locked until the caller lock ends, so the caller cannot dump on followers.
 5. **Lapse.** If the caller never reveals before the deadline, the reveal is refused and every follower can take a full refund with no fee. The call can be marked lapsed (`expire`) only after every follower has refunded.
 
+## Sealed DBC launch on Meteora DBC
+
+A token launched on a Meteora Dynamic Bonding Curve, bought by a sealed call's whole vault in **one swap** at reveal. The caller and every follower pay the same lamports per token on the curve, where buyers who race a launch one by one pay a different, rising price each.
+
+What runs (program path, no off-chain shim):
+
+- `reveal_and_swap_dbc` in `programs/sealed_call/src/instructions/reveal_dbc.rs` CPIs into the DBC program's `swap` (`programs/sealed_call/src/dbc.rs`: program `dbcij3LW...`, pool authority and event authority PDAs, `VirtualPool` layout read straight from the account). The vault wraps its SOL, swaps exact-in quote to base, measures tokens out by the vault's balance delta, and unwraps.
+- The pool kind is part of the seal. A DBC seal is `sha256(call, mint, pool, salt, 0x01)`, a DAMM v2 seal keeps `sha256(call, mint, pool, salt)`, so a seal opens on exactly one venue. Tests reveal a DAMM v2 seal on the DBC branch and a DBC seal on the DAMM v2 branch: both revert with `HashMismatch`.
+- The seal is made ahead of the launch: the DBC pool address is derived from (config, base mint), so the caller seals the call first and the launch lands afterwards on exactly those addresses.
+- The DBC branch checks the pool is a live `VirtualPool` owned by DBC on the supplied config, trades the revealed mint against wSOL, has not completed its curve or migrated, and the mint has a fixed supply and no freeze authority. The call's max price impact, fixed at open, is enforced against the curve's spot price (the 1% curve fee counts as impact), and the caller's `minimum_amount_out` is enforced by the curve.
+- `sdk/src/dbc.ts` holds the DBC pool decoder, the DBC seal hash and the `revealAndSwapDbcIx` builder. `tests/helpers-dbc.ts` launches a DBC config and pool with `@meteora-ag/dynamic-bonding-curve-sdk`.
+
+On devnet (`scripts/devnet-dbc.ts`, signatures in [docs/DEVNET-EVIDENCE.md](docs/DEVNET-EVIDENCE.md)): call `DJ4udH4vKekpo9hpZE3YYxWKa8UKYtF8uptbmssiNzQX` sealed against DBC pool `8i2gKevppEuhNBkBQ1Yj52momH28gJTDxk4bS9No4wgW` ahead of its launch (open `2kU7NXrS...`), three blind follower deposits, the launch created on the committed addresses (config `2AFubgpV...`, pool `5xp785bM...`), then one reveal swap `5tineReKv1nj7A83fU7ex1U9kMYaGCmy2yWpFwyMB7FfZZ5fKwKY4sRX5qRmRqdpiR5SEX616d11TrHC3kBitiWk` that bought 81,721,290,574,508 base units for 0.1782 SOL in 134,336 compute units. The fill equals the DBC SDK quote for the whole vault, the curve's base reserve fell by exactly that amount, and the three follower claims (`4nvqGwtx...`, `23tWTiHW...`, `3LHyjYkT...`) are floor(tokens_out x deposit / total): a price spread of 1.000000000x across wallets. A twin launch with the same four buys landing one after another spread 1.1217x from first to last buyer.
+
 ## Architecture
 
 ```mermaid
@@ -153,7 +167,7 @@ All of it was written inside the Colosseum Solana World's Fair submission window
 
 ## Tests
 
-`npm test` runs 43 tests against a local `solana-test-validator` with the real Meteora DAMM v2 program dumped from devnet. Areas covered:
+`npm test` runs 60 tests against a local `solana-test-validator` with the real Meteora DAMM v2 and Dynamic Bonding Curve programs dumped from devnet. Areas covered:
 
 - config setup and the admin pause (blocks open, deposit and reveal while withdraw still works; only the admin may pause)
 - opening calls, the commitment bound to the call address (a copied commitment fails), non-caller reveal rejected
@@ -164,6 +178,7 @@ All of it was written inside the Colosseum Solana World's Fair submission window
 - pro rata claims, the caller lock and caller claim after it, `sweep_dust`
 - expiry and full refunds after an unrevealed deadline
 - opening a call from a PDA through CPI (`tests/zz-cpi-opener.ts`, 3 tests)
+- the Sealed DBC launch (`tests/sealed-dbc.ts`, 17 tests): seal made ahead of the launch, one-swap reveal equal to the DBC SDK quote, pro rata claims at one price, a racing control launch, seal-kind binding in both directions, wrong config, vaults and mint, price impact, curve slippage, completed curve
 
 The open, deposit, withdraw, reveal, follower claim, caller claim after the lock, refund, expire, sweep and fee split paths also run on devnet, each with a finalized signature in [docs/DEVNET-EVIDENCE.md](docs/DEVNET-EVIDENCE.md).
 
