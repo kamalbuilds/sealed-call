@@ -178,6 +178,10 @@ pub fn reveal_and_swap_handler(
         a.token_program.to_account_info(),
         SyncNative { account: a.vault_wsol.to_account_info() },
     ))?;
+    // Anyone can create the vault's wSOL ATA and donate wSOL or raw lamports to it before the reveal.
+    // Measure the swap by the balance it spent, not by an exact zero, so a donation cannot block the reveal.
+    a.vault_wsol.reload()?;
+    let wsol_before = a.vault_wsol.amount;
 
     // 4. swap through DAMM v2; the received amount is the output balance delta, never a return value
     let out_before = a.vault_out.amount;
@@ -226,10 +230,11 @@ pub fn reveal_and_swap_handler(
     );
 
     a.vault_wsol.reload()?;
-    require!(a.vault_wsol.amount == 0, SealedError::SwapPartialFill);
+    let wsol_spent = wsol_before.checked_sub(a.vault_wsol.amount).ok_or(SealedError::Overflow)?;
+    require!(wsol_spent == split.lamports_in, SealedError::SwapPartialFill);
 
     // 5. unwrap: close the wSOL account into the vault, then return the rent reserve and the wSOL
-    //    account rent to the caller who funded both. The vault ends at zero lamports.
+    //    account rent (plus any donation) to the caller who funded both. The vault ends at zero lamports.
     close_account(CpiContext::new_with_signer(
         a.token_program.to_account_info(),
         CloseAccount {

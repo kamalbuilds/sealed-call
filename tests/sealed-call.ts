@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { deriveCustomizablePoolAddress } from "@meteora-ag/cp-amm-sdk";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
-import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { createAssociatedTokenAccountIdempotentInstruction, createSyncNativeInstruction, getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
 import BN from "bn.js";
 
 import {
@@ -710,6 +710,97 @@ describe("sealed_call against real Meteora DAMM v2 pools", function () {
         await send([await setPausedIx(program, admin.publicKey, false)], [admin]);
       }
       assert.isFalse((await fetchConfig(program)).paused);
+    });
+  });
+
+  describe("money-path audit (adversarial)", () => {
+    it("audit: a stranger donating wSOL and raw lamports to the vault's wSOL account cannot block the reveal", async () => {
+      const c = await openCall({ commitMint: deepX.mint, commitPool: deepX.pool.address, maxVault: sol(10), stake: sol(1) });
+      await deposit(f1, c, sol(2));
+      const vaultWsol = getAssociatedTokenAddressSync(NATIVE_MINT, c.vault, true);
+      await send(
+        [
+          createAssociatedTokenAccountIdempotentInstruction(stranger.publicKey, vaultWsol, c.vault, NATIVE_MINT),
+          SystemProgram.transfer({ fromPubkey: stranger.publicKey, toPubkey: vaultWsol, lamports: 1_000 }),
+          createSyncNativeInstruction(vaultWsol),
+          SystemProgram.transfer({ fromPubkey: stranger.publicKey, toPubkey: vaultWsol, lamports: 777 }),
+        ],
+        [stranger],
+      );
+      const vaultOut = getAssociatedTokenAddressSync(deepX.mint, c.vault, true);
+      await send(await reveal(c, deepX), [caller]);
+      const acc = await fetchCall(program, c.call);
+      assert.strictEqual(callState(acc), "executed");
+      assert.strictEqual(big(acc.lamportsIn), sol(3) - (sol(3) * 100n) / 10_000n, "only the call's own lamports were swapped");
+      assert.strictEqual(await tokenBalance(vaultOut), big(acc.tokensOut));
+      assert.strictEqual(await lamports(c.vault), 0n, "vault SOL fully settled");
+      assert.isFalse(await accountExists(vaultWsol), "wSOL account closed");
+    });
+
+    it("audit: 12 followers with odd amounts, sweep refused until every claim is in, claims + dust == tokens_out", async () => {
+      const crowd = Array.from({ length: 12 }, () => Keypair.generate());
+      for (const k of crowd) await airdrop(k.publicKey, 5);
+      const stake = sol(1.000000003);
+      const c = await openCall({ commitMint: deepX.mint, commitPool: deepX.pool.address, maxVault: sol(20), stake });
+      const amts = crowd.map((_, i) => sol(0.1) + BigInt(i * 1_234_567 + 7));
+      for (let i = 0; i < crowd.length; i++) await deposit(crowd[i], c, amts[i]);
+      await send(await reveal(c, deepX), [caller]);
+      const acc = await fetchCall(program, c.call);
+      const tokensOut = big(acc.tokensOut);
+      const total = stake + amts.reduce((a, b) => a + b, 0n);
+      assert.strictEqual(await lamports(c.vault), 0n, "no SOL left behind after reveal");
+      let sum = 0n;
+      for (let i = 0; i < crowd.length; i++) {
+        if (i === 6) await expectFail([await sweepDustIx(program, admin.publicKey, c.call)], [admin], "FollowersRemain");
+        await send([await claimIx(program, crowd[i].publicKey, c.call)], [crowd[i]]);
+        const got = await tokenBalance(getAssociatedTokenAddressSync(deepX.mint, crowd[i].publicKey));
+        assert.strictEqual(got, (tokensOut * amts[i]) / total);
+        sum += got;
+        const f = await failure([await claimIx(program, crowd[i].publicKey, c.call)], [crowd[i]]);
+        assert.strictEqual(f.name, "AccountNotInitialized", "second claim refused");
+      }
+      await expectFail([await sweepDustIx(program, admin.publicKey, c.call)], [admin], "FollowersRemain");
+      const executedAt = acc.executedAt.toNumber();
+      await waitUntilChainTime(executedAt + LOCK_SECS + 1);
+      await send([await callerClaimIx(program, caller.publicKey, c.call)], [caller]);
+      sum += (tokensOut * stake) / total;
+      const vaultOut = getAssociatedTokenAddressSync(deepX.mint, c.vault, true);
+      const dust = await tokenBalance(vaultOut);
+      assert.strictEqual(sum + dust, tokensOut, "claims + dust == tokens_out");
+      assert.isBelow(Number(dust), crowd.length + 2);
+      if (dust > 0n) await send([await sweepDustIx(program, admin.publicKey, c.call)], [admin]);
+      assert.strictEqual(await tokenBalance(vaultOut), 0n);
+      assert.strictEqual(big((await fetchCall(program, c.call)).tokensClaimed), sum);
+    });
+
+    it("audit: refund after reveal is WrongState; claim after withdraw finds no position; expire after reveal is WrongState", async () => {
+      const c = await openCall({ commitMint: deepX.mint, commitPool: deepX.pool.address, maxVault: sol(10), stake: sol(1), window: 12 });
+      await deposit(f1, c, sol(1.5));
+      await deposit(f2, c, sol(0.5));
+      await send([await withdrawIx(program, f2.publicKey, c.call)], [f2]);
+      await send(await reveal(c, deepX), [caller]);
+      const f = await failure([await claimIx(program, f2.publicKey, c.call)], [f2]);
+      assert.strictEqual(f.name, "AccountNotInitialized", "a withdrawn follower has nothing to claim");
+      const deadline = (await fetchCall(program, c.call)).revealDeadline.toNumber();
+      await waitUntilChainTime(deadline + 1);
+      await rejected(c, [f1.publicKey], "WrongState", [await refundIx(program, c.call, f1.publicKey)], [cranker]);
+      await rejected(c, [caller.publicKey], "WrongState", [await expireIx(program, c.call)], [cranker]);
+      await send([await claimIx(program, f1.publicKey, c.call)], [f1]);
+      await expectFail([await refundIx(program, c.call, f1.publicKey)], [cranker], "AccountNotInitialized");
+    });
+
+    it("audit: after a refund the follower can neither claim nor refund again, and the vault keeps its reserve", async () => {
+      const c = await openCall({ commitMint: deepX.mint, commitPool: deepX.pool.address, maxVault: sol(10), stake: sol(1), window: 6 });
+      await deposit(f1, c, sol(1.25));
+      const deadline = (await fetchCall(program, c.call)).revealDeadline.toNumber();
+      await waitUntilChainTime(deadline + 1);
+      await send([await refundIx(program, c.call, f1.publicKey)], [cranker]);
+      await expectFail([await refundIx(program, c.call, f1.publicKey)], [cranker], "AccountNotInitialized");
+      await expectFail([await claimIx(program, f1.publicKey, c.call)], [f1], "AccountNotInitialized");
+      const reserve = BigInt(await connection.getMinimumBalanceForRentExemption(0));
+      assert.strictEqual(await lamports(c.vault), sol(1) + reserve);
+      await send([await expireIx(program, c.call)], [cranker]);
+      assert.strictEqual(await lamports(c.vault), 0n);
     });
   });
 });
