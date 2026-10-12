@@ -4,6 +4,7 @@ pub mod deposit;
 pub mod open_call;
 pub mod refund;
 pub mod reveal;
+pub mod reveal_dbc;
 pub mod sweep;
 pub mod withdraw;
 
@@ -13,5 +14,6 @@ pub use deposit::*;
 pub use open_call::*;
 pub use refund::*;
 pub use reveal::*;
+pub use reveal_dbc::*;
 pub use sweep::*;
 pub use withdraw::*;

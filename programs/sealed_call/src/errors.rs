@@ -78,4 +78,10 @@ pub enum SealedError {
     NothingToSweep,
     #[msg("arithmetic overflow")]
     Overflow,
+    #[msg("pool is not a Meteora DBC virtual pool")]
+    NotDbcPool,
+    #[msg("DBC config account does not match the pool state")]
+    DbcConfigMismatch,
+    #[msg("DBC pool has completed its curve or migrated")]
+    PoolMigrated,
 }

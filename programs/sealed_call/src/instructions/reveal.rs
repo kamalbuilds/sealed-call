@@ -75,9 +75,28 @@ pub struct RevealAndSwap<'info> {
     pub system_program: Program<'info, System>,
 }
 
+/// Which venue a seal commits to. The kind is part of the hash, so a DBC seal can never be
+/// revealed through the DAMM v2 branch and a DAMM v2 seal can never be revealed through the DBC branch.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[repr(u8)]
+pub enum PoolKind {
+    DammV2 = 0,
+    Dbc = 1,
+}
+
 /// Bound to the call address so nobody can copy a seal into their own call and inherit the reveal.
+/// DAMM v2 seals keep the original four-part preimage (calls sealed before the DBC branch stay valid);
+/// every other kind appends its kind byte.
+pub fn commitment_for(kind: PoolKind, call: &Pubkey, mint: &Pubkey, pool: &Pubkey, salt: &[u8; 32]) -> [u8; 32] {
+    let tag = [kind as u8];
+    match kind {
+        PoolKind::DammV2 => hashv(&[call.as_ref(), mint.as_ref(), pool.as_ref(), salt.as_ref()]).to_bytes(),
+        _ => hashv(&[call.as_ref(), mint.as_ref(), pool.as_ref(), salt.as_ref(), &tag]).to_bytes(),
+    }
+}
+
 pub fn commitment(call: &Pubkey, mint: &Pubkey, pool: &Pubkey, salt: &[u8; 32]) -> [u8; 32] {
-    hashv(&[call.as_ref(), mint.as_ref(), pool.as_ref(), salt.as_ref()]).to_bytes()
+    commitment_for(PoolKind::DammV2, call, mint, pool, salt)
 }
 
 /// Extensions that only describe the token. Anything else (transfer fee, hook, permanent delegate,
@@ -93,7 +112,7 @@ const SAFE_MINT_EXTENSIONS: [ExtensionType; 6] = [
 
 /// The output token must have a fixed supply and no freeze authority, so nobody can mint into the
 /// followers' fill or freeze the vault's tokens before they claim.
-fn check_mint(mint: &InterfaceAccount<Mint>) -> Result<()> {
+pub(crate) fn check_mint(mint: &InterfaceAccount<Mint>) -> Result<()> {
     require!(
         mint.mint_authority.is_none() && mint.freeze_authority.is_none(),
         SealedError::MintAuthorityLive

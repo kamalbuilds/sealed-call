@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 
 pub mod damm;
+pub mod dbc;
 pub mod errors;
 pub mod events;
 pub mod instructions;
@@ -64,6 +65,15 @@ pub mod sealed_call {
         minimum_amount_out: u64,
     ) -> Result<()> {
         reveal_and_swap_handler(ctx, mint, salt, minimum_amount_out)
+    }
+
+    pub fn reveal_and_swap_dbc(
+        ctx: Context<RevealAndSwapDbc>,
+        mint: Pubkey,
+        salt: [u8; 32],
+        minimum_amount_out: u64,
+    ) -> Result<()> {
+        reveal_and_swap_dbc_handler(ctx, mint, salt, minimum_amount_out)
     }
 
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
