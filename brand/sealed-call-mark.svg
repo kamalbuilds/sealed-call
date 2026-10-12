@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" fill="#0a0a0a"/>
+  <g transform="translate(15.03 52.30) scale(1.2424)">
+    <!-- the wax seal, cracked by one call: two halves, jagged break -->
+    <path d="M400 60 L368 130 L432 190 L376 260 L430 330 L386 400 L400 450 A195 195 0 0 1 400 60 Z" transform="translate(-20 0)" fill="#faff69"/>
+    <path d="M400 60 L368 130 L432 190 L376 260 L430 330 L386 400 L400 450 A195 195 0 0 0 400 60 Z" transform="translate(20 0)" fill="#faff69"/>
+    <!-- the break opens onto every follower at once -->
+    <path d="M400 480 V540 M190 540 H610 M190 540 V626 M330 540 V626 M470 540 V626 M610 540 V626" fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- one price: four fills, one level -->
+    <g fill="#faff69"><circle cx="190" cy="656" r="30"/><circle cx="330" cy="656" r="30"/><circle cx="470" cy="656" r="30"/><circle cx="610" cy="656" r="30"/></g>
+  </g>
+</svg>
