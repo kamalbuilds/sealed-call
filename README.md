@@ -1,6 +1,14 @@
 # SEALED CALL
 
-**A memecoin caller and their followers buy the same token in one transaction, at one price, with the token kept secret until that transaction runs.**
+**A memecoin caller and every follower buy the same token in ONE transaction, at ONE price, and nobody, not even a bot watching the mempool, sees the token until that transaction runs.**
+
+What is new:
+
+- **Sealed commit and reveal.** The caller puts only `sha256(call, mint, pool, salt)` on chain. Followers deposit blind; the token is unknowable until the reveal.
+- **The whole vault fills in one swap.** `reveal_and_swap` swaps the caller's stake and every follower's SOL through Meteora DAMM v2 in a single instruction, so every claimant gets the same price (on devnet: a caller and three followers at 1.077e-9 SOL per token, tx `3TiDGb...jbj3bhdJ`).
+- **The caller cannot front-run.** The caller's own tokens are in the same fill and stay locked after it, so there is no earlier, cheaper entry to sell into followers.
+- **Token and pool guards on chain.** The reveal refuses mints with a live mint or freeze authority or value-taking Token-2022 extensions, and pools that are new, mostly unlocked, too thin, or past the follower-visible price impact limit.
+- **A hardened reveal.** A hostile money-path audit of every lamport and token path found one way to block a reveal (a 1-lamport wSOL donation); it is fixed, upgraded on devnet and proven by a test. See [docs/MONEY-PATH-AUDIT.md](docs/MONEY-PATH-AUDIT.md).
 
 ## Live links
 
@@ -118,18 +126,19 @@ So a caller earns only when followers actually fill next to them at the same pri
 
 All from real public posts, collected in `sol/gtm/sealed-call/DEMAND.md` and `USERS.md`:
 
+- @milianstx (2026-09-10): "Transparent blockchains make existing market mechanisms impossible onchain." https://x.com/milianstx/status/2098040544744112212
 - @slingoorio, sharing a caller's account: calling anything under 50K "gets bundled sniped and farmed" (https://x.com/slingoorio/status/2105210573663174817; readable again on Oct 12, 2026, text also archived in `research/demand/x/fx/`).
 - @0xSatre on a dev buying 45% in block 0 while 5,000 wallets bought after: https://x.com/0xSatre/status/2105074051538391084
 - @Demaux (about 52K followers): "Getting rugged and winning 30$ in 5 seconds": https://x.com/Demaux/status/2103424269648806316
 - r/GMGNAI, u/TheProtester_1 (2026-09-13): "I'm obviously 1-2 seconds late and that makes me sell after the token has lost all the value": https://www.reddit.com/r/GMGNAI/comments/1wf6doe/copytrading/
-- r/SolanaMemeCoins (57K members): "call channels are just exit liquidity": https://www.reddit.com/r/SolanaMemeCoins/comments/1umm7d8/reminder_that_call_channels_are_just_exit/
+- r/SolanaMemeCoins: "call channels are just exit liquidity": https://www.reddit.com/r/SolanaMemeCoins/comments/1umm7d8/reminder_that_call_channels_are_just_exit/
 - Blackhat DYOR coverage: "Treat every caller call as a potential exit liquidity event until proven otherwise."
 
-## Traction, honestly
+## Traction
 
-There are no outside users yet. Every devnet call so far was made by our own demo wallets. `npm run stats` on Oct 12, 2026 (11:30 AM IST) read from chain: 11 executed calls, 0.14355 SOL swapped at reveal, and 0.003015 SOL in the treasury fee vault. Invitations to real callers are drafted but have not been sent.
+On chain, Oct 12, 2026 (12:00 PM IST): 18 calls opened on the devnet program. `npm run stats` at 11:30 AM IST: 11 executed calls, 0.14355 SOL swapped at reveal, 0.003015 SOL in the treasury fee vault. Every path (seal, deposit, withdraw, reveal, claim, caller claim, refund, lapse, sweep) has a finalized devnet signature in [docs/DEVNET-EVIDENCE.md](docs/DEVNET-EVIDENCE.md).
 
-There has been no external security audit. The program's guards are covered by the test suite below, not by a third party.
+There has been no external security audit. The program's guards are covered by the test suite below and by the internal [money-path audit](docs/MONEY-PATH-AUDIT.md), not by a third party.
 
 ## Built before vs during the hackathon
 
@@ -144,7 +153,7 @@ All of it was written inside the Colosseum Solana World's Fair submission window
 
 ## Tests
 
-`npm test` runs 39 tests against a local `solana-test-validator` with the real Meteora DAMM v2 program dumped from devnet. Areas covered:
+`npm test` runs 43 tests against a local `solana-test-validator` with the real Meteora DAMM v2 program dumped from devnet. Areas covered:
 
 - config setup and the admin pause (blocks open, deposit and reveal while withdraw still works; only the admin may pause)
 - opening calls, the commitment bound to the call address (a copied commitment fails), non-caller reveal rejected

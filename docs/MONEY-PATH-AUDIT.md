@@ -8,7 +8,7 @@ Scope: every lamport and token path in `programs/sealed_call`. Tests: `bash scri
 
 | # | Severity | Finding | Status |
 |---|---|---|---|
-| 1 | Medium (liveness / censorship, no funds lost) | `reveal_and_swap` required the vault's wSOL ATA to end at exactly 0. Anyone can create that ATA for the vault PDA and send it 1 lamport of wSOL (or raw lamports picked up by `sync_native`) before the reveal, which made every reveal fail with `SwapPartialFill`. Followers would only ever get refunds, so a competitor could kill any call for ~0.002 SOL. | **Fixed in source**: the swap is checked by the wSOL it actually spent (`before - after == lamports_in`); the donation is unwrapped into the vault and returned to the caller with the rent reserve. Not yet on devnet (see below). |
+| 1 | Medium (liveness / censorship, no funds lost) | `reveal_and_swap` required the vault's wSOL ATA to end at exactly 0. Anyone can create that ATA for the vault PDA and send it 1 lamport of wSOL (or raw lamports picked up by `sync_native`) before the reveal, which made every reveal fail with `SwapPartialFill`. Followers would only ever get refunds, so a competitor could kill any call for ~0.002 SOL. | **Fixed in source**: the swap is checked by the wSOL it actually spent (`before - after == lamports_in`); the donation is unwrapped into the vault and returned to the caller with the rent reserve. Upgraded on devnet Oct 12 (tx `qSkjrxTa...`, see docs/DEVNET-EVIDENCE.md). |
 | - | Info | No hard cap on follower count. Bounded in practice by `max_call_lamports / min_deposit_lamports` (50 SOL / 0.001 SOL in tests), and `follower_count` is u32 with checked math. Each claim is its own transaction, so there is no loop that can run out of compute. | Fine |
 
 No insolvency, rounding, double-claim, ordering, signer/owner or account-substitution bug found.
@@ -44,6 +44,4 @@ to the caller; the audit tests assert the vault ends at 0 lamports.
 
 ## Devnet status
 
-The fix is **not deployed**. An upgrade of the 494,808-byte program needs a buffer account holding ~2.514 SOL
-of rent up front (`solana rent 494808`); the upgrade authority `DEawZWJ2...QDQ1` holds 0.2217 SOL.
-The live program still has finding 1. Needs ~2.3 SOL more on the deployer (devnet faucet) to upgrade; the buffer rent is refunded after the upgrade.
+Upgraded Oct 12, 2026 ~11:43 AM IST, upgrade tx `qSkjrxTasmyZxDH4WQMveziTtxU7BE8tAnYVgQ8XrMNLB4xjgTG2HnqnXPKEGG7MpJ8rh7uccryb7JDHpvmYdRA`. A live griefing donation followed by a successful one-price reveal is recorded in `docs/DEVNET-EVIDENCE.md`.
